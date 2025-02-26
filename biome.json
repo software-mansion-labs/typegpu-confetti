@@ -1,0 +1,39 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "files": {
+    "ignore": [
+      "**/dist/*",
+      "**/coverage/*",
+      "**/*.d.ts",
+      "packages/tgpu-wgsl-parser/src/grammar.ts",
+      "**/*.astro"
+    ]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": { "noUnusedImports": "error" }
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentStyle": "space"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "indentStyle": "space",
+      "quoteStyle": "single"
+    }
+  },
+  "css": {
+    "formatter": {
+      "indentStyle": "space",
+      "quoteStyle": "single"
+    }
+  }
+}

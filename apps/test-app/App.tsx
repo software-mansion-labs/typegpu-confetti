@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import ConfettiViz from "./Confetti";
-import { useState } from "react";
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import ConfettiViz from './Confetti';
 
 export default function App() {
   const [confettiKey, setConfettiKey] = useState(0);
@@ -17,10 +17,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
