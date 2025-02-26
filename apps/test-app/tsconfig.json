@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "typeRoots": [
+      "./node_modules/@webgpu/types",
+      "./node_modules/@types",
+    ]
+  },
+}
