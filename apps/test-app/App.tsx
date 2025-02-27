@@ -35,11 +35,11 @@ export default function App() {
       <ButtonRow label="Color palette" icon="💜">
         <Confetti
           colorPalette={[
-            [68, 23, 82],
-            [129, 116, 160],
-            [168, 136, 181],
-            [239, 182, 200],
-          ].map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1))}
+            [68, 23, 82, 1],
+            [129, 116, 160, 1],
+            [168, 136, 181, 1],
+            [239, 182, 200, 1],
+          ]}
         />
       </ButtonRow>
 

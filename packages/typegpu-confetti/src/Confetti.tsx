@@ -9,15 +9,13 @@ import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 // #region default props
 
 const defaultParticleAmount = 200;
-const defaultColorPalette: d.v4f[] = (
-  [
-    [154, 177, 155],
-    [67, 129, 193],
-    [99, 71, 77],
-    [239, 121, 138],
-    [255, 166, 48],
-  ] as [number, number, number][]
-).map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1));
+const defaultColorPalette = [
+  [154, 177, 155, 1],
+  [67, 129, 193, 1],
+  [99, 71, 77, 1],
+  [239, 121, 138, 1],
+  [255, 166, 48, 1],
+] as [number, number, number, number][];
 const defaultSize = 1;
 
 function defaultInitParticleData(particleAmount: number) {
@@ -155,7 +153,7 @@ const dataLayout = tgpu.vertexLayout(
 
 type PropTypes = {
   gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
-  colorPalette?: d.v4f[];
+  colorPalette?: [number, number, number, number][];
   particleAmount?: number;
   size?: number;
   initParticleData?: (particleAmount: number) => d.Infer<typeof ParticleData>[];
@@ -198,9 +196,9 @@ function ConfettiViz({
         .map(() => ({
           angle: Math.floor(Math.random() * 50) - 10,
           tilt: (Math.floor(Math.random() * 10) - 20) * size,
-          color: colorPalette[
-            Math.floor(Math.random() * colorPalette.length)
-          ] as d.v4f,
+          color: colorPalette.map(([r, g, b, a]) =>
+            d.vec4f(r / 255, g / 255, b / 255, a),
+          )[Math.floor(Math.random() * colorPalette.length)] as d.v4f,
         })),
     [colorPalette, particleAmount, size],
   );
