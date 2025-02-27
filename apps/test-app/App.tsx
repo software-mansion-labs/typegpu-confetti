@@ -15,6 +15,7 @@ export default function App() {
           width: '100%',
           paddingLeft: '10%',
           paddingBottom: 20,
+          paddingTop: 100,
         }}
       >
         Confetti Test App
@@ -40,6 +41,14 @@ export default function App() {
             [239, 182, 200],
           ].map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1))}
         />
+      </ButtonRow>
+
+      <ButtonRow label="size ▪️">
+        <Confetti size={0.5} />
+      </ButtonRow>
+
+      <ButtonRow label="size ⬛️">
+        <Confetti size={1.5} />
       </ButtonRow>
 
       <ButtonRow label="gravity ➡️">
@@ -71,6 +80,8 @@ export default function App() {
             }`)}
         />
       </ButtonRow>
+
+      <Text style={{ marginBottom: 20 }} />
     </ScrollView>
   );
 }
@@ -124,8 +135,6 @@ function ButtonRow({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'rgba(215, 179, 77, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 20,
