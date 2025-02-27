@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
 
 import tgpu, { type TgpuFn } from 'typegpu';
@@ -157,6 +157,7 @@ type PropTypes = {
   particleAmount?: number;
   size?: number;
   initParticleData?: (particleAmount: number) => d.Infer<typeof ParticleData>[];
+  maxDurationTime?: number;
 };
 
 function ConfettiViz({
@@ -165,12 +166,21 @@ function ConfettiViz({
   particleAmount = defaultParticleAmount,
   size = defaultSize,
   initParticleData = defaultInitParticleData,
+  maxDurationTime,
 }: PropTypes) {
   const root = useRoot();
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   const { ref, context } = useGPUSetup(presentationFormat);
 
   const [ended, setEnded] = React.useState(false);
+
+  useEffect(() => {
+    if (maxDurationTime !== undefined) {
+      setTimeout(() => {
+        setEnded(true);
+      }, maxDurationTime);
+    }
+  }, [maxDurationTime]);
 
   // #region buffers
 
@@ -377,6 +387,7 @@ function ConfettiViz({
       transparent
       ref={ref}
       style={{
+        opacity: ended ? 0 : 1,
         position: 'absolute',
         width: '100%',
         height: '100%',
