@@ -7,6 +7,18 @@ import * as d from 'typegpu/data';
 export default function App() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text
+        style={{
+          fontWeight: 'bold',
+          fontSize: 25,
+          textAlign: 'left',
+          width: '100%',
+          paddingLeft: '10%',
+          paddingBottom: 20,
+        }}
+      >
+        Confetti Test App
+      </Text>
       <ButtonRow label="default">
         <Confetti />
       </ButtonRow>
@@ -72,9 +84,10 @@ function ButtonRow({
     <>
       <Pressable
         onPress={() => setConfettiKey((key) => key + 1)}
+        onLongPress={() => setConfettiKey(0)}
         style={{
           borderRadius: 20,
-          boxShadow: 'rgba(132, 181, 240, 0.4) 0px 2px 8px 0px',
+          backgroundColor: 'rgba(215, 179, 77, 0.4)',
           padding: 20,
           width: '80%',
         }}
@@ -112,10 +125,10 @@ function ButtonRow({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(215, 179, 77, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 20,
+    width: '100%',
   },
-  row: {},
 });
