@@ -1,0 +1,57 @@
+{
+  "name": "typegpu-confetti",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Customizable React Native confetti component, running on GPU",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "module": "./dist/index.js",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      },
+      "./*": {
+        "types": "./dist/*.d.ts",
+        "module": "./dist/*.js",
+        "import": "./dist/*.js",
+        "default": "./dist/*.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup"
+  },
+  "engines": {
+    "node": ">=12.20.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhawryluk/typegpu-confetti.git"
+  },
+  "keywords": ["confetti", "javascript", "react-native"],
+  "bugs": {
+    "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-native": "0.76.7",
+    "react-native-wgpu": "^0.1.23",
+    "typegpu": "0.4.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "tsup": "^8.3.6",
+    "@webgpu/types": "^0.1.54"
+  },
+  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
+}
