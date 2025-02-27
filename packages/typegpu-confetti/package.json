@@ -1,11 +1,12 @@
 {
   "name": "typegpu-confetti",
-  "private": true,
   "version": "0.0.0",
   "description": "Customizable React Native confetti component, running on GPU",
   "license": "MIT",
   "type": "module",
   "exports": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "directory": "dist",
     "linkDirectory": false,
@@ -18,12 +19,6 @@
         "module": "./dist/index.js",
         "import": "./dist/index.js",
         "default": "./dist/index.cjs"
-      },
-      "./*": {
-        "types": "./dist/*.d.ts",
-        "module": "./dist/*.js",
-        "import": "./dist/*.js",
-        "default": "./dist/*.cjs"
       }
     }
   },

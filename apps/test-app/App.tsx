@@ -1,7 +1,7 @@
 import { type ReactNode, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
-import Confetti from 'typegpu-confetti/dist';
+import Confetti from 'typegpu-confetti';
 import * as d from 'typegpu/data';
 
 export default function App() {
@@ -24,15 +24,15 @@ export default function App() {
         <Confetti />
       </ButtonRow>
 
-      <ButtonRow label="particle amount ▫️">
+      <ButtonRow label="particle amount" icon="▫️">
         <Confetti particleAmount={50} />
       </ButtonRow>
 
-      <ButtonRow label="particle amount ⬜️">
+      <ButtonRow label="particle amount" icon="⬜️">
         <Confetti particleAmount={1000} />
       </ButtonRow>
 
-      <ButtonRow label="color palette 💜">
+      <ButtonRow label="color palette" icon="💜">
         <Confetti
           colorPalette={[
             [68, 23, 82],
@@ -43,15 +43,15 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="size ▪️">
+      <ButtonRow label="size" icon="▪️">
         <Confetti size={0.5} />
       </ButtonRow>
 
-      <ButtonRow label="size ⬛️">
+      <ButtonRow label="size" icon="⬛️">
         <Confetti size={1.5} />
       </ButtonRow>
 
-      <ButtonRow label="gravity ➡️">
+      <ButtonRow label="gravity" icon="➡️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -61,7 +61,7 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="gravity ⬆️">
+      <ButtonRow label="gravity" icon="⬆️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -71,7 +71,7 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="gravity ↕️">
+      <ButtonRow label="gravity" icon="↕️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -87,9 +87,10 @@ export default function App() {
 }
 
 function ButtonRow({
+  icon,
   label,
   children,
-}: { label?: string; children: ReactNode }) {
+}: { icon?: string; label?: string; children: ReactNode }) {
   const [confettiKey, setConfettiKey] = useState(0);
   return (
     <>
@@ -110,8 +111,10 @@ function ButtonRow({
             gap: 20,
           }}
         >
-          <Text style={{ fontSize: 30 }}>🎉</Text>
-          <Text style={{ fontSize: 17 }}>{label}</Text>
+          <Text style={{ fontSize: 30 }}>{icon ?? '🎉'} </Text>
+          <Text style={{ fontSize: 17, fontWeight: 600, opacity: 0.7 }}>
+            {label}
+          </Text>
         </View>
       </Pressable>
 
