@@ -58,7 +58,7 @@ export function useBuffer<T extends AnyData>(
   value: Infer<T> | undefined,
   usage: ('uniform' | 'storage' | 'vertex')[],
   label?: string,
-) {
+): TgpuBuffer<T> {
   const root = useRoot();
   const bufferRef = useRef<TgpuBuffer<T> | null>();
 

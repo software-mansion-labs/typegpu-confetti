@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
 
 import tgpu, { type TgpuFn } from 'typegpu';
@@ -9,13 +9,15 @@ import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 // #region default props
 
 const defaultParticleAmount = 200;
-const defaultColorPalette: d.v4f[] = [
-  [154, 177, 155],
-  [67, 129, 193],
-  [99, 71, 77],
-  [239, 121, 138],
-  [255, 166, 48],
-].map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1));
+const defaultColorPalette: d.v4f[] = (
+  [
+    [154, 177, 155],
+    [67, 129, 193],
+    [99, 71, 77],
+    [239, 121, 138],
+    [255, 166, 48],
+  ] as [number, number, number][]
+).map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1));
 
 // #endregion
 
@@ -107,7 +109,7 @@ const getGravity = tgpu['~unstable'].slot(defaultGetGravity);
 const mainCompute = tgpu['~unstable']
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
-    workgroupSize: [1],
+    workgroupSize: [64],
   })
   .does(/* wgsl */ `(in: ComputeIn) {
   let index = in.gid.x;
@@ -154,7 +156,7 @@ function ConfettiViz(props: PropTypes) {
     particleAmount = defaultParticleAmount,
   } = props;
 
-  const [ended, setEnded] = useState(false);
+  const [ended, setEnded] = React.useState(false);
 
   // buffers
 
@@ -163,7 +165,7 @@ function ConfettiViz(props: PropTypes) {
     context ? context.canvas.width / context.canvas.height : 1,
     ['uniform'],
     'aspect_ratio',
-  );
+  ).$usage('uniform');
 
   const canvasAspectRatioUniform = useMemo(
     () =>
@@ -180,7 +182,9 @@ function ConfettiViz(props: PropTypes) {
         .map(() => ({
           angle: Math.floor(Math.random() * 50) - 10,
           tilt: Math.floor(Math.random() * 10) - 10 - 10,
-          color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+          color: colorPalette[
+            Math.floor(Math.random() * colorPalette.length)
+          ] as d.v4f,
         })),
     [colorPalette, particleAmount],
   );
@@ -199,7 +203,7 @@ function ConfettiViz(props: PropTypes) {
     particleGeometry,
     ['vertex'],
     'particle_geometry',
-  );
+  ).$usage('vertex');
 
   const particleInitialData = useMemo(
     () =>
@@ -221,15 +225,17 @@ function ConfettiViz(props: PropTypes) {
     particleInitialData,
     ['storage', 'uniform', 'vertex'],
     'particle_data',
-  );
+  ).$usage('storage', 'uniform', 'vertex');
 
   const deltaTimeBuffer = useBuffer(
     d.f32,
     undefined,
     ['uniform'],
     'delta_time',
+  ).$usage('uniform');
+  const timeBuffer = useBuffer(d.f32, undefined, ['storage'], 'time').$usage(
+    'storage',
   );
-  const timeBuffer = useBuffer(d.f32, undefined, ['storage'], 'time');
 
   const particleDataStorage = useMemo(
     () => particleDataBuffer.as('mutable'),
@@ -321,7 +327,7 @@ function ConfettiViz(props: PropTypes) {
 
     deltaTimeBuffer.write(deltaTime);
     canvasAspectRatioBuffer.write(context.canvas.width / context.canvas.height);
-    computePipeline.dispatchWorkgroups(particleAmount);
+    computePipeline.dispatchWorkgroups(Math.ceil(particleAmount / 64));
 
     const data = await particleDataBuffer.read();
     if (

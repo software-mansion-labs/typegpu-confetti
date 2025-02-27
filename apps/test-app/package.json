@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "expo": "~52.0.37",
-    "expo-status-bar": "~2.0.1",
     "react": "18.3.1",
     "react-native": "0.76.7",
     "react-native-wgpu": "^0.1.23",
-    "typegpu": "0.4.4"
+    "typegpu": "0.4.4",
+    "typegpu-confetti": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
