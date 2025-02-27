@@ -78,6 +78,7 @@ export default function App() {
             .does(/* wgsl */ `(pos: vec2f) -> vec2f {
                 return vec2f(-pos.x, -pos.y) / 20000;
             }`)}
+          maxDurationTime={2000}
         />
       </ButtonRow>
 
