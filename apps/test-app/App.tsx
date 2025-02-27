@@ -20,19 +20,19 @@ export default function App() {
       >
         Confetti Test App
       </Text>
-      <ButtonRow label="default">
+      <ButtonRow label="Default">
         <Confetti />
       </ButtonRow>
 
-      <ButtonRow label="particle amount" icon="▫️">
+      <ButtonRow label="Particle amount" icon="▫️">
         <Confetti particleAmount={50} />
       </ButtonRow>
 
-      <ButtonRow label="particle amount" icon="⬜️">
+      <ButtonRow label="Particle amount" icon="⬜️">
         <Confetti particleAmount={1000} />
       </ButtonRow>
 
-      <ButtonRow label="color palette" icon="💜">
+      <ButtonRow label="Color palette" icon="💜">
         <Confetti
           colorPalette={[
             [68, 23, 82],
@@ -43,15 +43,15 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="size" icon="▪️">
+      <ButtonRow label="Size" icon="▪️">
         <Confetti size={0.5} />
       </ButtonRow>
 
-      <ButtonRow label="size" icon="⬛️">
+      <ButtonRow label="Size" icon="⬛️">
         <Confetti size={1.5} />
       </ButtonRow>
 
-      <ButtonRow label="gravity" icon="➡️">
+      <ButtonRow label="Gravity" icon="➡️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -61,7 +61,7 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="gravity" icon="⬆️">
+      <ButtonRow label="Gravity" icon="⬆️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -71,12 +71,37 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="gravity" icon="↕️">
+      <ButtonRow label="Gravity" icon="↕️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
             .does(/* wgsl */ `(pos: vec2f) -> vec2f {
                 return vec2f(-pos.x, -pos.y) / 20000;
+            }`)}
+        />
+      </ButtonRow>
+
+      <ButtonRow label="Initial state" icon="💣">
+        <Confetti
+          initParticleData={(particleAmount: number) =>
+            Array(particleAmount)
+              .fill(0)
+              .map(() => ({
+                position: d.vec2f(
+                  (2 * Math.random() - 1) / 2 / 50,
+                  (2 * Math.random() - 1) / 2 / 50,
+                ),
+                velocity: d.vec2f(
+                  (Math.random() * 2 - 1) / 30,
+                  (Math.random() * 2 - 1) / 30,
+                ),
+                seed: Math.random(),
+              }))
+          }
+          gravity={tgpu['~unstable']
+            .fn([d.vec2f], d.vec2f)
+            .does(/* wgsl */ `(pos: vec2f) -> vec2f {
+                return vec2f(0, -0.00002);
             }`)}
         />
       </ButtonRow>
