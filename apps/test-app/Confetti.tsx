@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
 
-import tgpu from 'typegpu';
+import tgpu, { type TgpuFn } from 'typegpu';
 import * as d from 'typegpu/data';
 import { RootContext } from './context';
 import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
@@ -99,6 +99,14 @@ const mainFrag = tgpu['~unstable']
     return in.color;
 }`);
 
+const defaultGetGravity = tgpu['~unstable']
+  .fn([d.vec2f], d.vec2f)
+  .does(/* wgsl */ `(pos: vec2f) -> vec2f {
+    return vec2f(0, -0.000005);
+  }`);
+
+const getGravity = tgpu['~unstable'].slot(defaultGetGravity);
+
 const mainCompute = tgpu['~unstable']
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
@@ -109,30 +117,35 @@ const mainCompute = tgpu['~unstable']
   if index == 0 {
     time += deltaTime;
   }
-  let phase = (time / 300) + particleData[index].seed; 
+  let phase = (time / 300) + particleData[index].seed;
+
+  particleData[index].velocity += getGravity(particleData[index].position) * deltaTime;
   particleData[index].position += particleData[index].velocity * deltaTime / 20 + vec2f(sin(phase) / 600, cos(phase) / 500);
-}`);
+}`)
+  .$uses({ getGravity });
 
 // #endregion
 
 // #region layouts
 
-const geometryLayout = tgpu['~unstable'].vertexLayout(
+const geometryLayout = tgpu.vertexLayout(
   (n: number) => d.arrayOf(ParticleGeometry, n),
   'instance',
 );
 
-const dataLayout = tgpu['~unstable'].vertexLayout(
+const dataLayout = tgpu.vertexLayout(
   (n: number) => d.arrayOf(ParticleData, n),
   'instance',
 );
 
 // #endregion
 
-function ConfettiViz() {
+function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
   const root = useRoot();
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   const { ref, context } = useGPUSetup(presentationFormat);
+
+  const [ended, setEnded] = useState(false);
 
   // buffers
 
@@ -216,58 +229,78 @@ function ConfettiViz() {
 
   // pipelines
 
-  const renderPipeline = useMemo(
-    () =>
-      root['~unstable']
-        .withVertex(
-          mainVert.$uses({
-            canvasAspectRatio: canvasAspectRatioUniform,
-          }),
-          {
-            tilt: geometryLayout.attrib.tilt,
-            angle: geometryLayout.attrib.angle,
-            color: geometryLayout.attrib.color,
-            center: dataLayout.attrib.position,
-          },
-        )
-        .withFragment(mainFrag, {
-          format: presentationFormat,
-        })
-        .withPrimitive({
-          topology: 'triangle-strip',
-        })
-        .createPipeline()
-        .with(geometryLayout, particleGeometryBuffer)
-        .with(dataLayout, particleDataBuffer),
-    [
-      canvasAspectRatioUniform,
-      particleDataBuffer,
-      particleGeometryBuffer,
-      presentationFormat,
-      root,
-    ],
-  );
+  const renderPipeline = useMemo(() => {
+    const pipeline = root['~unstable']
+      .withVertex(
+        mainVert.$uses({
+          canvasAspectRatio: canvasAspectRatioUniform,
+        }),
+        {
+          tilt: geometryLayout.attrib.tilt,
+          angle: geometryLayout.attrib.angle,
+          color: geometryLayout.attrib.color,
+          center: dataLayout.attrib.position,
+        },
+      )
+      .withFragment(mainFrag, {
+        format: presentationFormat,
+      })
+      .withPrimitive({
+        topology: 'triangle-strip',
+      })
+      .createPipeline()
+      .with(geometryLayout, particleGeometryBuffer)
+      .with(dataLayout, particleDataBuffer);
 
-  const computePipeline = useMemo(
-    () =>
-      root['~unstable']
-        .withCompute(
-          mainCompute.$uses({
-            particleData: particleDataStorage,
-            deltaTime: deltaTimeUniform,
-            time: timeStorage,
-          }),
-        )
-        .createPipeline(),
-    [deltaTimeUniform, particleDataStorage, root, timeStorage],
-  );
+    root.device.pushErrorScope('validation');
+    root.unwrap(pipeline);
+    root.device.popErrorScope().then((error) => {
+      if (error) {
+        setEnded(true);
+        console.error('error compiling render pipeline', error.message);
+      } else {
+        console.log('render pipeline creation: no error');
+      }
+    });
+    return pipeline;
+  }, [
+    canvasAspectRatioUniform,
+    particleDataBuffer,
+    particleGeometryBuffer,
+    presentationFormat,
+    root,
+  ]);
 
-  const [ended, setEnded] = useState(false);
+  const computePipeline = useMemo(() => {
+    const pipeline = root['~unstable']
+      .with(getGravity, props.getGravity ?? defaultGetGravity)
+      .withCompute(
+        mainCompute.$uses({
+          particleData: particleDataStorage,
+          deltaTime: deltaTimeUniform,
+          time: timeStorage,
+        }),
+      )
+      .createPipeline();
+
+    root.device.pushErrorScope('validation');
+    root.unwrap(pipeline);
+    root.device.popErrorScope().then((error) => {
+      if (error) {
+        setEnded(true);
+        console.error('error compiling compute pipeline', error.message);
+      } else {
+        console.log('compute pipeline creation: no error');
+      }
+    });
+    return pipeline;
+  }, [deltaTimeUniform, particleDataStorage, root, timeStorage, props]);
 
   const frame = async (deltaTime: number) => {
     if (!context) {
       return;
     }
+    root.device.pushErrorScope('validation');
 
     deltaTimeBuffer.write(deltaTime);
     canvasAspectRatioBuffer.write(context.canvas.width / context.canvas.height);
@@ -282,7 +315,6 @@ function ConfettiViz() {
           particle.position.y < -1.5,
       )
     ) {
-      console.log('confetti animation ended');
       setEnded(true);
     }
 
@@ -297,6 +329,15 @@ function ConfettiViz() {
       .draw(4, PARTICLE_AMOUNT);
 
     root['~unstable'].flush();
+
+    root.device.popErrorScope().then((error) => {
+      if (error) {
+        console.error('error in loop', error.message);
+        setEnded(true);
+      }
+
+      console.log('no error in loop');
+    });
     context.present();
   };
 
@@ -318,7 +359,9 @@ function ConfettiViz() {
   );
 }
 
-export default function Confetti() {
+export default function Confetti(props: {
+  getGravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
+}) {
   const { device } = useDevice();
   const root = useMemo(
     () => (device ? tgpu.initFromDevice({ device }) : null),
@@ -331,7 +374,7 @@ export default function Confetti() {
 
   return (
     <RootContext.Provider value={root}>
-      <ConfettiViz />
+      <ConfettiViz getGravity={props.getGravity} />
     </RootContext.Provider>
   );
 }
