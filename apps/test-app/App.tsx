@@ -1,17 +1,25 @@
 import { type ReactNode, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
 import * as d from 'typegpu/data';
 import ConfettiViz from './Confetti';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <ButtonRow label="Default">
+    <ScrollView contentContainerStyle={styles.container}>
+      <ButtonRow label="default">
         <ConfettiViz />
       </ButtonRow>
 
-      <ButtonRow label="Custom colors 💜">
+      <ButtonRow label="particle amount ▫️">
+        <ConfettiViz particleAmount={50} />
+      </ButtonRow>
+
+      <ButtonRow label="particle amount ⬜️">
+        <ConfettiViz particleAmount={1000} />
+      </ButtonRow>
+
+      <ButtonRow label="color palette 💜">
         <ConfettiViz
           colorPalette={[
             [68, 23, 82],
@@ -22,7 +30,7 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="Custom gravity ➡️">
+      <ButtonRow label="gravity ➡️">
         <ConfettiViz
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -32,7 +40,7 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="Custom gravity ⬆️">
+      <ButtonRow label="gravity ⬆️">
         <ConfettiViz
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
@@ -42,16 +50,16 @@ export default function App() {
         />
       </ButtonRow>
 
-      <ButtonRow label="Custom gravity ↕️">
+      <ButtonRow label="gravity ↕️">
         <ConfettiViz
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
             .does(/* wgsl */ `(pos: vec2f) -> vec2f {
                 return vec2f(-pos.x, -pos.y) / 20000;
             }`)}
-        /> 
+        />
       </ButtonRow>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -6,9 +6,9 @@ import * as d from 'typegpu/data';
 import { RootContext } from './context';
 import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 
-// #region constants
+// #region default props
 
-const PARTICLE_AMOUNT = 200;
+const defaultParticleAmount = 200;
 const defaultColorPalette: d.v4f[] = [
   [154, 177, 155],
   [67, 129, 193],
@@ -37,9 +37,6 @@ const ParticleData = d.struct({
   velocity: d.vec2f,
   seed: d.f32,
 });
-
-const ParticleGeometryArray = d.arrayOf(ParticleGeometry, PARTICLE_AMOUNT);
-const ParticleDataArray = d.arrayOf(ParticleData, PARTICLE_AMOUNT);
 
 // #endregion
 
@@ -143,6 +140,7 @@ const dataLayout = tgpu.vertexLayout(
 type PropTypes = {
   gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
   colorPalette?: d.v4f[];
+  particleAmount?: number;
 };
 
 function ConfettiViz(props: PropTypes) {
@@ -150,8 +148,11 @@ function ConfettiViz(props: PropTypes) {
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   const { ref, context } = useGPUSetup(presentationFormat);
 
-  const { gravity = defaultGetGravity, colorPalette = defaultColorPalette } =
-    props;
+  const {
+    gravity = defaultGetGravity,
+    colorPalette = defaultColorPalette,
+    particleAmount = defaultParticleAmount,
+  } = props;
 
   const [ended, setEnded] = useState(false);
 
@@ -174,14 +175,23 @@ function ConfettiViz(props: PropTypes) {
 
   const particleGeometry = useMemo(
     () =>
-      Array(PARTICLE_AMOUNT)
+      Array(particleAmount)
         .fill(0)
         .map(() => ({
           angle: Math.floor(Math.random() * 50) - 10,
           tilt: Math.floor(Math.random() * 10) - 10 - 10,
           color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
         })),
-    [colorPalette],
+    [colorPalette, particleAmount],
+  );
+
+  const ParticleGeometryArray = useMemo(
+    () => d.arrayOf(ParticleGeometry, particleAmount),
+    [particleAmount],
+  );
+  const ParticleDataArray = useMemo(
+    () => d.arrayOf(ParticleData, particleAmount),
+    [particleAmount],
   );
 
   const particleGeometryBuffer = useBuffer(
@@ -193,7 +203,7 @@ function ConfettiViz(props: PropTypes) {
 
   const particleInitialData = useMemo(
     () =>
-      Array(PARTICLE_AMOUNT)
+      Array(particleAmount)
         .fill(0)
         .map(() => ({
           position: d.vec2f(Math.random() * 2 - 1, Math.random() * 2 + 1),
@@ -203,7 +213,7 @@ function ConfettiViz(props: PropTypes) {
           ),
           seed: Math.random(),
         })),
-    [],
+    [particleAmount],
   );
 
   const particleDataBuffer = useBuffer(
@@ -311,7 +321,7 @@ function ConfettiViz(props: PropTypes) {
 
     deltaTimeBuffer.write(deltaTime);
     canvasAspectRatioBuffer.write(context.canvas.width / context.canvas.height);
-    computePipeline.dispatchWorkgroups(PARTICLE_AMOUNT);
+    computePipeline.dispatchWorkgroups(particleAmount);
 
     const data = await particleDataBuffer.read();
     if (
@@ -333,7 +343,7 @@ function ConfettiViz(props: PropTypes) {
         loadOp: 'clear' as const,
         storeOp: 'store' as const,
       })
-      .draw(4, PARTICLE_AMOUNT);
+      .draw(4, particleAmount);
 
     root['~unstable'].flush();
 
