@@ -20,6 +20,19 @@ const defaultColorPalette: d.v4f[] = (
 ).map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1));
 const defaultSize = 1;
 
+function defaultInitParticleData(particleAmount: number) {
+  return Array(particleAmount)
+    .fill(0)
+    .map(() => ({
+      position: d.vec2f(Math.random() * 2 - 1, Math.random() / 1.5 + 1),
+      velocity: d.vec2f(
+        (Math.random() * 2 - 1) / 50,
+        -(Math.random() / 25 + 0.01),
+      ),
+      seed: Math.random(),
+    }));
+}
+
 // #endregion
 
 // #region data structures
@@ -145,6 +158,7 @@ type PropTypes = {
   colorPalette?: d.v4f[];
   particleAmount?: number;
   size?: number;
+  initParticleData?: (particleAmount: number) => d.Infer<typeof ParticleData>[];
 };
 
 function ConfettiViz({
@@ -152,6 +166,7 @@ function ConfettiViz({
   colorPalette = defaultColorPalette,
   particleAmount = defaultParticleAmount,
   size = defaultSize,
+  initParticleData = defaultInitParticleData,
 }: PropTypes) {
   const root = useRoot();
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -159,7 +174,7 @@ function ConfettiViz({
 
   const [ended, setEnded] = React.useState(false);
 
-  // buffers
+  // #region buffers
 
   const canvasAspectRatioBuffer = useBuffer(
     d.f32,
@@ -207,18 +222,8 @@ function ConfettiViz({
   ).$usage('vertex');
 
   const particleInitialData = useMemo(
-    () =>
-      Array(particleAmount)
-        .fill(0)
-        .map(() => ({
-          position: d.vec2f(Math.random() * 2 - 1, Math.random() * 2 + 1),
-          velocity: d.vec2f(
-            (Math.random() * 2 - 1) / 50,
-            -(Math.random() / 25 + 0.01),
-          ),
-          seed: Math.random(),
-        })),
-    [particleAmount],
+    () => initParticleData(particleAmount),
+    [particleAmount, initParticleData],
   );
 
   const particleDataBuffer = useBuffer(
@@ -251,7 +256,9 @@ function ConfettiViz({
     [timeBuffer],
   );
 
-  // pipelines
+  //#endregion
+
+  // #region pipelines
 
   const renderPipeline = useMemo(() => {
     const pipeline = root['~unstable']
@@ -319,6 +326,8 @@ function ConfettiViz({
     });
     return pipeline;
   }, [deltaTimeUniform, particleDataStorage, root, timeStorage, gravity]);
+
+  //#endregion
 
   const frame = async (deltaTime: number) => {
     if (!context) {
