@@ -9,7 +9,7 @@ import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 // #region constants
 
 const PARTICLE_AMOUNT = 200;
-const COLOR_PALETTE: d.v4f[] = [
+const defaultColorPalette: d.v4f[] = [
   [154, 177, 155],
   [67, 129, 193],
   [99, 71, 77],
@@ -140,10 +140,18 @@ const dataLayout = tgpu.vertexLayout(
 
 // #endregion
 
-function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
+type PropTypes = {
+  gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
+  colorPalette?: d.v4f[];
+};
+
+function ConfettiViz(props: PropTypes) {
   const root = useRoot();
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   const { ref, context } = useGPUSetup(presentationFormat);
+
+  const { gravity = defaultGetGravity, colorPalette = defaultColorPalette } =
+    props;
 
   const [ended, setEnded] = useState(false);
 
@@ -171,10 +179,9 @@ function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
         .map(() => ({
           angle: Math.floor(Math.random() * 50) - 10,
           tilt: Math.floor(Math.random() * 10) - 10 - 10,
-          color:
-            COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)],
+          color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
         })),
-    [],
+    [colorPalette],
   );
 
   const particleGeometryBuffer = useBuffer(
@@ -273,7 +280,7 @@ function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
 
   const computePipeline = useMemo(() => {
     const pipeline = root['~unstable']
-      .with(getGravity, props.getGravity ?? defaultGetGravity)
+      .with(getGravity, gravity)
       .withCompute(
         mainCompute.$uses({
           particleData: particleDataStorage,
@@ -294,7 +301,7 @@ function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
       }
     });
     return pipeline;
-  }, [deltaTimeUniform, particleDataStorage, root, timeStorage, props]);
+  }, [deltaTimeUniform, particleDataStorage, root, timeStorage, gravity]);
 
   const frame = async (deltaTime: number) => {
     if (!context) {
@@ -335,8 +342,6 @@ function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
         console.error('error in loop', error.message);
         setEnded(true);
       }
-
-      console.log('no error in loop');
     });
     context.present();
   };
@@ -359,9 +364,7 @@ function ConfettiViz(props: { getGravity?: TgpuFn<[d.Vec2f], d.Vec2f> }) {
   );
 }
 
-export default function Confetti(props: {
-  getGravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
-}) {
+export default function Confetti(props: PropTypes) {
   const { device } = useDevice();
   const root = useMemo(
     () => (device ? tgpu.initFromDevice({ device }) : null),
@@ -374,7 +377,7 @@ export default function Confetti(props: {
 
   return (
     <RootContext.Provider value={root}>
-      <ConfettiViz getGravity={props.getGravity} />
+      <ConfettiViz {...props} />
     </RootContext.Provider>
   );
 }
