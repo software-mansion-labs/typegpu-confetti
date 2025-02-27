@@ -18,6 +18,7 @@ const defaultColorPalette: d.v4f[] = (
     [255, 166, 48],
   ] as [number, number, number][]
 ).map(([r, g, b]) => d.vec4f(r / 255, g / 255, b / 255, 1));
+const defaultSize = 1;
 
 // #endregion
 
@@ -143,18 +144,18 @@ type PropTypes = {
   gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
   colorPalette?: d.v4f[];
   particleAmount?: number;
+  size?: number;
 };
 
-function ConfettiViz(props: PropTypes) {
+function ConfettiViz({
+  gravity = defaultGetGravity,
+  colorPalette = defaultColorPalette,
+  particleAmount = defaultParticleAmount,
+  size = defaultSize,
+}: PropTypes) {
   const root = useRoot();
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   const { ref, context } = useGPUSetup(presentationFormat);
-
-  const {
-    gravity = defaultGetGravity,
-    colorPalette = defaultColorPalette,
-    particleAmount = defaultParticleAmount,
-  } = props;
 
   const [ended, setEnded] = React.useState(false);
 
@@ -181,12 +182,12 @@ function ConfettiViz(props: PropTypes) {
         .fill(0)
         .map(() => ({
           angle: Math.floor(Math.random() * 50) - 10,
-          tilt: Math.floor(Math.random() * 10) - 10 - 10,
+          tilt: (Math.floor(Math.random() * 10) - 20) * size,
           color: colorPalette[
             Math.floor(Math.random() * colorPalette.length)
           ] as d.v4f,
         })),
-    [colorPalette, particleAmount],
+    [colorPalette, particleAmount, size],
   );
 
   const ParticleGeometryArray = useMemo(
