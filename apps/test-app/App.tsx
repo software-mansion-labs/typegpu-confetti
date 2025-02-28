@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
 import Confetti from 'typegpu-confetti';
 import * as d from 'typegpu/data';
+import * as std from 'typegpu/std';
 
 export default function App() {
   return (
@@ -16,9 +17,10 @@ export default function App() {
           paddingLeft: '10%',
           paddingBottom: 20,
           paddingTop: 100,
+          fontStyle: 'italic',
         }}
       >
-        Confetti Test App
+        typegpu-confetti
       </Text>
       <ButtonRow label="Default">
         <Confetti />
@@ -55,9 +57,7 @@ export default function App() {
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
-            .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-                return vec2f(0.00005, 0);
-            }`)}
+            .does((pos) => d.vec2f(0.00005, 0))}
         />
       </ButtonRow>
 
@@ -65,24 +65,20 @@ export default function App() {
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
-            .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-                return vec2f(0, 0.00001);
-            }`)}
+            .does((pos) => d.vec2f(0, 0.00001))}
         />
       </ButtonRow>
 
-      <ButtonRow label="Gravity" icon="↕️">
+      <ButtonRow label="Gravity, Max duration" icon="↕️">
         <Confetti
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
-            .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-                return vec2f(-pos.x, -pos.y) / 20000;
-            }`)}
-          maxDurationTime={2000}
+            .does((pos) => std.mul(0.00005, d.vec2f(-pos.x, -pos.y)))}
+          maxDurationTime={5000}
         />
       </ButtonRow>
 
-      <ButtonRow label="Initial state" icon="💣">
+      <ButtonRow label="Initial state, Gravity" icon="💣">
         <Confetti
           initParticleData={(particleAmount: number) =>
             Array(particleAmount)
@@ -101,9 +97,7 @@ export default function App() {
           }
           gravity={tgpu['~unstable']
             .fn([d.vec2f], d.vec2f)
-            .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-                return vec2f(0, -0.00002);
-            }`)}
+            .does((pos) => d.vec2f(0, -0.00002))}
         />
       </ButtonRow>
 
