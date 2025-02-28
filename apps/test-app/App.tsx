@@ -1,108 +1,139 @@
 import { type ReactNode, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
-import Confetti from 'typegpu-confetti';
+import Confetti, { gravityFn } from 'typegpu-confetti';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
 
+const t = tgpu;
+
+const centerGravity = gravityFn.does((pos) =>
+  std.mul(0.00005, d.vec2f(-pos.x, -pos.y)),
+);
+const rightGravity = gravityFn.does((pos) => d.vec2f(0.00005, 0));
+const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.00001));
+const customGravity = gravityFn.does((pos) => d.vec2f(0, -0.00006));
+const customGravity2 = gravityFn.does(
+  '(pos: vec2f) -> vec2f { return vec2f(0, -0.00001);}',
+);
+
 export default function App() {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        backgroundColor: 'rgb(239 239 249)',
+      }}
+    >
       <Text
         style={{
-          fontWeight: 'bold',
+          fontWeight: 900,
           fontSize: 25,
           textAlign: 'left',
-          width: '100%',
           paddingLeft: '10%',
-          paddingBottom: 20,
-          paddingTop: 100,
+          paddingBottom: 50,
           fontStyle: 'italic',
+          width: '100%',
+          color: 'rgb(82 89 238)',
         }}
       >
         typegpu-confetti
       </Text>
-      <ButtonRow label="Default">
-        <Confetti />
-      </ButtonRow>
+      <View style={styles.container}>
+        <ButtonRow label="Default" icon="🌧️">
+          <Confetti />
+        </ButtonRow>
 
-      <ButtonRow label="Particle amount" icon="▫️">
-        <Confetti particleAmount={50} />
-      </ButtonRow>
+        <ButtonRow label="Color palette" icon="💜">
+          <Confetti
+            colorPalette={[
+              [68, 23, 82, 1],
+              [129, 116, 160, 1],
+              [168, 136, 181, 1],
+              [239, 182, 200, 1],
+            ]}
+          />
+        </ButtonRow>
 
-      <ButtonRow label="Particle amount" icon="⬜️">
-        <Confetti particleAmount={1000} />
-      </ButtonRow>
+        <ButtonRow label="Particle amount" icon="▫️">
+          <Confetti particleAmount={50} />
+        </ButtonRow>
 
-      <ButtonRow label="Color palette" icon="💜">
-        <Confetti
-          colorPalette={[
-            [68, 23, 82, 1],
-            [129, 116, 160, 1],
-            [168, 136, 181, 1],
-            [239, 182, 200, 1],
-          ]}
-        />
-      </ButtonRow>
+        <ButtonRow label="Particle amount" icon="⬜️">
+          <Confetti particleAmount={1000} />
+        </ButtonRow>
 
-      <ButtonRow label="Size" icon="▪️">
-        <Confetti size={0.5} />
-      </ButtonRow>
+        <ButtonRow label="Size" icon="▪️">
+          <Confetti size={0.5} />
+        </ButtonRow>
 
-      <ButtonRow label="Size" icon="⬛️">
-        <Confetti size={1.5} />
-      </ButtonRow>
+        <ButtonRow label="Size" icon="⬛️">
+          <Confetti size={1.5} />
+        </ButtonRow>
 
-      <ButtonRow label="Gravity" icon="➡️">
-        <Confetti
-          gravity={tgpu['~unstable']
-            .fn([d.vec2f], d.vec2f)
-            .does((pos) => d.vec2f(0.00005, 0))}
-        />
-      </ButtonRow>
+        <ButtonRow label="Gravity" icon="➡️">
+          <Confetti gravity={rightGravity} />
+        </ButtonRow>
 
-      <ButtonRow label="Gravity" icon="⬆️">
-        <Confetti
-          gravity={tgpu['~unstable']
-            .fn([d.vec2f], d.vec2f)
-            .does((pos) => d.vec2f(0, 0.00001))}
-        />
-      </ButtonRow>
+        <ButtonRow label="Gravity" icon="⬆️">
+          <Confetti gravity={upGravity} />
+        </ButtonRow>
 
-      <ButtonRow label="Gravity, Max duration" icon="↕️">
-        <Confetti
-          gravity={tgpu['~unstable']
-            .fn([d.vec2f], d.vec2f)
-            .does((pos) => std.mul(0.00005, d.vec2f(-pos.x, -pos.y)))}
-          maxDurationTime={5000}
-        />
-      </ButtonRow>
+        <ButtonRow label="Gravity, Max duration" icon="↕️">
+          <Confetti gravity={centerGravity} maxDurationTime={5000} />
+        </ButtonRow>
 
-      <ButtonRow label="Initial state, Gravity" icon="💣">
-        <Confetti
-          initParticleData={(particleAmount: number) =>
-            Array(particleAmount)
-              .fill(0)
-              .map(() => ({
-                position: d.vec2f(
-                  (2 * Math.random() - 1) / 2 / 50,
-                  (2 * Math.random() - 1) / 2 / 50,
-                ),
-                velocity: d.vec2f(
-                  (Math.random() * 2 - 1) / 30,
-                  (Math.random() * 2 - 1) / 30,
-                ),
-                seed: Math.random(),
-              }))
-          }
-          gravity={tgpu['~unstable']
-            .fn([d.vec2f], d.vec2f)
-            .does((pos) => d.vec2f(0, -0.00002))}
-        />
-      </ButtonRow>
+        <ButtonRow label="Initial state, Gravity" icon="💣">
+          <Confetti
+            initParticleData={(particleAmount: number) =>
+              Array(particleAmount)
+                .fill(0)
+                .map(() => ({
+                  position: d.vec2f(
+                    (2 * Math.random() - 1) / 2 / 50,
+                    (2 * Math.random() - 1) / 2 / 50,
+                  ),
+                  velocity: d.vec2f(
+                    (Math.random() * 2 - 1) / 35 / 0.5,
+                    (Math.random() * 2 - 1) / 30 + 0.05,
+                  ),
+                  seed: Math.random(),
+                }))
+            }
+            gravity={customGravity}
+          />
+        </ButtonRow>
 
-      <Text style={{ marginBottom: 20 }} />
-    </ScrollView>
+        <ButtonRow label="Initial state, Gravity" icon="🌈">
+          <Confetti
+            initParticleData={(particleAmount: number) =>
+              Array(particleAmount)
+                .fill(0)
+                .map(() => {
+                  const radius = ((Math.random() + 0.5) * Math.PI) / 2;
+                  return {
+                    position: d.vec2f(
+                      (2 * Math.random() - 1) / 20,
+                      (2 * Math.random() - 1) / 20,
+                    ),
+                    velocity: std.mul(
+                      0.01,
+                      std.normalize(
+                        d.vec2f(Math.cos(radius), Math.sin(radius)),
+                      ),
+                    ),
+                    seed: Math.random(),
+                  };
+                })
+            }
+            gravity={customGravity2}
+          />
+        </ButtonRow>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -119,20 +150,19 @@ function ButtonRow({
         onLongPress={() => setConfettiKey(0)}
         style={{
           borderRadius: 20,
-          backgroundColor: 'rgba(215, 179, 77, 0.4)',
+          backgroundColor: 'rgb(82 89 238)',
           padding: 20,
-          width: '80%',
         }}
       >
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 20,
+            gap: 10,
           }}
         >
-          <Text style={{ fontSize: 30 }}>{icon ?? '🎉'} </Text>
-          <Text style={{ fontSize: 17, fontWeight: 600, opacity: 0.7 }}>
+          <Text style={{ fontSize: 25 }}>{icon ?? '🎉'} </Text>
+          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
             {label}
           </Text>
         </View>
@@ -142,10 +172,13 @@ function ButtonRow({
         <View
           style={{
             position: 'absolute',
-            width: '100%',
-            height: '100%',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
             pointerEvents: 'none',
             cursor: 'auto',
+            zIndex: 1,
           }}
           key={confettiKey}
         >
@@ -160,7 +193,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
+    gap: 15,
     width: '100%',
+    position: 'static',
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    paddingHorizontal: 10,
   },
 });

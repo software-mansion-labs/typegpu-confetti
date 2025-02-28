@@ -82,17 +82,24 @@ const mainVert = tgpu['~unstable']
       let width = in.tilt;
       let height = in.tilt / 2;
 
-      var pos = rotate(array<vec2f, 4>(
+      var geometry = array<vec2f, 4>(
         vec2f(0, 0),
         vec2f(width, 0),
         vec2f(0, height),
         vec2f(width, height),
-      )[in.index] / 350, in.angle) + in.center;
+      );
+      var pos = rotate(geometry[in.index] / 350, in.angle) + in.center;
 
       if (canvasAspectRatio < 1) {
+        var center = (geometry[0].x + geometry[2].x) / 2;
+        pos.x -= in.center.x + center;
         pos.x /= canvasAspectRatio;
+        pos.x += in.center.x + center;
       } else {
-        pos.y *= canvasAspectRatio;
+        var center = (geometry[0].y + geometry[2].y) / 2;
+        pos.y -= in.center.y + center;
+        pos.y /= canvasAspectRatio;
+        pos.y += in.center.y + center;
       }
 
       return VertexOutput(vec4f(pos, 0.0, 1.0), in.color);
@@ -389,8 +396,10 @@ function ConfettiViz({
       style={{
         opacity: ended ? 0 : 1,
         position: 'absolute',
-        width: '100%',
-        height: '100%',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
         zIndex: 20,
         pointerEvents: 'none',
         cursor: 'auto',
