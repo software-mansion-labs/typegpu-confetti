@@ -158,7 +158,7 @@ const dataLayout = tgpu.vertexLayout(
 
 // #endregion
 
-type PropTypes = {
+export type ConfettiPropTypes = {
   gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
   colorPalette?: [number, number, number, number][];
   particleAmount?: number;
@@ -174,7 +174,7 @@ function ConfettiViz({
   size = defaultSize,
   initParticleData = defaultInitParticleData,
   maxDurationTime,
-}: PropTypes) {
+}: ConfettiPropTypes) {
   const root = useRoot();
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   const { ref, context } = useGPUSetup(presentationFormat);
@@ -408,7 +408,7 @@ function ConfettiViz({
   );
 }
 
-export default function Confetti(props: PropTypes) {
+export default function Confetti(props: ConfettiPropTypes) {
   const { device } = useDevice();
   const root = useMemo(
     () => (device ? tgpu.initFromDevice({ device }) : null),
