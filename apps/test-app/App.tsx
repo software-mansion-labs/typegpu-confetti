@@ -1,8 +1,9 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
 import Confetti, {
   ConfettiProvider,
+  type ConfettiRef,
   gravityFn,
   useConfetti,
 } from 'typegpu-confetti';
@@ -12,13 +13,13 @@ import * as std from 'typegpu/std';
 const t = tgpu;
 
 const centerGravity = gravityFn.does((pos) =>
-  std.mul(0.00005, d.vec2f(-pos.x, -pos.y)),
+  std.mul(0.05, d.vec2f(-pos.x, -pos.y)),
 );
-const rightGravity = gravityFn.does((pos) => d.vec2f(0.00005, 0));
-const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.00001));
-const customGravity = gravityFn.does((pos) => d.vec2f(0, -0.00006));
+const rightGravity = gravityFn.does((pos) => d.vec2f(0.05, 0));
+const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.01));
+const customGravity = gravityFn.does((pos) => d.vec2f(0, -0.06));
 const customGravity2 = gravityFn.does(
-  '(pos: vec2f) -> vec2f { return vec2f(0, -0.00001);}',
+  '(pos: vec2f) -> vec2f { return vec2f(0, -0.01);}',
 );
 
 export default function App() {
@@ -50,7 +51,7 @@ export default function App() {
         <View style={styles.container}>
           <ConfettiContextButton />
 
-          <ButtonRow label="Color palette" icon="💜">
+          <ButtonRow label="Color" icon="💜">
             <Confetti
               colorPalette={[
                 [68, 23, 82, 1],
@@ -61,11 +62,11 @@ export default function App() {
             />
           </ButtonRow>
 
-          <ButtonRow label="Particle amount" icon="▫️">
+          <ButtonRow label="Amount" icon="▫️">
             <Confetti particleAmount={50} />
           </ButtonRow>
 
-          <ButtonRow label="Particle amount" icon="⬜️">
+          <ButtonRow label="Amount" icon="⬜️">
             <Confetti particleAmount={1000} />
           </ButtonRow>
 
@@ -93,7 +94,7 @@ export default function App() {
             <Confetti gravity={upGravity} />
           </ButtonRow>
 
-          <ButtonRow label="Gravity, Max duration" icon="↕️">
+          <ButtonRow label="Gravity, Duration" icon="↕️">
             <Confetti gravity={centerGravity} maxDurationTime={5000} />
           </ButtonRow>
 
@@ -143,6 +144,8 @@ export default function App() {
               gravity={customGravity2}
             />
           </ButtonRow>
+
+          <ImperativeConfettiButtonRow label="Imperative" icon="🏛️" />
         </View>
       </SafeAreaView>
     </ConfettiProvider>
@@ -159,7 +162,7 @@ function ConfettiContextButton() {
       style={{
         borderRadius: 20,
         backgroundColor: 'rgb(82 89 238)',
-        padding: 20,
+        padding: 15,
       }}
     >
       <View
@@ -192,7 +195,7 @@ function ButtonRow({
         style={{
           borderRadius: 20,
           backgroundColor: 'rgb(82 89 238)',
-          padding: 20,
+          padding: 15,
         }}
       >
         <View
@@ -226,6 +229,46 @@ function ButtonRow({
           {children}
         </View>
       )}
+    </>
+  );
+}
+
+function ImperativeConfettiButtonRow({
+  icon,
+  label,
+}: { icon?: string; label?: string }) {
+  const [confettiKey, setConfettiKey] = useState(0);
+  const confettiRef = useRef<ConfettiRef>(null);
+
+  return (
+    <>
+      <Pressable
+        onPress={() => {
+          setConfettiKey((key) => key + 1);
+          setTimeout(() => confettiRef.current?.restart(), 2000);
+        }}
+        onLongPress={() => setConfettiKey(0)}
+        style={{
+          borderRadius: 20,
+          backgroundColor: 'rgb(82 89 238)',
+          padding: 15,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Text style={{ fontSize: 25 }}>{icon ?? '🎉'} </Text>
+          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
+            {label}
+          </Text>
+        </View>
+      </Pressable>
+
+      {confettiKey > 0 && <Confetti key={confettiKey} ref={confettiRef} />}
     </>
   );
 }
