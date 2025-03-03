@@ -30,8 +30,8 @@ function defaultInitParticleData(particleAmount: number) {
     .map(() => ({
       position: d.vec2f(Math.random() * 2 - 1, Math.random() / 1.5 + 1),
       velocity: d.vec2f(
-        (Math.random() * 2 - 1) / 50,
-        -(Math.random() / 25 + 0.01),
+        Math.random() * 2 - 1,
+        -(Math.random() / 25 + 0.01) * 50,
       ),
       seed: Math.random(),
     }));
@@ -144,7 +144,7 @@ const mainCompute = tgpu['~unstable']
   let phase = (time / 300) + particleData[index].seed;
 
   particleData[index].velocity += getGravity(particleData[index].position) * deltaTime / 1000;
-  particleData[index].position += particleData[index].velocity * deltaTime / 20 + vec2f(sin(phase) / 600, cos(phase) / 500);
+  particleData[index].position += particleData[index].velocity * deltaTime / 1000 + vec2f(sin(phase) / 600, cos(phase) / 500);
 }`)
   .$uses({ getGravity });
 
@@ -296,9 +296,12 @@ const ConfettiViz = React.forwardRef(
           restart: () => {
             console.log('restart');
             particleDataBuffer.write(particleInitialData);
+            if (ended) {
+              setEnded(false);
+            }
           },
         }) satisfies ConfettiRef,
-      [particleDataBuffer, particleInitialData],
+      [particleDataBuffer, particleInitialData, ended],
     );
 
     // #region pipelines
