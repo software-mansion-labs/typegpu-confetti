@@ -50,7 +50,7 @@ export function useGPUSetup(
     setContext(ctx);
   });
 
-  return { ref, context };
+  return { canvasRef: ref, context };
 }
 
 export function useBuffer<T extends AnyData>(

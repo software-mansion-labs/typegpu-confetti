@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, {
+  type ForwardedRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
 
 import tgpu, { type TgpuFn } from 'typegpu';
@@ -120,7 +126,7 @@ const mainFrag = tgpu['~unstable']
 const defaultGetGravity = tgpu['~unstable']
   .fn([d.vec2f], d.vec2f)
   .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-    return vec2f(0, -0.000005);
+    return vec2f(0, -0.005);
   }`);
 
 const getGravity = tgpu['~unstable'].slot(defaultGetGravity);
@@ -137,7 +143,7 @@ const mainCompute = tgpu['~unstable']
   }
   let phase = (time / 300) + particleData[index].seed;
 
-  particleData[index].velocity += getGravity(particleData[index].position) * deltaTime;
+  particleData[index].velocity += getGravity(particleData[index].position) * deltaTime / 1000;
   particleData[index].position += particleData[index].velocity * deltaTime / 20 + vec2f(sin(phase) / 600, cos(phase) / 500);
 }`)
   .$uses({ getGravity });
@@ -167,261 +173,290 @@ export type ConfettiPropTypes = {
   maxDurationTime?: number;
 };
 
-function ConfettiViz({
-  gravity = defaultGetGravity,
-  colorPalette = defaultColorPalette,
-  particleAmount = defaultParticleAmount,
-  size = defaultSize,
-  initParticleData = defaultInitParticleData,
-  maxDurationTime,
-}: ConfettiPropTypes) {
-  const root = useRoot();
-  const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-  const { ref, context } = useGPUSetup(presentationFormat);
+export type ConfettiRef = {
+  stop: () => void;
+  restart: () => void;
+};
 
-  const [ended, setEnded] = React.useState(false);
+const ConfettiViz = React.forwardRef(
+  (
+    {
+      gravity = defaultGetGravity,
+      colorPalette = defaultColorPalette,
+      particleAmount = defaultParticleAmount,
+      size = defaultSize,
+      initParticleData = defaultInitParticleData,
+      maxDurationTime,
+    }: ConfettiPropTypes,
+    ref: ForwardedRef<ConfettiRef>,
+  ) => {
+    const root = useRoot();
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    const { canvasRef, context } = useGPUSetup(presentationFormat);
 
-  useEffect(() => {
-    if (maxDurationTime !== undefined) {
-      setTimeout(() => {
-        setEnded(true);
-      }, maxDurationTime);
-    }
-  }, [maxDurationTime]);
+    const [ended, setEnded] = useState(false);
 
-  // #region buffers
-
-  const canvasAspectRatioBuffer = useBuffer(
-    d.f32,
-    context ? context.canvas.width / context.canvas.height : 1,
-    ['uniform'],
-    'aspect_ratio',
-  ).$usage('uniform');
-
-  const canvasAspectRatioUniform = useMemo(
-    () =>
-      canvasAspectRatioBuffer
-        ? canvasAspectRatioBuffer.as('uniform')
-        : undefined,
-    [canvasAspectRatioBuffer],
-  );
-
-  const particleGeometry = useMemo(
-    () =>
-      Array(particleAmount)
-        .fill(0)
-        .map(() => ({
-          angle: Math.floor(Math.random() * 50) - 10,
-          tilt: (Math.floor(Math.random() * 10) - 20) * size,
-          color: colorPalette.map(([r, g, b, a]) =>
-            d.vec4f(r / 255, g / 255, b / 255, a),
-          )[Math.floor(Math.random() * colorPalette.length)] as d.v4f,
-        })),
-    [colorPalette, particleAmount, size],
-  );
-
-  const ParticleGeometryArray = useMemo(
-    () => d.arrayOf(ParticleGeometry, particleAmount),
-    [particleAmount],
-  );
-  const ParticleDataArray = useMemo(
-    () => d.arrayOf(ParticleData, particleAmount),
-    [particleAmount],
-  );
-
-  const particleGeometryBuffer = useBuffer(
-    ParticleGeometryArray,
-    particleGeometry,
-    ['vertex'],
-    'particle_geometry',
-  ).$usage('vertex');
-
-  const particleInitialData = useMemo(
-    () => initParticleData(particleAmount),
-    [particleAmount, initParticleData],
-  );
-
-  const particleDataBuffer = useBuffer(
-    ParticleDataArray,
-    particleInitialData,
-    ['storage', 'uniform', 'vertex'],
-    'particle_data',
-  ).$usage('storage', 'uniform', 'vertex');
-
-  const deltaTimeBuffer = useBuffer(
-    d.f32,
-    undefined,
-    ['uniform'],
-    'delta_time',
-  ).$usage('uniform');
-  const timeBuffer = useBuffer(d.f32, undefined, ['storage'], 'time').$usage(
-    'storage',
-  );
-
-  const particleDataStorage = useMemo(
-    () => particleDataBuffer.as('mutable'),
-    [particleDataBuffer],
-  );
-  const deltaTimeUniform = useMemo(
-    () => (deltaTimeBuffer ? deltaTimeBuffer.as('uniform') : undefined),
-    [deltaTimeBuffer],
-  );
-  const timeStorage = useMemo(
-    () => (timeBuffer ? timeBuffer.as('mutable') : timeBuffer),
-    [timeBuffer],
-  );
-
-  //#endregion
-
-  // #region pipelines
-
-  const renderPipeline = useMemo(() => {
-    const pipeline = root['~unstable']
-      .withVertex(
-        mainVert.$uses({
-          canvasAspectRatio: canvasAspectRatioUniform,
-        }),
-        {
-          tilt: geometryLayout.attrib.tilt,
-          angle: geometryLayout.attrib.angle,
-          color: geometryLayout.attrib.color,
-          center: dataLayout.attrib.position,
-        },
-      )
-      .withFragment(mainFrag, {
-        format: presentationFormat,
-      })
-      .withPrimitive({
-        topology: 'triangle-strip',
-      })
-      .createPipeline()
-      .with(geometryLayout, particleGeometryBuffer)
-      .with(dataLayout, particleDataBuffer);
-
-    root.device.pushErrorScope('validation');
-    root.unwrap(pipeline);
-    root.device.popErrorScope().then((error) => {
-      if (error) {
-        setEnded(true);
-        console.error('error compiling render pipeline', error.message);
-      } else {
-        console.log('render pipeline creation: no error');
+    useEffect(() => {
+      if (maxDurationTime !== undefined) {
+        setTimeout(() => {
+          setEnded(true);
+        }, maxDurationTime);
       }
-    });
-    return pipeline;
-  }, [
-    canvasAspectRatioUniform,
-    particleDataBuffer,
-    particleGeometryBuffer,
-    presentationFormat,
-    root,
-  ]);
+    }, [maxDurationTime]);
 
-  const computePipeline = useMemo(() => {
-    const pipeline = root['~unstable']
-      .with(getGravity, gravity)
-      .withCompute(
-        mainCompute.$uses({
-          particleData: particleDataStorage,
-          deltaTime: deltaTimeUniform,
-          time: timeStorage,
-        }),
-      )
-      .createPipeline();
+    // #region buffers
 
-    root.device.pushErrorScope('validation');
-    root.unwrap(pipeline);
-    root.device.popErrorScope().then((error) => {
-      if (error) {
-        setEnded(true);
-        console.error('error compiling compute pipeline', error.message);
-      } else {
-        console.log('compute pipeline creation: no error');
+    const canvasAspectRatioBuffer = useBuffer(
+      d.f32,
+      context ? context.canvas.width / context.canvas.height : 1,
+      ['uniform'],
+      'aspect_ratio',
+    ).$usage('uniform');
+
+    const canvasAspectRatioUniform = useMemo(
+      () =>
+        canvasAspectRatioBuffer
+          ? canvasAspectRatioBuffer.as('uniform')
+          : undefined,
+      [canvasAspectRatioBuffer],
+    );
+
+    const particleGeometry = useMemo(
+      () =>
+        Array(particleAmount)
+          .fill(0)
+          .map(() => ({
+            angle: Math.floor(Math.random() * 50) - 10,
+            tilt: (Math.floor(Math.random() * 10) - 20) * size,
+            color: colorPalette.map(([r, g, b, a]) =>
+              d.vec4f(r / 255, g / 255, b / 255, a),
+            )[Math.floor(Math.random() * colorPalette.length)] as d.v4f,
+          })),
+      [colorPalette, particleAmount, size],
+    );
+
+    const ParticleGeometryArray = useMemo(
+      () => d.arrayOf(ParticleGeometry, particleAmount),
+      [particleAmount],
+    );
+    const ParticleDataArray = useMemo(
+      () => d.arrayOf(ParticleData, particleAmount),
+      [particleAmount],
+    );
+
+    const particleGeometryBuffer = useBuffer(
+      ParticleGeometryArray,
+      particleGeometry,
+      ['vertex'],
+      'particle_geometry',
+    ).$usage('vertex');
+
+    const particleInitialData = useMemo(
+      () => initParticleData(particleAmount),
+      [particleAmount, initParticleData],
+    );
+
+    const particleDataBuffer = useBuffer(
+      ParticleDataArray,
+      particleInitialData,
+      ['storage', 'uniform', 'vertex'],
+      'particle_data',
+    ).$usage('storage', 'uniform', 'vertex');
+
+    const deltaTimeBuffer = useBuffer(
+      d.f32,
+      undefined,
+      ['uniform'],
+      'delta_time',
+    ).$usage('uniform');
+    const timeBuffer = useBuffer(d.f32, undefined, ['storage'], 'time').$usage(
+      'storage',
+    );
+
+    const particleDataStorage = useMemo(
+      () => particleDataBuffer.as('mutable'),
+      [particleDataBuffer],
+    );
+    const deltaTimeUniform = useMemo(
+      () => (deltaTimeBuffer ? deltaTimeBuffer.as('uniform') : undefined),
+      [deltaTimeBuffer],
+    );
+    const timeStorage = useMemo(
+      () => (timeBuffer ? timeBuffer.as('mutable') : timeBuffer),
+      [timeBuffer],
+    );
+
+    //#endregion
+
+    useImperativeHandle(
+      ref,
+      () =>
+        ({
+          stop: () => setEnded(false),
+          restart: () => {
+            console.log('restart');
+            particleDataBuffer.write(particleInitialData);
+          },
+        }) satisfies ConfettiRef,
+      [particleDataBuffer, particleInitialData],
+    );
+
+    // #region pipelines
+
+    const renderPipeline = useMemo(() => {
+      const pipeline = root['~unstable']
+        .withVertex(
+          mainVert.$uses({
+            canvasAspectRatio: canvasAspectRatioUniform,
+          }),
+          {
+            tilt: geometryLayout.attrib.tilt,
+            angle: geometryLayout.attrib.angle,
+            color: geometryLayout.attrib.color,
+            center: dataLayout.attrib.position,
+          },
+        )
+        .withFragment(mainFrag, {
+          format: presentationFormat,
+        })
+        .withPrimitive({
+          topology: 'triangle-strip',
+        })
+        .createPipeline()
+        .with(geometryLayout, particleGeometryBuffer)
+        .with(dataLayout, particleDataBuffer);
+
+      root.device.pushErrorScope('validation');
+      root.unwrap(pipeline);
+      root.device.popErrorScope().then((error) => {
+        if (error) {
+          setEnded(true);
+          console.error('error compiling render pipeline', error.message);
+        } else {
+          console.log('render pipeline creation: no error');
+        }
+      });
+      return pipeline;
+    }, [
+      canvasAspectRatioUniform,
+      particleDataBuffer,
+      particleGeometryBuffer,
+      presentationFormat,
+      root,
+    ]);
+
+    const computePipeline = useMemo(() => {
+      const pipeline = root['~unstable']
+        .with(getGravity, gravity)
+        .withCompute(
+          mainCompute.$uses({
+            particleData: particleDataStorage,
+            deltaTime: deltaTimeUniform,
+            time: timeStorage,
+          }),
+        )
+        .createPipeline();
+
+      root.device.pushErrorScope('validation');
+      root.unwrap(pipeline);
+      root.device.popErrorScope().then((error) => {
+        if (error) {
+          setEnded(true);
+          console.error('error compiling compute pipeline', error.message);
+        } else {
+          console.log('compute pipeline creation: no error');
+        }
+      });
+      return pipeline;
+    }, [deltaTimeUniform, particleDataStorage, root, timeStorage, gravity]);
+
+    //#endregion
+
+    const frame = async (deltaTime: number) => {
+      if (!context) {
+        return;
       }
-    });
-    return pipeline;
-  }, [deltaTimeUniform, particleDataStorage, root, timeStorage, gravity]);
+      root.device.pushErrorScope('validation');
 
-  //#endregion
+      deltaTimeBuffer.write(deltaTime);
+      canvasAspectRatioBuffer.write(
+        context.canvas.width / context.canvas.height,
+      );
+      computePipeline.dispatchWorkgroups(Math.ceil(particleAmount / 64));
 
-  const frame = async (deltaTime: number) => {
-    if (!context) {
-      return;
-    }
-    root.device.pushErrorScope('validation');
-
-    deltaTimeBuffer.write(deltaTime);
-    canvasAspectRatioBuffer.write(context.canvas.width / context.canvas.height);
-    computePipeline.dispatchWorkgroups(Math.ceil(particleAmount / 64));
-
-    const data = await particleDataBuffer.read();
-    if (
-      data.every(
-        (particle) =>
-          particle.position.x < -1 ||
-          particle.position.x > 1 ||
-          particle.position.y < -1.5,
-      )
-    ) {
-      setEnded(true);
-    }
-
-    const texture = context.getCurrentTexture();
-    renderPipeline
-      .withColorAttachment({
-        view: texture.createView(),
-        clearValue: [0, 0, 0, 0],
-        loadOp: 'clear' as const,
-        storeOp: 'store' as const,
-      })
-      .draw(4, particleAmount);
-
-    root['~unstable'].flush();
-
-    root.device.popErrorScope().then((error) => {
-      if (error) {
-        console.error('error in loop', error.message);
+      const data = await particleDataBuffer.read();
+      if (
+        data.every(
+          (particle) =>
+            particle.position.x < -1 ||
+            particle.position.x > 1 ||
+            particle.position.y < -1.5,
+        )
+      ) {
         setEnded(true);
       }
-    });
-    context.present();
-  };
 
-  useFrame(frame, !ended);
+      const texture = context.getCurrentTexture();
+      renderPipeline
+        .withColorAttachment({
+          view: texture.createView(),
+          clearValue: [0, 0, 0, 0],
+          loadOp: 'clear' as const,
+          storeOp: 'store' as const,
+        })
+        .draw(4, particleAmount);
 
-  return (
-    <Canvas
-      transparent
-      ref={ref}
-      style={{
-        opacity: ended ? 0 : 1,
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 20,
-        pointerEvents: 'none',
-        cursor: 'auto',
-      }}
-    />
-  );
-}
+      root['~unstable'].flush();
 
-export default function Confetti(props: ConfettiPropTypes) {
-  const { device } = useDevice();
-  const root = useMemo(
-    () => (device ? tgpu.initFromDevice({ device }) : null),
-    [device],
-  );
+      root.device.popErrorScope().then((error) => {
+        if (error) {
+          console.error('error in loop', error.message);
+          setEnded(true);
+        }
+      });
+      context.present();
+    };
 
-  if (root === null) {
-    return null;
-  }
+    useFrame(frame, !ended);
 
-  return (
-    <RootContext.Provider value={root}>
-      <ConfettiViz {...props} />
-    </RootContext.Provider>
-  );
-}
+    return (
+      <Canvas
+        transparent
+        ref={canvasRef}
+        style={{
+          opacity: ended ? 0 : 1,
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 20,
+          pointerEvents: 'none',
+          cursor: 'auto',
+        }}
+      />
+    );
+  },
+);
+
+const Confetti = React.forwardRef(
+  (props: ConfettiPropTypes, ref: ForwardedRef<ConfettiRef>) => {
+    const { device } = useDevice();
+    const root = useMemo(
+      () => (device ? tgpu.initFromDevice({ device }) : null),
+      [device],
+    );
+
+    if (root === null) {
+      return null;
+    }
+
+    return (
+      <RootContext.Provider value={root}>
+        <ConfettiViz {...props} ref={ref} />
+      </RootContext.Provider>
+    );
+  },
+);
+
+export default Confetti;
