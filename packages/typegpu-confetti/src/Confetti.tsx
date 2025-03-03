@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
@@ -33,9 +34,14 @@ function defaultInitParticleData(particleAmount: number) {
         Math.random() * 2 - 1,
         -(Math.random() / 25 + 0.01) * 50,
       ),
-      seed: Math.random(),
     }));
 }
+
+const defaultGravity = tgpu['~unstable']
+  .fn([d.vec2f], d.vec2f)
+  .does(/* wgsl */ `(pos: vec2f) -> vec2f {
+    return vec2f(0, -0.5);
+  }`);
 
 // #endregion
 
@@ -56,6 +62,7 @@ const ParticleData = d.struct({
   position: d.vec2f,
   velocity: d.vec2f,
   seed: d.f32,
+  age: d.f32,
 });
 
 // #endregion
@@ -79,6 +86,7 @@ const mainVert = tgpu['~unstable']
       angle: d.f32,
       color: d.vec4f,
       center: d.vec2f,
+      age: d.f32,
       index: d.builtin.vertexIndex,
     },
     out: VertexOutput,
@@ -108,7 +116,8 @@ const mainVert = tgpu['~unstable']
         pos.y += in.center.y + center;
       }
 
-      return VertexOutput(vec4f(pos, 0.0, 1.0), in.color);
+      let alpha = min(f32(in.age) / 1000.f, 1);
+      return VertexOutput(vec4f(pos, 0.0, 1.0), alpha * vec4f(in.color.xyz, 1));
   }`,
   )
   .$uses({ rotate });
@@ -123,13 +132,7 @@ const mainFrag = tgpu['~unstable']
     return in.color;
 }`);
 
-const defaultGetGravity = tgpu['~unstable']
-  .fn([d.vec2f], d.vec2f)
-  .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-    return vec2f(0, -0.005);
-  }`);
-
-const getGravity = tgpu['~unstable'].slot(defaultGetGravity);
+const getGravity = tgpu['~unstable'].slot(defaultGravity);
 
 const mainCompute = tgpu['~unstable']
   .computeFn({
@@ -141,12 +144,59 @@ const mainCompute = tgpu['~unstable']
   if index == 0 {
     time += deltaTime;
   }
+
+  if particleData[index].age < 0.01 {
+    return;
+  }
+
   let phase = (time / 300) + particleData[index].seed;
 
   particleData[index].velocity += getGravity(particleData[index].position) * deltaTime / 1000;
   particleData[index].position += particleData[index].velocity * deltaTime / 1000 + vec2f(sin(phase) / 600, cos(phase) / 500);
+  particleData[index].age -= deltaTime;
 }`)
   .$uses({ getGravity });
+
+const randSeed = tgpu['~unstable'].privateVar(d.vec2f);
+const setupRandomSeed = tgpu['~unstable']
+  .fn([d.vec2f])
+  .does(/* wgsl */ `(coord: vec2f) {
+  randSeed = coord;
+}`)
+  .$uses({ randSeed });
+
+const rand01 = tgpu['~unstable']
+  .fn([], d.f32)
+  .does(/* wgsl */ `() -> f32 {
+  let a = dot(randSeed, vec2f(23.14077926, 232.61690225));
+  let b = dot(randSeed, vec2f(54.47856553, 345.84153136));
+  randSeed.x = fract(cos(a) * 136.8168);
+  randSeed.y = fract(cos(b) * 534.7645);
+  return randSeed.y;
+}`)
+  .$uses({ randSeed });
+
+const addParticleCompute = tgpu['~unstable']
+  .computeFn({
+    workgroupSize: [1],
+  })
+  .does(/* wgsl */ `() {
+    for (var i = 0; i < maxParticleAmount; i++) {
+      if particleData[i].age < 0.1 {
+        setupRandomSeed(vec2f(f32(i), f32(i)));
+        particleData[i].age = maxDurationTime * 1000;
+
+        particleData[i].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
+        particleData[i].velocity = vec2f(
+          rand01() * 2 - 1,
+          -(rand01() / 25 + 0.01) * 50
+        );
+
+        return;
+      }
+    }
+  }`)
+  .$uses({ rand01, setupRandomSeed });
 
 // #endregion
 
@@ -167,26 +217,31 @@ const dataLayout = tgpu.vertexLayout(
 export type ConfettiPropTypes = {
   gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
   colorPalette?: [number, number, number, number][];
-  particleAmount?: number;
+  initParticleAmount?: number;
+  maxParticleAmount?: number;
   size?: number;
-  initParticleData?: (particleAmount: number) => d.Infer<typeof ParticleData>[];
-  maxDurationTime?: number;
+  initParticleData?: (
+    particleAmount: number,
+  ) => Omit<d.Infer<typeof ParticleData>, 'seed' | 'age'>[];
+  maxDurationTime?: number | null;
 };
 
 export type ConfettiRef = {
   stop: () => void;
   restart: () => void;
+  addParticles: (amount: number) => void;
 };
 
 const ConfettiViz = React.forwardRef(
   (
     {
-      gravity = defaultGetGravity,
+      gravity = defaultGravity,
       colorPalette = defaultColorPalette,
-      particleAmount = defaultParticleAmount,
+      initParticleAmount = defaultParticleAmount,
+      maxParticleAmount = 500,
       size = defaultSize,
       initParticleData = defaultInitParticleData,
-      maxDurationTime,
+      maxDurationTime = 2,
     }: ConfettiPropTypes,
     ref: ForwardedRef<ConfettiRef>,
   ) => {
@@ -196,11 +251,17 @@ const ConfettiViz = React.forwardRef(
 
     const [ended, setEnded] = useState(false);
 
+    const currentParticleAmount = useRef(initParticleAmount);
+
     useEffect(() => {
-      if (maxDurationTime !== undefined) {
-        setTimeout(() => {
-          setEnded(true);
-        }, maxDurationTime);
+      if (maxDurationTime !== null) {
+        setTimeout(
+          () => {
+            console.log('timeout ended');
+            setEnded(true);
+          },
+          (maxDurationTime + 1) * 1000,
+        );
       }
     }, [maxDurationTime]);
 
@@ -221,27 +282,25 @@ const ConfettiViz = React.forwardRef(
       [canvasAspectRatioBuffer],
     );
 
-    const particleGeometry = useMemo(
-      () =>
-        Array(particleAmount)
-          .fill(0)
-          .map(() => ({
-            angle: Math.floor(Math.random() * 50) - 10,
-            tilt: (Math.floor(Math.random() * 10) - 20) * size,
-            color: colorPalette.map(([r, g, b, a]) =>
-              d.vec4f(r / 255, g / 255, b / 255, a),
-            )[Math.floor(Math.random() * colorPalette.length)] as d.v4f,
-          })),
-      [colorPalette, particleAmount, size],
-    );
+    const particleGeometry = useMemo(() => {
+      return Array(maxParticleAmount)
+        .fill(0)
+        .map(() => ({
+          angle: Math.floor(Math.random() * 50) - 10,
+          tilt: (Math.floor(Math.random() * 10) - 20) * size,
+          color: colorPalette.map(([r, g, b, a]) =>
+            d.vec4f(r / 255, g / 255, b / 255, a),
+          )[Math.floor(Math.random() * colorPalette.length)] as d.v4f,
+        }));
+    }, [colorPalette, maxParticleAmount, size]);
 
     const ParticleGeometryArray = useMemo(
-      () => d.arrayOf(ParticleGeometry, particleAmount),
-      [particleAmount],
+      () => d.arrayOf(ParticleGeometry, maxParticleAmount),
+      [maxParticleAmount],
     );
     const ParticleDataArray = useMemo(
-      () => d.arrayOf(ParticleData, particleAmount),
-      [particleAmount],
+      () => d.arrayOf(ParticleData, maxParticleAmount),
+      [maxParticleAmount],
     );
 
     const particleGeometryBuffer = useBuffer(
@@ -252,8 +311,18 @@ const ConfettiViz = React.forwardRef(
     ).$usage('vertex');
 
     const particleInitialData = useMemo(
-      () => initParticleData(particleAmount),
-      [particleAmount, initParticleData],
+      () =>
+        initParticleData(maxParticleAmount).map((data, i) => ({
+          ...data,
+          seed: Math.random(),
+          age: i < initParticleAmount ? (maxDurationTime ?? 999) * 1000 : 0,
+        })),
+      [
+        maxParticleAmount,
+        initParticleData,
+        maxDurationTime,
+        initParticleAmount,
+      ],
     );
 
     const particleDataBuffer = useBuffer(
@@ -300,8 +369,19 @@ const ConfettiViz = React.forwardRef(
               setEnded(false);
             }
           },
+
+          addParticles: (amount: number) => {
+            for (let i = 0; i < amount; i++) {
+              addParticleComputePipeline.dispatchWorkgroups(1);
+            }
+
+            currentParticleAmount.current = Math.min(
+              currentParticleAmount.current + amount,
+              maxParticleAmount,
+            );
+          },
         }) satisfies ConfettiRef,
-      [particleDataBuffer, particleInitialData, ended],
+      [particleDataBuffer, particleInitialData, ended, maxParticleAmount],
     );
 
     // #region pipelines
@@ -317,6 +397,7 @@ const ConfettiViz = React.forwardRef(
             angle: geometryLayout.attrib.angle,
             color: geometryLayout.attrib.color,
             center: dataLayout.attrib.position,
+            age: dataLayout.attrib.age,
           },
         )
         .withFragment(mainFrag, {
@@ -325,9 +406,7 @@ const ConfettiViz = React.forwardRef(
         .withPrimitive({
           topology: 'triangle-strip',
         })
-        .createPipeline()
-        .with(geometryLayout, particleGeometryBuffer)
-        .with(dataLayout, particleDataBuffer);
+        .createPipeline();
 
       root.device.pushErrorScope('validation');
       root.unwrap(pipeline);
@@ -340,13 +419,7 @@ const ConfettiViz = React.forwardRef(
         }
       });
       return pipeline;
-    }, [
-      canvasAspectRatioUniform,
-      particleDataBuffer,
-      particleGeometryBuffer,
-      presentationFormat,
-      root,
-    ]);
+    }, [canvasAspectRatioUniform, presentationFormat, root]);
 
     const computePipeline = useMemo(() => {
       const pipeline = root['~unstable']
@@ -373,50 +446,68 @@ const ConfettiViz = React.forwardRef(
       return pipeline;
     }, [deltaTimeUniform, particleDataStorage, root, timeStorage, gravity]);
 
+    const addParticleComputePipeline = useMemo(() => {
+      const pipeline = root['~unstable']
+        .withCompute(
+          addParticleCompute.$uses({
+            particleData: particleDataStorage,
+            maxParticleAmount,
+            maxDurationTime,
+          }),
+        )
+        .createPipeline();
+
+      root.device.pushErrorScope('validation');
+      root.unwrap(pipeline);
+      root.device.popErrorScope().then((error) => {
+        if (error) {
+          setEnded(true);
+          console.error(
+            'error compiling addParticle compute pipeline',
+            error.message,
+          );
+        } else {
+          console.log('compute pipeline addParticle creation: no error');
+        }
+      });
+      return pipeline;
+    }, [particleDataStorage, root, maxParticleAmount, maxDurationTime]);
+
     //#endregion
 
     const frame = async (deltaTime: number) => {
       if (!context) {
         return;
       }
-      root.device.pushErrorScope('validation');
 
       deltaTimeBuffer.write(deltaTime);
       canvasAspectRatioBuffer.write(
         context.canvas.width / context.canvas.height,
       );
-      computePipeline.dispatchWorkgroups(Math.ceil(particleAmount / 64));
-
-      const data = await particleDataBuffer.read();
-      if (
-        data.every(
-          (particle) =>
-            particle.position.x < -1 ||
-            particle.position.x > 1 ||
-            particle.position.y < -1.5,
-        )
-      ) {
-        setEnded(true);
-      }
+      computePipeline.dispatchWorkgroups(
+        Math.ceil(currentParticleAmount.current / 64),
+      );
 
       const texture = context.getCurrentTexture();
       renderPipeline
+        .with(geometryLayout, particleGeometryBuffer)
+        .with(dataLayout, particleDataBuffer)
         .withColorAttachment({
           view: texture.createView(),
           clearValue: [0, 0, 0, 0],
           loadOp: 'clear' as const,
           storeOp: 'store' as const,
         })
-        .draw(4, particleAmount);
+        .draw(4, currentParticleAmount.current);
 
       root['~unstable'].flush();
 
-      root.device.popErrorScope().then((error) => {
-        if (error) {
-          console.error('error in loop', error.message);
-          setEnded(true);
-        }
-      });
+      // root.device.popErrorScope().then((error) => {
+      //   if (error) {
+      //     console.error('error in loop', error.message);
+      //     setEnded(true);
+      //   }
+      // });
       context.present();
     };
 
