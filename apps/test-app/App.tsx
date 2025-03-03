@@ -63,11 +63,11 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Amount" icon="▫️">
-            <Confetti particleAmount={50} />
+            <Confetti initParticleAmount={50} />
           </ButtonRow>
 
           <ButtonRow label="Amount" icon="⬜️">
-            <Confetti particleAmount={1000} />
+            <Confetti initParticleAmount={1000} maxParticleAmount={1000} />
           </ButtonRow>
 
           <ButtonRow label="Size" icon="▪️">
@@ -82,7 +82,7 @@ export default function App() {
             <Confetti
               colorPalette={[[255, 255, 255, 0.8]]}
               size={0.5}
-              particleAmount={400}
+              initParticleAmount={400}
             />
           </ButtonRow>
 
@@ -91,11 +91,11 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="⬆️">
-            <Confetti gravity={upGravity} />
+            <Confetti gravity={upGravity} maxDurationTime={10} />
           </ButtonRow>
 
-          <ButtonRow label="Gravity, Duration" icon="↕️">
-            <Confetti gravity={centerGravity} maxDurationTime={5000} />
+          <ButtonRow label="Gravity" icon="↕️">
+            <Confetti gravity={centerGravity} maxDurationTime={5} />
           </ButtonRow>
 
           <ButtonRow label="Initial state, Gravity" icon="💣">
@@ -112,7 +112,6 @@ export default function App() {
                       50 * ((Math.random() * 2 - 1) / 35 / 0.5),
                       50 * ((Math.random() * 2 - 1) / 30 + 0.05),
                     ),
-                    seed: Math.random(),
                   }))
               }
               gravity={customGravity}
@@ -137,7 +136,6 @@ export default function App() {
                           d.vec2f(Math.cos(radius), Math.sin(radius)),
                         ),
                       ),
-                      seed: Math.random(),
                     };
                   })
               }
@@ -244,8 +242,8 @@ function ImperativeConfettiButtonRow({
     <>
       <Pressable
         onPress={() => {
-          setConfettiKey((key) => key + 1);
-          setTimeout(() => confettiRef.current?.restart(), 5000);
+          setConfettiKey(1);
+          confettiRef.current?.addParticles(50);
         }}
         onLongPress={() => setConfettiKey(0)}
         style={{
@@ -268,7 +266,15 @@ function ImperativeConfettiButtonRow({
         </View>
       </Pressable>
 
-      {confettiKey > 0 && <Confetti key={confettiKey} ref={confettiRef} />}
+      {confettiKey > 0 && (
+        <Confetti
+          key={confettiKey}
+          ref={confettiRef}
+          initParticleAmount={1}
+          maxParticleAmount={1000}
+          maxDurationTime={999}
+        />
+      )}
     </>
   );
 }
