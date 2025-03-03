@@ -13,11 +13,11 @@ import * as std from 'typegpu/std';
 const t = tgpu;
 
 const centerGravity = gravityFn.does((pos) =>
-  std.mul(0.05, d.vec2f(-pos.x, -pos.y)),
+  std.mul(2, d.vec2f(-pos.x, -pos.y)),
 );
 const rightGravity = gravityFn.does((pos) => d.vec2f(2.5, 0));
 const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.5));
-const customGravity = gravityFn.does((pos) => d.vec2f(0, -0.3));
+const customGravity = gravityFn.does((pos) => d.vec2f(0, -3));
 const customGravity2 = gravityFn.does(
   '(pos: vec2f) -> vec2f { return vec2f(0, -0.5);}',
 );
@@ -109,8 +109,8 @@ export default function App() {
                       (2 * Math.random() - 1) / 2 / 50,
                     ),
                     velocity: d.vec2f(
-                      (Math.random() * 2 - 1) / 35 / 0.5,
-                      (Math.random() * 2 - 1) / 30 + 0.05,
+                      50 * ((Math.random() * 2 - 1) / 35 / 0.5),
+                      50 * ((Math.random() * 2 - 1) / 30 + 0.05),
                     ),
                     seed: Math.random(),
                   }))
@@ -132,7 +132,7 @@ export default function App() {
                         (2 * Math.random() - 1) / 20,
                       ),
                       velocity: std.mul(
-                        0.01,
+                        0.5,
                         std.normalize(
                           d.vec2f(Math.cos(radius), Math.sin(radius)),
                         ),
