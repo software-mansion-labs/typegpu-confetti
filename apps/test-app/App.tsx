@@ -15,11 +15,11 @@ const t = tgpu;
 const centerGravity = gravityFn.does((pos) =>
   std.mul(0.05, d.vec2f(-pos.x, -pos.y)),
 );
-const rightGravity = gravityFn.does((pos) => d.vec2f(0.05, 0));
-const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.01));
-const customGravity = gravityFn.does((pos) => d.vec2f(0, -0.06));
+const rightGravity = gravityFn.does((pos) => d.vec2f(2.5, 0));
+const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.5));
+const customGravity = gravityFn.does((pos) => d.vec2f(0, -0.3));
 const customGravity2 = gravityFn.does(
-  '(pos: vec2f) -> vec2f { return vec2f(0, -0.01);}',
+  '(pos: vec2f) -> vec2f { return vec2f(0, -0.5);}',
 );
 
 export default function App() {
@@ -245,7 +245,7 @@ function ImperativeConfettiButtonRow({
       <Pressable
         onPress={() => {
           setConfettiKey((key) => key + 1);
-          setTimeout(() => confettiRef.current?.restart(), 2000);
+          setTimeout(() => confettiRef.current?.restart(), 5000);
         }}
         onLongPress={() => setConfettiKey(0)}
         style={{
