@@ -13,7 +13,7 @@ const ConfettiContext = createContext({
   dispose: () => {},
 });
 
-export function ConfettiOverlay(
+export function ConfettiProvider(
   props: { children: ReactNode } & ConfettiPropTypes,
 ) {
   const { children, ...confettiProps } = props;

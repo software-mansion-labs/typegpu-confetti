@@ -2,7 +2,7 @@ import { type ReactNode, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
 import Confetti, {
-  ConfettiOverlay,
+  ConfettiProvider,
   gravityFn,
   useConfetti,
 } from 'typegpu-confetti';
@@ -23,7 +23,7 @@ const customGravity2 = gravityFn.does(
 
 export default function App() {
   return (
-    <ConfettiOverlay>
+    <ConfettiProvider>
       <SafeAreaView
         style={{
           flex: 1,
@@ -145,7 +145,7 @@ export default function App() {
           </ButtonRow>
         </View>
       </SafeAreaView>
-    </ConfettiOverlay>
+    </ConfettiProvider>
   );
 }
 
@@ -171,7 +171,7 @@ function ConfettiContextButton() {
       >
         <Text style={{ fontSize: 25 }}>🌨️</Text>
         <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-          Default (ConfettiOverlay)
+          Default (using hook)
         </Text>
       </View>
     </Pressable>
