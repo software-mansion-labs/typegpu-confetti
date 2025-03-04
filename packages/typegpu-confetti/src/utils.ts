@@ -56,24 +56,20 @@ export function useGPUSetup(
 export function useBuffer<T extends AnyData>(
   schema: T,
   value: Infer<T> | undefined,
-  usage: ('uniform' | 'storage' | 'vertex')[],
   label?: string,
 ): TgpuBuffer<T> {
   const root = useRoot();
   const bufferRef = useRef<TgpuBuffer<T> | null>();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <don't recreate buffer on value change>
   const buffer = useMemo(() => {
     if (bufferRef.current) {
       bufferRef.current.destroy();
     }
-    const buffer = root
-      .createBuffer(schema, value)
-      //@ts-ignore
-      .$usage(...usage)
-      .$name(label);
+    const buffer = root.createBuffer(schema, value).$name(label);
     bufferRef.current = buffer;
     return buffer;
-  }, [root, schema, label, usage, value]);
+  }, [root, schema, label]);
 
   useLayoutEffect(() => {
     if (value !== undefined && buffer && !buffer.destroyed) {

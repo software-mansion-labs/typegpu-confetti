@@ -15,7 +15,6 @@ import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 
 // #region default props
 
-const defaultParticleAmount = 200;
 const defaultColorPalette = [
   [154, 177, 155, 1],
   [67, 129, 193, 1],
@@ -23,7 +22,6 @@ const defaultColorPalette = [
   [239, 121, 138, 1],
   [255, 166, 48, 1],
 ] as [number, number, number, number][];
-const defaultSize = 1;
 
 function defaultInitParticleData(particleAmount: number) {
   return Array(particleAmount)
@@ -71,12 +69,10 @@ const ParticleData = d.struct({
 
 const rotate = tgpu['~unstable'].fn([d.vec2f, d.f32], d.vec2f).does(/* wgsl */ `
   (v: vec2f, angle: f32) -> vec2f {
-    let pos = vec2(
+    return vec2(
       (v.x * cos(angle)) - (v.y * sin(angle)),
       (v.x * sin(angle)) + (v.y * cos(angle))
     );
-
-    return pos;
 }`);
 
 const mainVert = tgpu['~unstable']
@@ -96,7 +92,7 @@ const mainVert = tgpu['~unstable']
       let width = in.tilt;
       let height = in.tilt / 2;
 
-      var geometry = array<vec2f, 4>(
+      let geometry = array<vec2f, 4>(
         vec2f(0, 0),
         vec2f(width, 0),
         vec2f(0, height),
@@ -160,9 +156,7 @@ const mainCompute = tgpu['~unstable']
 const randSeed = tgpu['~unstable'].privateVar(d.vec2f);
 const setupRandomSeed = tgpu['~unstable']
   .fn([d.vec2f])
-  .does(/* wgsl */ `(coord: vec2f) {
-  randSeed = coord;
-}`)
+  .does(/* wgsl */ '(coord: vec2f) { randSeed = coord;}')
   .$uses({ randSeed });
 
 const rand01 = tgpu['~unstable']
@@ -237,9 +231,9 @@ const ConfettiViz = React.forwardRef(
     {
       gravity = defaultGravity,
       colorPalette = defaultColorPalette,
-      initParticleAmount = defaultParticleAmount,
-      maxParticleAmount = 500,
-      size = defaultSize,
+      initParticleAmount = 200,
+      maxParticleAmount = 1000,
+      size = 1,
       initParticleData = defaultInitParticleData,
       maxDurationTime = 2,
     }: ConfettiPropTypes,
@@ -250,27 +244,31 @@ const ConfettiViz = React.forwardRef(
     const { canvasRef, context } = useGPUSetup(presentationFormat);
 
     const [ended, setEnded] = useState(false);
+    const [timeoutKey, setTimeoutKey] = useState(0);
 
     const currentParticleAmount = useRef(initParticleAmount);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
     useEffect(() => {
+      let timeout: NodeJS.Timeout | undefined;
       if (maxDurationTime !== null) {
-        setTimeout(
-          () => {
-            console.log('timeout ended');
-            setEnded(true);
-          },
+        timeout = setTimeout(
+          () => setEnded(true),
           (maxDurationTime + 1) * 1000,
         );
       }
-    }, [maxDurationTime]);
+      return () => {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+      };
+    }, [maxDurationTime, timeoutKey]);
 
     // #region buffers
 
     const canvasAspectRatioBuffer = useBuffer(
       d.f32,
       context ? context.canvas.width / context.canvas.height : 1,
-      ['uniform'],
       'aspect_ratio',
     ).$usage('uniform');
 
@@ -306,7 +304,6 @@ const ConfettiViz = React.forwardRef(
     const particleGeometryBuffer = useBuffer(
       ParticleGeometryArray,
       particleGeometry,
-      ['vertex'],
       'particle_geometry',
     ).$usage('vertex');
 
@@ -328,19 +325,13 @@ const ConfettiViz = React.forwardRef(
     const particleDataBuffer = useBuffer(
       ParticleDataArray,
       particleInitialData,
-      ['storage', 'uniform', 'vertex'],
       'particle_data',
     ).$usage('storage', 'uniform', 'vertex');
 
-    const deltaTimeBuffer = useBuffer(
-      d.f32,
-      undefined,
-      ['uniform'],
-      'delta_time',
-    ).$usage('uniform');
-    const timeBuffer = useBuffer(d.f32, undefined, ['storage'], 'time').$usage(
-      'storage',
+    const deltaTimeBuffer = useBuffer(d.f32, undefined, 'delta_time').$usage(
+      'uniform',
     );
+    const timeBuffer = useBuffer(d.f32, undefined, 'time').$usage('storage');
 
     const particleDataStorage = useMemo(
       () => particleDataBuffer.as('mutable'),
@@ -363,7 +354,6 @@ const ConfettiViz = React.forwardRef(
         ({
           stop: () => setEnded(false),
           restart: () => {
-            console.log('restart');
             particleDataBuffer.write(particleInitialData);
             if (ended) {
               setEnded(false);
@@ -379,6 +369,11 @@ const ConfettiViz = React.forwardRef(
               currentParticleAmount.current + amount,
               maxParticleAmount,
             );
+
+            if (ended) {
+              setEnded(false);
+            }
+            setTimeoutKey((key) => key + 1);
           },
         }) satisfies ConfettiRef,
       [particleDataBuffer, particleInitialData, ended, maxParticleAmount],
@@ -467,18 +462,20 @@ const ConfettiViz = React.forwardRef(
             error.message,
           );
         } else {
-          console.log('compute pipeline addParticle creation: no error');
+          console.log('compute pipeline add particle creation: no error');
         }
       });
       return pipeline;
     }, [particleDataStorage, root, maxParticleAmount, maxDurationTime]);
 
-    //#endregion
+    // #endregion
 
     const frame = async (deltaTime: number) => {
       if (!context) {
         return;
       }
+
+      root.device.pushErrorScope('validation');
 
       deltaTimeBuffer.write(deltaTime);
       canvasAspectRatioBuffer.write(
@@ -502,12 +499,12 @@ const ConfettiViz = React.forwardRef(
 
       root['~unstable'].flush();
 
-      // root.device.popErrorScope().then((error) => {
-      //   if (error) {
-      //     console.error('error in loop', error.message);
-      //     setEnded(true);
-      //   }
-      // });
+      root.device.popErrorScope().then((error) => {
+        if (error) {
+          console.error('error in loop', error.message);
+          setEnded(true);
+        }
+      });
       context.present();
     };
 

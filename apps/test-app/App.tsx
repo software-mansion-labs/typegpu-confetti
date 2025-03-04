@@ -270,9 +270,9 @@ function ImperativeConfettiButtonRow({
         <Confetti
           key={confettiKey}
           ref={confettiRef}
-          initParticleAmount={1}
+          initParticleAmount={20}
           maxParticleAmount={1000}
-          maxDurationTime={999}
+          maxDurationTime={2}
         />
       )}
     </>
