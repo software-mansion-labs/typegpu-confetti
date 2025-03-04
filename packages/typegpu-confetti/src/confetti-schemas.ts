@@ -139,7 +139,6 @@ export const addParticleCompute = tgpu['~unstable']
         if particleData[i].age < 0.1 {
           setupRandomSeed(vec2f(f32(i), f32(i)));
           particleData[i].age = maxDurationTime * 1000;
-  
           particleData[i].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
           particleData[i].velocity = vec2f(
             rand01() * 2 - 1,
@@ -149,6 +148,24 @@ export const addParticleCompute = tgpu['~unstable']
           return;
         }
       }
+
+      var minAge = particleData[0].age;
+      var minIndex = 0;
+
+      for (var i = 1; i < maxParticleAmount; i++) {
+        if particleData[i].age < minAge {
+          minAge = particleData[i].age;
+          minIndex = i;
+        }
+      }
+
+      setupRandomSeed(vec2f(f32(minIndex), f32(minIndex)));
+      particleData[minIndex].age = maxDurationTime * 1000;
+      particleData[minIndex].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
+      particleData[minIndex].velocity = vec2f(
+        rand01() * 2 - 1,
+        -(rand01() / 25 + 0.01) * 50
+      );
     }`)
   .$uses({ rand01, setupRandomSeed });
 
