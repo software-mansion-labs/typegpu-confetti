@@ -235,17 +235,12 @@ function ImperativeConfettiButtonRow({
   icon,
   label,
 }: { icon?: string; label?: string }) {
-  const [confettiKey, setConfettiKey] = useState(0);
   const confettiRef = useRef<ConfettiRef>(null);
 
   return (
     <>
       <Pressable
-        onPress={() => {
-          setConfettiKey(1);
-          confettiRef.current?.addParticles(50);
-        }}
-        onLongPress={() => setConfettiKey(0)}
+        onPress={() => confettiRef.current?.addParticles(50)}
         style={{
           borderRadius: 20,
           backgroundColor: 'rgb(82 89 238)',
@@ -266,15 +261,12 @@ function ImperativeConfettiButtonRow({
         </View>
       </Pressable>
 
-      {confettiKey > 0 && (
-        <Confetti
-          key={confettiKey}
-          ref={confettiRef}
-          initParticleAmount={0}
-          maxParticleAmount={1000}
-          maxDurationTime={2}
-        />
-      )}
+      <Confetti
+        ref={confettiRef}
+        initParticleAmount={0}
+        maxParticleAmount={1000}
+        maxDurationTime={2}
+      />
     </>
   );
 }
