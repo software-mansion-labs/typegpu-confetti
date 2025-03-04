@@ -47,7 +47,7 @@ function defaultInitParticleData(particleAmount: number) {
 const defaultGravity = tgpu['~unstable']
   .fn([d.vec2f], d.vec2f)
   .does(/* wgsl */ `(pos: vec2f) -> vec2f {
-    return vec2f(0, -0.5);
+    return vec2f(0, -0.3);
   }`);
 
 export type ConfettiPropTypes = {
@@ -313,7 +313,7 @@ const ConfettiViz = React.forwardRef(
     // #endregion
 
     const frame = async (deltaTime: number) => {
-      if (!context) {
+      if (!context || currentParticleAmount.current < 1) {
         return;
       }
 
@@ -334,8 +334,8 @@ const ConfettiViz = React.forwardRef(
         .withColorAttachment({
           view: texture.createView(),
           clearValue: [0, 0, 0, 0],
-          loadOp: 'clear' as const,
-          storeOp: 'store' as const,
+          loadOp: 'clear',
+          storeOp: 'store',
         })
         .draw(4, currentParticleAmount.current);
 
