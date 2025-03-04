@@ -90,7 +90,7 @@ export const mainVert = tgpu['~unstable']
         }
   
         let alpha = min(f32(in.age) / 1000.f, 1);
-        return VertexOutput(vec4f(pos, 0.0, 1.0), alpha * vec4f(in.color.xyz, 1));
+        return VertexOutput(vec4f(pos, 0.0, 1.0), alpha * in.color.a * vec4f(in.color.rgb, 1));
     }`,
   )
   .$uses({ rotate });
