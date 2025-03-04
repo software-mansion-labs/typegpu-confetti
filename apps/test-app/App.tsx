@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 15,
+    gap: 10,
     width: '100%',
     position: 'static',
     flexWrap: 'wrap',
