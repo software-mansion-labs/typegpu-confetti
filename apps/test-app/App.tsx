@@ -91,7 +91,7 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="⬆️">
-            <Confetti gravity={upGravity} maxDurationTime={10} />
+            <Confetti gravity={upGravity} maxDurationTime={5} />
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="↕️">
