@@ -74,7 +74,7 @@ const ConfettiViz = React.forwardRef(
       gravity = defaultGravity,
       colorPalette = defaultColorPalette,
       initParticleAmount = 200,
-      maxParticleAmount = 1000,
+      maxParticleAmount: maxParticleAmount_ = 1000,
       size = 1,
       initParticleData = defaultInitParticleData,
       maxDurationTime = 2,
@@ -89,6 +89,10 @@ const ConfettiViz = React.forwardRef(
     const [timeoutKey, setTimeoutKey] = useState(0);
 
     const currentParticleAmount = useRef(initParticleAmount);
+    const maxParticleAmount = useMemo(
+      () => Math.max(maxParticleAmount_, initParticleAmount, 0),
+      [maxParticleAmount_, initParticleAmount],
+    );
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
     useEffect(() => {
