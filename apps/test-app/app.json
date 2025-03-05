@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "test-app",
+    "name": "Confetti Test",
     "slug": "test-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#EFEFF9"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#EFEFF9"
       },
       "package": "com.anonymous.testapp"
     },

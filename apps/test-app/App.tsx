@@ -5,10 +5,12 @@ import Confetti, {
   ConfettiProvider,
   type ConfettiRef,
   gravityFn,
+  initParticleFn,
   useConfetti,
 } from 'typegpu-confetti';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
+import { rand01, setupRandomSeed } from './random';
 
 const t = tgpu;
 
@@ -17,10 +19,23 @@ const centerGravity = gravityFn.does((pos) =>
 );
 const rightGravity = gravityFn.does((pos) => d.vec2f(2.5, 0));
 const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.5));
-const customGravity = gravityFn.does((pos) => d.vec2f(0, -3));
-const customGravity2 = gravityFn.does(
-  '(pos: vec2f) -> vec2f { return vec2f(0, -0.5);}',
-);
+const strongGravity = gravityFn.does((pos) => d.vec2f(0, -3));
+
+const pointInitParticle = initParticleFn
+  .does(/* wgsl */ `(i: i32) {
+    setupRandomSeed(vec2f(f32(i), f32(i)));
+    particleData[i].age = maxDurationTime * 1000;
+    particleData[i].position = vec2f(
+      (2 * rand01() - 1) / 2 / 50,
+      (2 * rand01() - 1) / 2 / 50,
+    );
+    particleData[i].velocity = vec2f(
+      50 * ((rand01() * 2 - 1) / 35 / 0.5),
+      50 * ((rand01() * 2 - 1) / 30 + 0.05),
+    );
+    particleData[i].seed = rand01();
+  }`)
+  .$uses({ setupRandomSeed, rand01 });
 
 export default function App() {
   return (
@@ -100,46 +115,8 @@ export default function App() {
 
           <ButtonRow label="Initial state, Gravity" icon="💣">
             <Confetti
-              initParticleData={(particleAmount: number) =>
-                Array(particleAmount)
-                  .fill(0)
-                  .map(() => ({
-                    position: d.vec2f(
-                      (2 * Math.random() - 1) / 2 / 50,
-                      (2 * Math.random() - 1) / 2 / 50,
-                    ),
-                    velocity: d.vec2f(
-                      50 * ((Math.random() * 2 - 1) / 35 / 0.5),
-                      50 * ((Math.random() * 2 - 1) / 30 + 0.05),
-                    ),
-                  }))
-              }
-              gravity={customGravity}
-            />
-          </ButtonRow>
-
-          <ButtonRow label="Initial state, Gravity" icon="🌈">
-            <Confetti
-              initParticleData={(particleAmount: number) =>
-                Array(particleAmount)
-                  .fill(0)
-                  .map(() => {
-                    const radius = ((Math.random() + 0.5) * Math.PI) / 2;
-                    return {
-                      position: d.vec2f(
-                        (2 * Math.random() - 1) / 20,
-                        (2 * Math.random() - 1) / 20,
-                      ),
-                      velocity: std.mul(
-                        0.5,
-                        std.normalize(
-                          d.vec2f(Math.cos(radius), Math.sin(radius)),
-                        ),
-                      ),
-                    };
-                  })
-              }
-              gravity={customGravity2}
+              initParticle={pointInitParticle}
+              gravity={strongGravity}
             />
           </ButtonRow>
 
