@@ -36,12 +36,12 @@ export const rotate = tgpu['~unstable']
   }`);
 
 const randSeed = tgpu['~unstable'].privateVar(d.vec2f);
-const setupRandomSeed = tgpu['~unstable']
+export const setupRandomSeed = tgpu['~unstable']
   .fn([d.vec2f])
   .does(/* wgsl */ '(coord: vec2f) { randSeed = coord;}')
   .$uses({ randSeed });
 
-const rand01 = tgpu['~unstable']
+export const rand01 = tgpu['~unstable']
   .fn([], d.f32)
   .does(/* wgsl */ `() -> f32 {
     let a = dot(randSeed, vec2f(23.14077926, 232.61690225));
@@ -106,6 +106,9 @@ export const mainFrag = tgpu['~unstable']
   }`);
 
 export const getGravity = tgpu['~unstable'].slot<TgpuFn<[d.Vec2f], d.Vec2f>>();
+export const gravityFn = tgpu['~unstable'].fn([d.vec2f], d.vec2f);
+
+export const initParticleFn = tgpu['~unstable'].fn([d.i32]);
 
 export const mainCompute = tgpu['~unstable']
   .computeFn({
@@ -130,6 +133,15 @@ export const mainCompute = tgpu['~unstable']
   }`)
   .$uses({ getGravity });
 
+export const initCompute = tgpu['~unstable']
+  .computeFn({
+    in: { gid: d.builtin.globalInvocationId },
+    workgroupSize: [1],
+  })
+  .does(/* wgsl */ `(in: ComputeIn) {
+    initParticle(i32(in.gid.x));
+  }`);
+
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
     workgroupSize: [1],
@@ -137,14 +149,7 @@ export const addParticleCompute = tgpu['~unstable']
   .does(/* wgsl */ `() {
       for (var i = 0; i < maxParticleAmount; i++) {
         if particleData[i].age < 0.1 {
-          setupRandomSeed(vec2f(f32(i), f32(i)));
-          particleData[i].age = maxDurationTime * 1000;
-          particleData[i].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
-          particleData[i].velocity = vec2f(
-            rand01() * 2 - 1,
-            -(rand01() / 25 + 0.01) * 50
-          );
-  
+          initParticle(i);
           return;
         }
       }
@@ -159,13 +164,7 @@ export const addParticleCompute = tgpu['~unstable']
         }
       }
 
-      setupRandomSeed(vec2f(f32(minIndex), f32(minIndex)));
-      particleData[minIndex].age = maxDurationTime * 1000;
-      particleData[minIndex].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
-      particleData[minIndex].velocity = vec2f(
-        rand01() * 2 - 1,
-        -(rand01() / 25 + 0.01) * 50
-      );
+      initParticle(minIndex);
     }`)
   .$uses({ rand01, setupRandomSeed });
 
