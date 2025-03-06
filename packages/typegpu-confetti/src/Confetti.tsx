@@ -19,17 +19,22 @@ import {
   ParticleData,
   ParticleGeometry,
   addParticleCompute,
+  canvasAspectRatio,
   dataLayout,
+  defaultInitParticle,
+  deltaTime,
   geometryLayout,
-  getGravity,
   gravityFn,
+  gravity as gravitySlot,
   initCompute,
-  initParticleFn,
+  initParticle as initParticleSlot,
   mainCompute,
   mainFrag,
   mainVert,
-  rand01,
-  setupRandomSeed,
+  maxDurationTime as maxDurationTimeSlot,
+  maxParticleAmount as maxParticleAmountSlot,
+  particles,
+  time,
 } from './confetti-schemas';
 import { RootContext } from './context';
 import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
@@ -45,20 +50,6 @@ const defaultColorPalette = [
 const defaultGravity = gravityFn.does(/* wgsl */ `(pos: vec2f) -> vec2f {
     return vec2f(0, -0.3);
   }`);
-
-const defaultInitParticle = initParticleFn
-  .does(/* wgsl */ `
-  (i: i32) {
-    setupRandomSeed(vec2f(f32(i), f32(i)));
-    particleData[i].age = maxDurationTime * 1000;
-    particleData[i].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
-    particleData[i].velocity = vec2f(
-      rand01() * 2 - 1,
-      -(rand01() / 25 + 0.01) * 50
-    );
-    particleData[i].seed = rand01();
-  }`)
-  .$uses({ setupRandomSeed, rand01 });
 
 export type ConfettiPropTypes = {
   colorPalette?: [number, number, number, number][];
@@ -130,10 +121,7 @@ const ConfettiViz = React.forwardRef(
     ).$usage('uniform');
 
     const canvasAspectRatioUniform = useMemo(
-      () =>
-        canvasAspectRatioBuffer
-          ? canvasAspectRatioBuffer.as('uniform')
-          : undefined,
+      () => canvasAspectRatioBuffer.as('uniform'),
       [canvasAspectRatioBuffer],
     );
 
@@ -182,13 +170,10 @@ const ConfettiViz = React.forwardRef(
       [particleDataBuffer],
     );
     const deltaTimeUniform = useMemo(
-      () => (deltaTimeBuffer ? deltaTimeBuffer.as('uniform') : undefined),
+      () => deltaTimeBuffer.as('uniform'),
       [deltaTimeBuffer],
     );
-    const timeStorage = useMemo(
-      () => (timeBuffer ? timeBuffer.as('mutable') : timeBuffer),
-      [timeBuffer],
-    );
+    const timeStorage = useMemo(() => timeBuffer.as('mutable'), [timeBuffer]);
 
     //#endregion
 
@@ -233,7 +218,15 @@ const ConfettiViz = React.forwardRef(
     const validatePipeline = useCallback(
       <T extends TgpuRenderPipeline | TgpuComputePipeline>(pipeline: T) => {
         root.device.pushErrorScope('validation');
-        root.unwrap(pipeline as never);
+        try {
+          root.unwrap(pipeline as TgpuComputePipeline);
+        } catch (error) {
+          console.error(error);
+          if (typeof error === 'object' && error && 'cause' in error) {
+            console.log(error.cause);
+          }
+        }
+
         root.device.popErrorScope().then((error) => {
           if (error) {
             setEnded(true);
@@ -251,18 +244,14 @@ const ConfettiViz = React.forwardRef(
       () =>
         validatePipeline(
           root['~unstable']
-            .withVertex(
-              mainVert.$uses({
-                canvasAspectRatio: canvasAspectRatioUniform,
-              }),
-              {
-                tilt: geometryLayout.attrib.tilt,
-                angle: geometryLayout.attrib.angle,
-                color: geometryLayout.attrib.color,
-                center: dataLayout.attrib.position,
-                age: dataLayout.attrib.age,
-              },
-            )
+            .with(canvasAspectRatio, canvasAspectRatioUniform)
+            .withVertex(mainVert, {
+              tilt: geometryLayout.attrib.tilt,
+              angle: geometryLayout.attrib.angle,
+              color: geometryLayout.attrib.color,
+              center: dataLayout.attrib.position,
+              age: dataLayout.attrib.age,
+            })
             .withFragment(mainFrag, {
               format: presentationFormat,
             })
@@ -278,23 +267,25 @@ const ConfettiViz = React.forwardRef(
       () =>
         validatePipeline(
           root['~unstable']
-            .with(getGravity, gravity)
-            .withCompute(
-              mainCompute.$uses({
-                particleData: particleDataStorage,
-                deltaTime: deltaTimeUniform,
-                time: timeStorage,
-              }),
-            )
+            .with(particles, particleDataStorage)
+            .with(maxDurationTimeSlot, maxDurationTime)
+            .with(initParticleSlot, initParticle)
+            .with(gravitySlot, gravity)
+            .with(maxDurationTimeSlot, maxDurationTime)
+            .with(time, timeStorage)
+            .with(deltaTime, deltaTimeUniform)
+            .withCompute(mainCompute)
             .createPipeline(),
         ),
       [
-        deltaTimeUniform,
         particleDataStorage,
         root,
         timeStorage,
         gravity,
         validatePipeline,
+        initParticle,
+        maxDurationTime,
+        deltaTimeUniform,
       ],
     );
 
@@ -302,15 +293,10 @@ const ConfettiViz = React.forwardRef(
       () =>
         validatePipeline(
           root['~unstable']
-            .withCompute(
-              initCompute.$uses({
-                particleData: particleDataStorage,
-                initParticle: initParticle.$uses({
-                  particleData: particleDataStorage,
-                  maxDurationTime,
-                }),
-              }),
-            )
+            .with(particles, particleDataStorage)
+            .with(maxDurationTimeSlot, maxDurationTime)
+            .with(initParticleSlot, initParticle)
+            .withCompute(initCompute)
             .createPipeline(),
         ),
       [
@@ -326,17 +312,11 @@ const ConfettiViz = React.forwardRef(
       () =>
         validatePipeline(
           root['~unstable']
-            .withCompute(
-              addParticleCompute.$uses({
-                particleData: particleDataStorage,
-                maxParticleAmount,
-                maxDurationTime,
-                initParticle: initParticle.$uses({
-                  particleData: particleDataStorage,
-                  maxDurationTime,
-                }),
-              }),
-            )
+            .with(particles, particleDataStorage)
+            .with(maxDurationTimeSlot, maxDurationTime)
+            .with(initParticleSlot, initParticle)
+            .with(maxParticleAmountSlot, maxParticleAmount)
+            .withCompute(addParticleCompute)
             .createPipeline(),
         ),
       [
