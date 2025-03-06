@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
@@ -90,7 +89,9 @@ const ConfettiViz = React.forwardRef(
     const [ended, setEnded] = useState(false);
     const [timeoutKey, setTimeoutKey] = useState(0);
 
-    const currentParticleAmount = useRef(initParticleAmount);
+    const [particleAmount, setParticleAmount] = useState(initParticleAmount);
+    console.log(particleAmount);
+
     const maxParticleAmount = useMemo(
       () => Math.max(maxParticleAmount_, initParticleAmount, 0),
       [maxParticleAmount_, initParticleAmount],
@@ -184,7 +185,8 @@ const ConfettiViz = React.forwardRef(
           pause: () => setEnded(true),
           resume: () => setEnded(false),
           restart: () => {
-            currentParticleAmount.current = initParticleAmount;
+            setParticleAmount(initParticleAmount);
+
             if (initParticleAmount > 0) {
               initComputePipeline.dispatchWorkgroups(initParticleAmount);
             }
@@ -195,13 +197,13 @@ const ConfettiViz = React.forwardRef(
           },
 
           addParticles: (amount: number) => {
+            console.log('add particles');
             for (let i = 0; i < amount; i++) {
               addParticleComputePipeline.dispatchWorkgroups(1);
             }
 
-            currentParticleAmount.current = Math.min(
-              currentParticleAmount.current + amount,
-              maxParticleAmount,
+            setParticleAmount((current) =>
+              Math.min(current + amount, maxParticleAmount),
             );
 
             if (ended) {
@@ -338,7 +340,7 @@ const ConfettiViz = React.forwardRef(
     }, [initComputePipeline, initParticleAmount]);
 
     const frame = async (deltaTime: number) => {
-      if (!context || currentParticleAmount.current < 1) {
+      if (!context || particleAmount < 1) {
         return;
       }
 
@@ -348,9 +350,7 @@ const ConfettiViz = React.forwardRef(
       canvasAspectRatioBuffer.write(
         context.canvas.width / context.canvas.height,
       );
-      computePipeline.dispatchWorkgroups(
-        Math.ceil(currentParticleAmount.current / 64),
-      );
+      computePipeline.dispatchWorkgroups(Math.ceil(particleAmount / 64));
 
       renderPipeline
         .with(geometryLayout, particleGeometryBuffer)
@@ -361,7 +361,7 @@ const ConfettiViz = React.forwardRef(
           loadOp: 'clear',
           storeOp: 'store',
         })
-        .draw(4, currentParticleAmount.current);
+        .draw(4, particleAmount);
 
       root['~unstable'].flush();
 
