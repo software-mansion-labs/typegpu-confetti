@@ -1,37 +1,32 @@
 import {
   type ReactNode,
+  type RefObject,
   createContext,
   useContext,
-  useMemo,
-  useState,
+  useRef,
 } from 'react';
 import { View } from 'react-native';
-import Confetti, { type ConfettiPropTypes } from './Confetti';
+import Confetti, { type ConfettiRef, type ConfettiPropTypes } from './Confetti';
 
-const ConfettiContext = createContext({
-  rerun: () => {},
-  dispose: () => {},
-});
+const ConfettiContext = createContext<RefObject<ConfettiRef> | null>(null);
 
 export function ConfettiProvider(
   props: { children: ReactNode } & ConfettiPropTypes,
 ) {
   const { children, ...confettiProps } = props;
-  const [confettiKey, setConfettiKey] = useState(0);
-
-  const confettiContext = useMemo(
-    () => ({
-      rerun: () => setConfettiKey((key) => key + 1),
-      dispose: () => setConfettiKey(0),
-    }),
-    [],
-  );
+  const ref = useRef<ConfettiRef>(null);
 
   return (
-    <ConfettiContext.Provider value={confettiContext}>
+    <ConfettiContext.Provider value={ref}>
       <View style={{ position: 'static', width: '100%', height: '100%' }}>
         {children}
-        {confettiKey > 0 && <Confetti key={confettiKey} {...confettiProps} />}
+
+        <Confetti
+          {...confettiProps}
+          initParticleAmount={confettiProps.initParticleAmount ?? 0}
+          maxParticleAmount={confettiProps.maxParticleAmount ?? 500}
+          ref={ref}
+        />
       </View>
     </ConfettiContext.Provider>
   );

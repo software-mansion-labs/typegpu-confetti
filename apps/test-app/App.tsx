@@ -1,3 +1,4 @@
+import { DefaultGenerator, rand } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
@@ -12,7 +13,6 @@ import Confetti, {
 } from 'typegpu-confetti';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
-import { rand01, setupRandomSeed } from './random';
 
 const t = tgpu;
 
@@ -23,26 +23,19 @@ const rightGravity = gravityFn.does((pos) => d.vec2f(2.5, 0));
 const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.5));
 const strongGravity = gravityFn.does((pos) => d.vec2f(0, -3));
 
-const pointInitParticle = initParticleFn
-  .does(/* wgsl */ `(i: i32) {
-    setupRandomSeed(vec2f(f32(i), f32(i)));
-    particles[i].age = maxDurationTime * 1000;
-    particles[i].position = vec2f(
-      (2 * rand01() - 1) / 2 / 50,
-      (2 * rand01() - 1) / 2 / 50,
-    );
-    particles[i].velocity = vec2f(
-      50 * ((rand01() * 2 - 1) / 35 / 0.5),
-      50 * ((rand01() * 2 - 1) / 30 + 0.05),
-    );
-    particles[i].seed = rand01();
-  }`)
-  .$uses({
-    setupRandomSeed,
-    rand01,
-    particles,
-    maxDurationTime,
-  });
+const pointInitParticle = initParticleFn.does((i) => {
+  DefaultGenerator.seed(d.vec2f(d.f32(i), d.f32(i)));
+  particles.value[i].age = maxDurationTime.value * 1000;
+  particles.value[i].position = d.vec2f(
+    (2 * rand.float01() - 1) / 2 / 50,
+    (2 * rand.float01() - 1) / 2 / 50,
+  );
+  particles.value[i].velocity = d.vec2f(
+    50 * ((rand.float01() * 2 - 1) / 35 / 0.5),
+    50 * ((rand.float01() * 2 - 1) / 30 + 0.05),
+  );
+  particles.value[i].seed = rand.float01();
+});
 
 export default function App() {
   return (
@@ -51,8 +44,6 @@ export default function App() {
         style={{
           flex: 1,
           justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%',
           backgroundColor: 'rgb(239 239 249)',
         }}
       >
@@ -133,35 +124,6 @@ export default function App() {
   );
 }
 
-function ConfettiContextButton() {
-  const confetti = useConfetti();
-
-  return (
-    <Pressable
-      onPress={() => confetti.rerun()}
-      onLongPress={() => confetti.dispose()}
-      style={{
-        borderRadius: 20,
-        backgroundColor: 'rgb(82 89 238)',
-        padding: 15,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <Text style={{ fontSize: 25 }}>🌨️</Text>
-        <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-          Default (using hook)
-        </Text>
-      </View>
-    </Pressable>
-  );
-}
-
 function ButtonRow({
   icon,
   label,
@@ -211,6 +173,37 @@ function ButtonRow({
         </View>
       )}
     </>
+  );
+}
+
+function ConfettiContextButton() {
+  const confetti = useConfetti();
+
+  return (
+    <Pressable
+      onPress={() => {
+        confetti?.current?.addParticles(200);
+      }}
+      onLongPress={() => confetti?.current?.pause()}
+      style={{
+        borderRadius: 20,
+        backgroundColor: 'rgb(82 89 238)',
+        padding: 15,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <Text style={{ fontSize: 25 }}>🌨️</Text>
+        <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
+          Default (using hook)
+        </Text>
+      </View>
+    </Pressable>
   );
 }
 
