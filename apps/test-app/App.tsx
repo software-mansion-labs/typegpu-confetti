@@ -6,6 +6,8 @@ import Confetti, {
   type ConfettiRef,
   gravityFn,
   initParticleFn,
+  maxDurationTime,
+  particles,
   useConfetti,
 } from 'typegpu-confetti';
 import * as d from 'typegpu/data';
@@ -24,18 +26,23 @@ const strongGravity = gravityFn.does((pos) => d.vec2f(0, -3));
 const pointInitParticle = initParticleFn
   .does(/* wgsl */ `(i: i32) {
     setupRandomSeed(vec2f(f32(i), f32(i)));
-    particleData[i].age = maxDurationTime * 1000;
-    particleData[i].position = vec2f(
+    particles[i].age = maxDurationTime * 1000;
+    particles[i].position = vec2f(
       (2 * rand01() - 1) / 2 / 50,
       (2 * rand01() - 1) / 2 / 50,
     );
-    particleData[i].velocity = vec2f(
+    particles[i].velocity = vec2f(
       50 * ((rand01() * 2 - 1) / 35 / 0.5),
       50 * ((rand01() * 2 - 1) / 30 + 0.05),
     );
-    particleData[i].seed = rand01();
+    particles[i].seed = rand01();
   }`)
-  .$uses({ setupRandomSeed, rand01 });
+  .$uses({
+    setupRandomSeed,
+    rand01,
+    particles,
+    maxDurationTime,
+  });
 
 export default function App() {
   return (
@@ -65,7 +72,6 @@ export default function App() {
         </Text>
         <View style={styles.container}>
           <ConfettiContextButton />
-
           <ButtonRow label="Color" icon="💜">
             <Confetti
               colorPalette={[

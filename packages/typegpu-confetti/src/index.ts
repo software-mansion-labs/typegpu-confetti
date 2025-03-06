@@ -1,7 +1,20 @@
 import Confetti from './Confetti';
 export { ConfettiPropTypes, ConfettiRef } from './Confetti';
 
-export { gravityFn, initParticleFn } from './confetti-schemas';
+export {
+  // slots
+  canvasAspectRatio,
+  particles,
+  maxDurationTime,
+  initParticle,
+  maxParticleAmount,
+  deltaTime,
+  time,
+  gravity,
+  // function shells
+  gravityFn,
+  initParticleFn,
+} from './confetti-schemas';
 
 export {
   ConfettiProvider,

@@ -23,7 +23,24 @@ export const ParticleData = d.struct({
 
 // #endregion
 
+// #region slots
+
+export const canvasAspectRatio = tgpu['~unstable'].accessor(d.f32);
+export const particles = tgpu['~unstable'].accessor(d.arrayOf(ParticleData, 1));
+export const maxDurationTime = tgpu['~unstable'].slot<number>();
+export const initParticle =
+  tgpu['~unstable'].slot<TgpuFn<[d.I32], undefined>>();
+export const maxParticleAmount = tgpu['~unstable'].slot<number>();
+export const deltaTime = tgpu['~unstable'].accessor(d.f32);
+export const time = tgpu['~unstable'].accessor(d.f32);
+export const gravity = tgpu['~unstable'].slot<TgpuFn<[d.Vec2f], d.Vec2f>>();
+
+// #endregion
+
 // #region functions
+
+export const gravityFn = tgpu['~unstable'].fn([d.vec2f], d.vec2f);
+export const initParticleFn = tgpu['~unstable'].fn([d.i32]);
 
 export const rotate = tgpu['~unstable']
   .fn([d.vec2f, d.f32], d.vec2f)
@@ -93,7 +110,7 @@ export const mainVert = tgpu['~unstable']
         return VertexOutput(vec4f(pos, 0.0, 1.0), alpha * in.color.a * vec4f(in.color.rgb, 1));
     }`,
   )
-  .$uses({ rotate });
+  .$uses({ rotate, canvasAspectRatio });
 
 export const mainFrag = tgpu['~unstable']
   .fragmentFn({
@@ -104,11 +121,6 @@ export const mainFrag = tgpu['~unstable']
     (in: FragmentIn) -> @location(0) vec4f {
       return in.color;
   }`);
-
-export const getGravity = tgpu['~unstable'].slot<TgpuFn<[d.Vec2f], d.Vec2f>>();
-export const gravityFn = tgpu['~unstable'].fn([d.vec2f], d.vec2f);
-
-export const initParticleFn = tgpu['~unstable'].fn([d.i32]);
 
 export const mainCompute = tgpu['~unstable']
   .computeFn({
@@ -121,17 +133,36 @@ export const mainCompute = tgpu['~unstable']
       time += deltaTime;
     }
   
-    if particleData[index].age < 0.01 {
+    if particles[index].age < 0.01 {
       return;
     }
   
-    let phase = (time / 300) + particleData[index].seed;
+    let phase = (time / 300) + particles[index].seed;
   
-    particleData[index].velocity += getGravity(particleData[index].position) * deltaTime / 1000;
-    particleData[index].position += particleData[index].velocity * deltaTime / 1000 + vec2f(sin(phase) / 600, cos(phase) / 500);
-    particleData[index].age -= deltaTime;
+    particles[index].velocity += gravity(particles[index].position) * deltaTime / 1000;
+    particles[index].position += particles[index].velocity * deltaTime / 1000 + vec2f(sin(phase) / 600, cos(phase) / 500);
+    particles[index].age -= deltaTime;
   }`)
-  .$uses({ getGravity });
+  .$uses({ gravity, particles, deltaTime, time });
+
+export const defaultInitParticle = initParticleFn
+  .does(/* wgsl */ `
+  (i: i32) {
+    setupRandomSeed(vec2f(f32(i), f32(i)));
+    particles[i].age = maxDurationTime * 1000;
+    particles[i].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
+    particles[i].velocity = vec2f(
+      rand01() * 2 - 1,
+      -(rand01() / 25 + 0.01) * 50
+    );
+    particles[i].seed = rand01();
+  }`)
+  .$uses({
+    particles,
+    setupRandomSeed,
+    rand01,
+    maxDurationTime,
+  });
 
 export const initCompute = tgpu['~unstable']
   .computeFn({
@@ -140,7 +171,8 @@ export const initCompute = tgpu['~unstable']
   })
   .does(/* wgsl */ `(in: ComputeIn) {
     initParticle(i32(in.gid.x));
-  }`);
+  }`)
+  .$uses({ initParticle });
 
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
@@ -148,25 +180,31 @@ export const addParticleCompute = tgpu['~unstable']
   })
   .does(/* wgsl */ `() {
       for (var i = 0; i < maxParticleAmount; i++) {
-        if particleData[i].age < 0.1 {
+        if particles[i].age < 0.1 {
           initParticle(i);
           return;
         }
       }
 
-      var minAge = particleData[0].age;
+      var minAge = particles[0].age;
       var minIndex = 0;
 
       for (var i = 1; i < maxParticleAmount; i++) {
-        if particleData[i].age < minAge {
-          minAge = particleData[i].age;
+        if particles[i].age < minAge {
+          minAge = particles[i].age;
           minIndex = i;
         }
       }
 
       initParticle(minIndex);
     }`)
-  .$uses({ rand01, setupRandomSeed });
+  .$uses({
+    rand01,
+    setupRandomSeed,
+    particles,
+    initParticle,
+    maxParticleAmount,
+  });
 
 // #endregion
 
