@@ -39,7 +39,7 @@ const pointInitParticle = initParticleFn.does((i) => {
 
 export default function App() {
   return (
-    <ConfettiProvider>
+    <ConfettiProvider maxParticleAmount={2000}>
       <SafeAreaView
         style={{
           flex: 1,
