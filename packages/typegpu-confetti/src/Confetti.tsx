@@ -48,8 +48,8 @@ const defaultColorPalette = [
 ] as [number, number, number, number][];
 
 const defaultGravity = gravityFn.does(/* wgsl */ `(pos: vec2f) -> vec2f {
-    return vec2f(0, -0.3);
-  }`);
+  return vec2f(0, -0.3);
+}`);
 
 export type ConfettiPropTypes = {
   colorPalette?: [number, number, number, number][];
@@ -103,7 +103,7 @@ const ConfettiViz = React.forwardRef(
       if (maxDurationTime !== null) {
         timeout = setTimeout(
           () => setEnded(true),
-          (maxDurationTime + 1) * 1000,
+          (maxDurationTime + 0.01) * 1000,
         );
       }
       return () => {
