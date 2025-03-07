@@ -37,6 +37,37 @@ const pointInitParticle = initParticleFn.does((i) => {
   particles.value[i].seed = rand.float01();
 });
 
+const twoSidesInitParticle = initParticleFn.does((i) => {
+  DefaultGenerator.seed(d.vec2f(d.f32(i), d.f32(i)));
+
+  particles.value[i].age = maxDurationTime.value * 1000;
+  particles.value[i].seed = rand.float01();
+
+  if (i % 2 === 0) {
+    particles.value[i].position = d.vec2f(
+      (2 * rand.float01() - 1) / 2 / 50 + 1,
+      (2 * rand.float01() - 1) / 2 / 50,
+    );
+
+    particles.value[i].velocity = d.vec2f(
+      -1 + (rand.float01() * 2 - 1),
+      1.5 + (rand.float01() * 2 - 1),
+    );
+  } else {
+    particles.value[i].position = d.vec2f(
+      (2 * rand.float01() - 1) / 2 / 50 - 1,
+      (2 * rand.float01() - 1) / 2 / 50,
+    );
+
+    particles.value[i].velocity = d.vec2f(
+      1 + (rand.float01() * 2 - 1),
+      1.5 + (rand.float01() * 2 - 1),
+    );
+  }
+});
+
+const customGravity = gravityFn.does((pos) => d.vec2f(-pos.x, -3));
+
 export default function App() {
   return (
     <ConfettiProvider maxParticleAmount={2000}>
@@ -114,6 +145,14 @@ export default function App() {
             <Confetti
               initParticle={pointInitParticle}
               gravity={strongGravity}
+            />
+          </ButtonRow>
+
+          <ButtonRow label="Initial state" icon="2️⃣">
+            <Confetti
+              initParticle={twoSidesInitParticle}
+              gravity={customGravity}
+              maxDurationTime={4}
             />
           </ButtonRow>
 
