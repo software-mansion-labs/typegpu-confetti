@@ -145,4 +145,5 @@ type ConfettiPropTypes = {
   });
   ```
 
-> [!NOTE] Changing any of the props will restart the animation.
+>[!NOTE]
+> Changing any of the props will restart the animation.
