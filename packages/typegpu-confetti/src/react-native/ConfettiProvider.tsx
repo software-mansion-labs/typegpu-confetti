@@ -5,8 +5,12 @@ import {
   useContext,
   useRef,
 } from 'react';
+import React from 'react';
 import { View } from 'react-native';
-import Confetti, { type ConfettiRef, type ConfettiPropTypes } from './Confetti';
+import type { ConfettiPropTypes, ConfettiRef } from '../types';
+import Confetti from './Confetti';
+
+const react = React;
 
 const ConfettiContext = createContext<RefObject<ConfettiRef> | null>(null);
 
