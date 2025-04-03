@@ -14,7 +14,7 @@
     "react": "18.3.1",
     "react-native": "0.76.7",
     "react-native-wgpu": "^0.1.23",
-    "typegpu": "0.4.4",
+    "typegpu": "0.5.3",
     "typegpu-confetti": "workspace:*",
     "unplugin-typegpu": "0.1.0-alpha.3"
   },

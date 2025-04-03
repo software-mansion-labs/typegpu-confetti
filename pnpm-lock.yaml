@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@typegpu/noise':
         specifier: ^0.0.3
-        version: 0.0.3(typegpu@0.4.4)
+        version: 0.0.3(typegpu@0.5.3)
       expo:
         specifier: ~52.0.37
         version: 52.0.37(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(react-native@0.76.7(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
@@ -24,8 +24,8 @@ importers:
         specifier: ^0.1.23
         version: 0.1.23(react-native@0.76.7(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.5.3
+        version: 0.5.3
       typegpu-confetti:
         specifier: workspace:*
         version: link:../../packages/typegpu-confetti
@@ -61,8 +61,8 @@ importers:
         specifier: ^0.1.23
         version: 0.1.23(react-native@0.76.7(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.5.3
+        version: 0.5.3
     devDependencies:
       '@webgpu/types':
         specifier: ^0.1.54
@@ -3523,6 +3523,10 @@ packages:
     resolution: {integrity: sha512-QLtpj8McYtcYT9g4dNW/b8vPsWkPdrIdqNugvyD47Y7yDx9AWEh6ZojsWDwqk3kvChCK2BYOE2MIMJabwgzEPw==}
     engines: {node: '>=12.20.0'}
 
+  tinyest@0.1.0-alpha.6:
+    resolution: {integrity: sha512-GEIbxLZt+DYEJyJm7e/v5WeOxLfpWXIqsSRcNgqaXRkbViOCKbMc84SBEtxezjmuiF77f9aBv6J9K8fzrN3FBQ==}
+    engines: {node: '>=12.20.0'}
+
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
@@ -3599,8 +3603,8 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@0.4.4:
-    resolution: {integrity: sha512-Tb8xJVcnghJxSQav/gEKtG8TSa54Xwwp/c418hSr5bBAdU6sVdpIdyH1YNxyugAd4f+D9KGENLH2Yct0Zem+9w==}
+  typegpu@0.5.3:
+    resolution: {integrity: sha512-CSaKlNdytdqa0w08mUe5dXoTsErLj9GRH/62xd+hvGZh9tQfp0srFTq2ZZa4GuZKtkpf+PvJA6u7xq4tJ9Bgeg==}
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -5471,9 +5475,9 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@typegpu/noise@0.0.3(typegpu@0.4.4)':
+  '@typegpu/noise@0.0.3(typegpu@0.5.3)':
     dependencies:
-      typegpu: 0.4.4
+      typegpu: 0.5.3
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -7856,6 +7860,8 @@ snapshots:
 
   tinyest@0.1.0-alpha.3: {}
 
+  tinyest@0.1.0-alpha.6: {}
+
   tinyexec@0.3.2: {}
 
   tinyglobby@0.2.12:
@@ -7924,9 +7930,9 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@0.4.4:
+  typegpu@0.5.3:
     dependencies:
-      tinyest: 0.1.0-alpha.3
+      tinyest: 0.1.0-alpha.6
       typed-binary: 4.3.2
 
   typescript@5.7.3: {}

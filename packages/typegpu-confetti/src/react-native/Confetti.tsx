@@ -12,7 +12,6 @@ import { Canvas, useDevice } from 'react-native-wgpu';
 import tgpu, {
   type TgpuComputePipeline,
   type TgpuRenderPipeline,
-  type TgpuFn,
 } from 'typegpu';
 import * as d from 'typegpu/data';
 import {
@@ -35,8 +34,9 @@ import {
   maxParticleAmount as maxParticleAmountSlot,
   particles,
   time,
-} from './confetti-schemas';
-import { RootContext } from './context';
+} from '../confetti-schemas';
+import { RootContext } from '../context';
+import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 
 const defaultColorPalette = [
@@ -50,25 +50,6 @@ const defaultColorPalette = [
 const defaultGravity = gravityFn.does(/* wgsl */ `(pos: vec2f) -> vec2f {
   return vec2f(0, -0.3);
 }`);
-
-export type ConfettiPropTypes = {
-  colorPalette?: [number, number, number, number][];
-  size?: number;
-  maxDurationTime?: number | null;
-
-  initParticleAmount?: number;
-  maxParticleAmount?: number;
-
-  gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
-  initParticle?: TgpuFn<[d.I32], undefined>;
-};
-
-export type ConfettiRef = {
-  pause: () => void;
-  resume: () => void;
-  restart: () => void;
-  addParticles: (amount: number) => void;
-};
 
 const ConfettiViz = React.forwardRef(
   (

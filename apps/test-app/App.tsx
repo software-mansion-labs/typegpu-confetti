@@ -2,15 +2,17 @@ import { DefaultGenerator, rand } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
-import Confetti, {
-  ConfettiProvider,
+import {
   type ConfettiRef,
   gravityFn,
   initParticleFn,
   maxDurationTime,
   particles,
-  useConfetti,
 } from 'typegpu-confetti';
+import Confetti, {
+  ConfettiProvider,
+  useConfetti,
+} from 'typegpu-confetti/react-native';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
 

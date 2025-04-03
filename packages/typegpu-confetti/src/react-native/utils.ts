@@ -12,7 +12,7 @@ import { type RNCanvasContext, useCanvasEffect } from 'react-native-wgpu';
 import type { AnyData, Infer } from 'typegpu/data';
 
 import type { TgpuBuffer, TgpuRoot } from 'typegpu';
-import { RootContext } from './context';
+import { RootContext } from '../context';
 
 export function useRoot(): TgpuRoot {
   const root = useContext(RootContext);
