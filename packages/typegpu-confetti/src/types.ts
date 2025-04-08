@@ -1,4 +1,3 @@
-import type { TgpuFn } from 'typegpu';
 import type * as d from 'typegpu/data';
 
 export type ConfettiPropTypes = {
@@ -9,8 +8,8 @@ export type ConfettiPropTypes = {
   initParticleAmount?: number;
   maxParticleAmount?: number;
 
-  gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
-  initParticle?: TgpuFn<[d.I32], undefined>;
+  gravity?: (pos: d.v2f) => d.v2f;
+  initParticle?: (index: number) => void;
 };
 
 export type ConfettiRef = {
