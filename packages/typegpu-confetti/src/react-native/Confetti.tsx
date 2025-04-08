@@ -26,6 +26,7 @@ import {
   gravityFn,
   gravity as gravitySlot,
   initCompute,
+  initParticleFn,
   initParticle as initParticleSlot,
   mainCompute,
   mainFrag,
@@ -39,6 +40,7 @@ import { RootContext } from '../context';
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 
+const defaultMaxDurationTime = 2;
 const defaultColorPalette = [
   [154, 177, 155, 1],
   [67, 129, 193, 1],
@@ -47,9 +49,10 @@ const defaultColorPalette = [
   [255, 166, 48, 1],
 ] as [number, number, number, number][];
 
-const defaultGravity = gravityFn.does(/* wgsl */ `(pos: vec2f) -> vec2f {
-  return vec2f(0, -0.3);
-}`);
+const defaultGravity = (pos: d.v2f) => {
+  'kernel';
+  return d.vec2f(0, -0.3);
+};
 
 const ConfettiViz = React.forwardRef(
   (
@@ -59,7 +62,7 @@ const ConfettiViz = React.forwardRef(
       initParticleAmount = 200,
       maxParticleAmount: maxParticleAmount_ = 1000,
       size = 1,
-      maxDurationTime = 2,
+      maxDurationTime = defaultMaxDurationTime,
       initParticle = defaultInitParticle,
     }: ConfettiPropTypes,
     ref: ForwardedRef<ConfettiRef>,
@@ -251,10 +254,12 @@ const ConfettiViz = React.forwardRef(
         validatePipeline(
           root['~unstable']
             .with(particles, particleDataStorage)
-            .with(maxDurationTimeSlot, maxDurationTime)
-            .with(initParticleSlot, initParticle)
-            .with(gravitySlot, gravity)
-            .with(maxDurationTimeSlot, maxDurationTime)
+            .with(
+              maxDurationTimeSlot,
+              maxDurationTime ?? defaultMaxDurationTime,
+            )
+            .with(initParticleSlot, initParticleFn(initParticle))
+            .with(gravitySlot, gravityFn(gravity))
             .with(time, timeStorage)
             .with(deltaTime, deltaTimeUniform)
             .withCompute(mainCompute)
@@ -277,8 +282,11 @@ const ConfettiViz = React.forwardRef(
         validatePipeline(
           root['~unstable']
             .with(particles, particleDataStorage)
-            .with(maxDurationTimeSlot, maxDurationTime)
-            .with(initParticleSlot, initParticle)
+            .with(
+              maxDurationTimeSlot,
+              maxDurationTime ?? defaultMaxDurationTime,
+            )
+            .with(initParticleSlot, initParticleFn(initParticle))
             .withCompute(initCompute)
             .createPipeline(),
         ),
@@ -296,8 +304,11 @@ const ConfettiViz = React.forwardRef(
         validatePipeline(
           root['~unstable']
             .with(particles, particleDataStorage)
-            .with(maxDurationTimeSlot, maxDurationTime)
-            .with(initParticleSlot, initParticle)
+            .with(
+              maxDurationTimeSlot,
+              maxDurationTime ?? defaultMaxDurationTime,
+            )
+            .with(initParticleSlot, initParticleFn(initParticle))
             .with(maxParticleAmountSlot, maxParticleAmount)
             .withCompute(addParticleCompute)
             .createPipeline(),

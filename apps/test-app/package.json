@@ -9,14 +9,14 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@typegpu/noise": "^0.0.3",
+    "@typegpu/noise": "^0.0.5",
     "expo": "~52.0.37",
     "react": "18.3.1",
     "react-native": "0.76.7",
     "react-native-wgpu": "^0.1.23",
-    "typegpu": "0.5.3",
+    "typegpu": "0.5.4",
     "typegpu-confetti": "workspace:*",
-    "unplugin-typegpu": "0.1.0-alpha.3"
+    "unplugin-typegpu": "0.1.0-alpha.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

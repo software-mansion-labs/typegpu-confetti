@@ -1,14 +1,8 @@
-import { DefaultGenerator, rand } from '@typegpu/noise';
+import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
-import {
-  type ConfettiRef,
-  gravityFn,
-  initParticleFn,
-  maxDurationTime,
-  particles,
-} from 'typegpu-confetti';
+import { type ConfettiRef, maxDurationTime, particles } from 'typegpu-confetti';
 import Confetti, {
   ConfettiProvider,
   useConfetti,
@@ -18,57 +12,72 @@ import * as std from 'typegpu/std';
 
 const t = tgpu;
 
-const centerGravity = gravityFn.does((pos) =>
-  std.mul(2, d.vec2f(-pos.x, -pos.y)),
-);
-const rightGravity = gravityFn.does((pos) => d.vec2f(2.5, 0));
-const upGravity = gravityFn.does((pos) => d.vec2f(0, 0.5));
-const strongGravity = gravityFn.does((pos) => d.vec2f(0, -3));
+const centerGravity = (pos: d.v2f) => {
+  'kernel';
+  return std.mul(2, d.vec2f(-pos.x, -pos.y));
+};
+const rightGravity = (pos: d.v2f) => {
+  'kernel';
+  return d.vec2f(2.5, 0);
+};
+const upGravity = (pos: d.v2f) => {
+  'kernel';
+  return d.vec2f(0, 0.5);
+};
+const strongGravity = (pos: d.v2f) => {
+  'kernel';
+  return d.vec2f(0, -3);
+};
 
-const pointInitParticle = initParticleFn.does((i) => {
-  DefaultGenerator.seed(d.vec2f(d.f32(i), d.f32(i)));
+const pointInitParticle = (i: number) => {
+  'kernel';
+  randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
   particles.value[i].age = maxDurationTime.value * 1000;
   particles.value[i].position = d.vec2f(
-    (2 * rand.float01() - 1) / 2 / 50,
-    (2 * rand.float01() - 1) / 2 / 50,
+    (2 * randf.sample() - 1) / 2 / 50,
+    (2 * randf.sample() - 1) / 2 / 50,
   );
   particles.value[i].velocity = d.vec2f(
-    50 * ((rand.float01() * 2 - 1) / 35 / 0.5),
-    50 * ((rand.float01() * 2 - 1) / 30 + 0.05),
+    50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
+    50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
   );
-  particles.value[i].seed = rand.float01();
-});
+  particles.value[i].seed = randf.sample();
+};
 
-const twoSidesInitParticle = initParticleFn.does((i) => {
-  DefaultGenerator.seed(d.vec2f(d.f32(i), d.f32(i)));
+const twoSidesInitParticle = (i: number) => {
+  'kernel';
+  randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
 
   particles.value[i].age = maxDurationTime.value * 1000;
-  particles.value[i].seed = rand.float01();
+  particles.value[i].seed = randf.sample();
 
   if (i % 2 === 0) {
     particles.value[i].position = d.vec2f(
-      (2 * rand.float01() - 1) / 2 / 50 + 1,
-      (2 * rand.float01() - 1) / 2 / 50,
+      (2 * randf.sample() - 1) / 2 / 50 + 1,
+      (2 * randf.sample() - 1) / 2 / 50,
     );
 
     particles.value[i].velocity = d.vec2f(
-      -1 + (rand.float01() * 2 - 1),
-      1.5 + (rand.float01() * 2 - 1),
+      -1 + (randf.sample() * 2 - 1),
+      1.5 + (randf.sample() * 2 - 1),
     );
   } else {
     particles.value[i].position = d.vec2f(
-      (2 * rand.float01() - 1) / 2 / 50 - 1,
-      (2 * rand.float01() - 1) / 2 / 50,
+      (2 * randf.sample() - 1) / 2 / 50 - 1,
+      (2 * randf.sample() - 1) / 2 / 50,
     );
 
     particles.value[i].velocity = d.vec2f(
-      1 + (rand.float01() * 2 - 1),
-      1.5 + (rand.float01() * 2 - 1),
+      1 + (randf.sample() * 2 - 1),
+      1.5 + (randf.sample() * 2 - 1),
     );
   }
-});
+};
 
-const customGravity = gravityFn.does((pos) => d.vec2f(-pos.x, -3));
+const customGravity = (pos: d.v2f) => {
+  'kernel';
+  return d.vec2f(-pos.x, -3);
+};
 
 export default function App() {
   return (

@@ -42,25 +42,26 @@ export const gravity = tgpu['~unstable'].slot<TgpuFn<[d.Vec2f], d.Vec2f>>();
 export const gravityFn = tgpu['~unstable'].fn([d.vec2f], d.vec2f);
 export const initParticleFn = tgpu['~unstable'].fn([d.i32]);
 
-export const rotate = tgpu['~unstable']
-  .fn([d.vec2f, d.f32], d.vec2f)
-  .does(/* wgsl */ `
-    (v: vec2f, angle: f32) -> vec2f {
-      return vec2(
-        (v.x * cos(angle)) - (v.y * sin(angle)),
-        (v.x * sin(angle)) + (v.y * cos(angle))
-      );
+export const rotate = tgpu['~unstable'].fn(
+  { v: d.vec2f, angle: d.f32 },
+  d.vec2f,
+)(/* wgsl */ `{
+    return vec2(
+      (v.x * cos(angle)) - (v.y * sin(angle)),
+      (v.x * sin(angle)) + (v.y * cos(angle))
+    );
   }`);
 
 const randSeed = tgpu['~unstable'].privateVar(d.vec2f);
 export const setupRandomSeed = tgpu['~unstable']
-  .fn([d.vec2f])
-  .does(/* wgsl */ '(coord: vec2f) { randSeed = coord;}')
+  .fn({ coord: d.vec2f })(/* wgsl */ '{ randSeed = coord;}')
   .$uses({ randSeed });
 
 export const rand01 = tgpu['~unstable']
-  .fn([], d.f32)
-  .does(/* wgsl */ `() -> f32 {
+  .fn(
+    {},
+    d.f32,
+  )(/* wgsl */ `{
     let a = dot(randSeed, vec2f(23.14077926, 232.61690225));
     let b = dot(randSeed, vec2f(54.47856553, 345.84153136));
     randSeed.x = fract(cos(a) * 136.8168);
@@ -80,54 +81,49 @@ export const mainVert = tgpu['~unstable']
       index: d.builtin.vertexIndex,
     },
     out: VertexOutput,
-  })
-  .does(
-    /* wgsl */ `(in: VertexInput) -> VertexOutput {
-        let width = in.tilt;
-        let height = in.tilt / 2;
-  
-        let geometry = array<vec2f, 4>(
-          vec2f(0, 0),
-          vec2f(width, 0),
-          vec2f(0, height),
-          vec2f(width, height),
-        );
-        var pos = rotate(geometry[in.index] / 350, in.angle) + in.center;
-  
-        if (canvasAspectRatio < 1) {
-          var center = (geometry[0].x + geometry[2].x) / 2;
-          pos.x -= in.center.x + center;
-          pos.x /= canvasAspectRatio;
-          pos.x += in.center.x + center;
-        } else {
-          var center = (geometry[0].y + geometry[2].y) / 2;
-          pos.y -= in.center.y + center;
-          pos.y /= canvasAspectRatio;
-          pos.y += in.center.y + center;
-        }
-  
-        let alpha = min(f32(in.age) / 1000.f, 1);
-        return VertexOutput(vec4f(pos, 0.0, 1.0), alpha * in.color.a * vec4f(in.color.rgb, 1));
+  })(
+    /* wgsl */ `{
+      let width = in.tilt;
+      let height = in.tilt / 2;
+
+      let geometry = array<vec2f, 4>(
+        vec2f(0, 0),
+        vec2f(width, 0),
+        vec2f(0, height),
+        vec2f(width, height),
+      );
+      var pos = rotate(geometry[in.index] / 350, in.angle) + in.center;
+
+      if (canvasAspectRatio < 1) {
+        var center = (geometry[0].x + geometry[2].x) / 2;
+        pos.x -= in.center.x + center;
+        pos.x /= canvasAspectRatio;
+        pos.x += in.center.x + center;
+      } else {
+        var center = (geometry[0].y + geometry[2].y) / 2;
+        pos.y -= in.center.y + center;
+        pos.y /= canvasAspectRatio;
+        pos.y += in.center.y + center;
+      }
+
+      let alpha = min(f32(in.age) / 1000.f, 1);
+      return Out(vec4f(pos, 0.0, 1.0), alpha * in.color.a * vec4f(in.color.rgb, 1));
     }`,
   )
   .$uses({ rotate, canvasAspectRatio });
 
-export const mainFrag = tgpu['~unstable']
-  .fragmentFn({
-    in: VertexOutput,
-    out: d.vec4f,
-  })
-  .does(/* wgsl */ `
-    (in: FragmentIn) -> @location(0) vec4f {
-      return in.color;
+export const mainFrag = tgpu['~unstable'].fragmentFn({
+  in: VertexOutput,
+  out: d.vec4f,
+})(/* wgsl */ `{
+    return in.color;
   }`);
 
 export const mainCompute = tgpu['~unstable']
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [64],
-  })
-  .does(/* wgsl */ `(in: ComputeIn) {
+  })(/* wgsl */ `{
     let index = in.gid.x;
     if index == 0 {
       time += deltaTime;
@@ -145,40 +141,33 @@ export const mainCompute = tgpu['~unstable']
   }`)
   .$uses({ gravity, particles, deltaTime, time });
 
-export const defaultInitParticle = initParticleFn
-  .does(/* wgsl */ `
-  (i: i32) {
-    setupRandomSeed(vec2f(f32(i), f32(i)));
-    particles[i].age = maxDurationTime * 1000;
-    particles[i].position = vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
-    particles[i].velocity = vec2f(
-      rand01() * 2 - 1,
-      -(rand01() / 25 + 0.01) * 50
-    );
-    particles[i].seed = rand01();
-  }`)
-  .$uses({
-    particles,
-    setupRandomSeed,
-    rand01,
-    maxDurationTime,
-  });
+export const defaultInitParticle = (i: number) => {
+  'kernel';
+  setupRandomSeed({ coord: d.vec2f(d.f32(i), d.f32(i)) });
+  // @ts-ignore
+  const particle: d.Infer<typeof ParticleData> = particles.value[i];
+  particle.age = maxDurationTime.value * 1000;
+  particle.position = d.vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
+  particle.velocity = d.vec2f(rand01() * 2 - 1, -(rand01() / 25 + 0.01) * 50);
+  particle.seed = rand01();
+
+  particles.value[i] = particle;
+};
 
 export const initCompute = tgpu['~unstable']
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [1],
-  })
-  .does(/* wgsl */ `(in: ComputeIn) {
+  })(/* wgsl */ `{
     initParticle(i32(in.gid.x));
   }`)
   .$uses({ initParticle });
 
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
+    in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [1],
-  })
-  .does(/* wgsl */ `() {
+  })(/* wgsl */ `{
       for (var i = 0; i < maxParticleAmount; i++) {
         if particles[i].age < 0.1 {
           initParticle(i);
