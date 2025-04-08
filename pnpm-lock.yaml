@@ -51,6 +51,9 @@ importers:
 
   packages/typegpu-confetti:
     dependencies:
+      '@typegpu/noise':
+        specifier: ^0.0.5
+        version: 0.0.5(typegpu@0.5.4)
       react:
         specifier: 18.3.1
         version: 18.3.1

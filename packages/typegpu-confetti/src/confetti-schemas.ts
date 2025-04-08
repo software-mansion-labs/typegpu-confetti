@@ -1,3 +1,4 @@
+import { randf } from '@typegpu/noise';
 import tgpu, { type TgpuFn } from 'typegpu';
 import * as d from 'typegpu/data';
 
@@ -51,24 +52,6 @@ export const rotate = tgpu['~unstable'].fn(
       (v.x * sin(angle)) + (v.y * cos(angle))
     );
   }`);
-
-const randSeed = tgpu['~unstable'].privateVar(d.vec2f);
-export const setupRandomSeed = tgpu['~unstable']
-  .fn({ coord: d.vec2f })(/* wgsl */ '{ randSeed = coord;}')
-  .$uses({ randSeed });
-
-export const rand01 = tgpu['~unstable']
-  .fn(
-    {},
-    d.f32,
-  )(/* wgsl */ `{
-    let a = dot(randSeed, vec2f(23.14077926, 232.61690225));
-    let b = dot(randSeed, vec2f(54.47856553, 345.84153136));
-    randSeed.x = fract(cos(a) * 136.8168);
-    randSeed.y = fract(cos(b) * 534.7645);
-    return randSeed.y;
-  }`)
-  .$uses({ randSeed });
 
 export const mainVert = tgpu['~unstable']
   .vertexFn({
@@ -143,13 +126,16 @@ export const mainCompute = tgpu['~unstable']
 
 export const defaultInitParticle = (i: number) => {
   'kernel';
-  setupRandomSeed({ coord: d.vec2f(d.f32(i), d.f32(i)) });
+  randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
   // @ts-ignore
   const particle: d.Infer<typeof ParticleData> = particles.value[i];
   particle.age = maxDurationTime.value * 1000;
-  particle.position = d.vec2f(rand01() * 2 - 1, rand01() / 1.5 + 1);
-  particle.velocity = d.vec2f(rand01() * 2 - 1, -(rand01() / 25 + 0.01) * 50);
-  particle.seed = rand01();
+  particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
+  particle.velocity = d.vec2f(
+    randf.sample() * 2 - 1,
+    -(randf.sample() / 25 + 0.01) * 50,
+  );
+  particle.seed = randf.sample();
 
   particles.value[i] = particle;
 };
@@ -188,8 +174,6 @@ export const addParticleCompute = tgpu['~unstable']
       initParticle(minIndex);
     }`)
   .$uses({
-    rand01,
-    setupRandomSeed,
     particles,
     initParticle,
     maxParticleAmount,
