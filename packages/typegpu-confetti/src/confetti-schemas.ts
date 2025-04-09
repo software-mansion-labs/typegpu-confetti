@@ -30,18 +30,22 @@ export const canvasAspectRatio = tgpu['~unstable'].accessor(d.f32);
 export const particles = tgpu['~unstable'].accessor(d.arrayOf(ParticleData, 1));
 export const maxDurationTime = tgpu['~unstable'].slot<number>();
 export const initParticle =
-  tgpu['~unstable'].slot<TgpuFn<[d.I32], undefined>>();
+  tgpu['~unstable'].slot<TgpuFn<{ index: d.I32 }, undefined>>();
 export const maxParticleAmount = tgpu['~unstable'].slot<number>();
 export const deltaTime = tgpu['~unstable'].accessor(d.f32);
 export const time = tgpu['~unstable'].accessor(d.f32);
-export const gravity = tgpu['~unstable'].slot<TgpuFn<[d.Vec2f], d.Vec2f>>();
+export const gravity =
+  tgpu['~unstable'].slot<TgpuFn<{ pos: d.Vec2f }, d.Vec2f>>();
 
 // #endregion
 
 // #region functions
 
-export const gravityFn = tgpu['~unstable'].fn([d.vec2f], d.vec2f);
-export const initParticleFn = tgpu['~unstable'].fn([d.i32]);
+export type GravityFn = (args: { pos: d.v2f }) => d.v2f;
+export const gravityFn = tgpu['~unstable'].fn({ pos: d.vec2f }, d.vec2f);
+
+export type InitParticleFn = (args: { index: number }) => void;
+export const initParticleFn = tgpu['~unstable'].fn({ index: d.i32 });
 
 export const rotate = tgpu['~unstable'].fn(
   { v: d.vec2f, angle: d.f32 },
@@ -124,8 +128,9 @@ export const mainCompute = tgpu['~unstable']
   }`)
   .$uses({ gravity, particles, deltaTime, time });
 
-export const defaultInitParticle = (i: number) => {
+export const defaultInitParticle: InitParticleFn = (args) => {
   'kernel';
+  const i = args.index;
   randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
   // @ts-ignore
   const particle: d.Infer<typeof ParticleData> = particles.value[i];
