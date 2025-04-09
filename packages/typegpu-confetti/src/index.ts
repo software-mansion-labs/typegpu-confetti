@@ -9,7 +9,9 @@ export {
   time,
   gravity,
   // function shells
+  type GravityFn,
   gravityFn,
+  type InitParticleFn,
   initParticleFn,
 } from './confetti-schemas';
 

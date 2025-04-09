@@ -1,4 +1,4 @@
-import type * as d from 'typegpu/data';
+import type { GravityFn, InitParticleFn } from './confetti-schemas';
 
 export type ConfettiPropTypes = {
   colorPalette?: [number, number, number, number][];
@@ -8,8 +8,8 @@ export type ConfettiPropTypes = {
   initParticleAmount?: number;
   maxParticleAmount?: number;
 
-  gravity?: (pos: d.v2f) => d.v2f;
-  initParticle?: (index: number) => void;
+  gravity?: GravityFn;
+  initParticle?: InitParticleFn;
 };
 
 export type ConfettiRef = {

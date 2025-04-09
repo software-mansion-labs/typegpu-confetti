@@ -2,7 +2,13 @@ import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
-import { type ConfettiRef, maxDurationTime, particles } from 'typegpu-confetti';
+import {
+  type ConfettiRef,
+  type GravityFn,
+  type InitParticleFn,
+  maxDurationTime,
+  particles,
+} from 'typegpu-confetti';
 import Confetti, {
   ConfettiProvider,
   useConfetti,
@@ -12,25 +18,27 @@ import * as std from 'typegpu/std';
 
 const t = tgpu;
 
-const centerGravity = (pos: d.v2f) => {
+const centerGravity: GravityFn = (args) => {
   'kernel';
-  return std.mul(2, d.vec2f(-pos.x, -pos.y));
+  return std.mul(2, d.vec2f(-args.pos.x, -args.pos.y));
 };
-const rightGravity = (pos: d.v2f) => {
+
+const rightGravity: GravityFn = () => {
   'kernel';
   return d.vec2f(2.5, 0);
 };
-const upGravity = (pos: d.v2f) => {
+const upGravity: GravityFn = () => {
   'kernel';
   return d.vec2f(0, 0.5);
 };
-const strongGravity = (pos: d.v2f) => {
+const strongGravity: GravityFn = () => {
   'kernel';
   return d.vec2f(0, -3);
 };
 
-const pointInitParticle = (i: number) => {
+const pointInitParticle: InitParticleFn = (args) => {
   'kernel';
+  const i = args.index;
   randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
   particles.value[i].age = maxDurationTime.value * 1000;
   particles.value[i].position = d.vec2f(
@@ -44,8 +52,9 @@ const pointInitParticle = (i: number) => {
   particles.value[i].seed = randf.sample();
 };
 
-const twoSidesInitParticle = (i: number) => {
+const twoSidesInitParticle: InitParticleFn = (args) => {
   'kernel';
+  const i = args.index;
   randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
 
   particles.value[i].age = maxDurationTime.value * 1000;
@@ -74,9 +83,9 @@ const twoSidesInitParticle = (i: number) => {
   }
 };
 
-const customGravity = (pos: d.v2f) => {
+const customGravity: GravityFn = (args) => {
   'kernel';
-  return d.vec2f(-pos.x, -3);
+  return d.vec2f(-args.pos.x, -3);
 };
 
 export default function App() {

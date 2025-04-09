@@ -15,6 +15,7 @@ import tgpu, {
 } from 'typegpu';
 import * as d from 'typegpu/data';
 import {
+  type GravityFn,
   ParticleData,
   ParticleGeometry,
   addParticleCompute,
@@ -49,7 +50,7 @@ const defaultColorPalette = [
   [255, 166, 48, 1],
 ] as [number, number, number, number][];
 
-const defaultGravity = (pos: d.v2f) => {
+const defaultGravity: GravityFn = () => {
   'kernel';
   return d.vec2f(0, -0.3);
 };
