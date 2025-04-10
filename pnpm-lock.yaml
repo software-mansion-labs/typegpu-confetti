@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@typegpu/noise':
         specifier: ^0.0.5
-        version: 0.0.5(typegpu@0.5.4)
+        version: 0.0.5(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131)
       expo:
         specifier: ~52.0.37
         version: 52.0.44(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(react-native@0.76.7(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
@@ -24,8 +24,8 @@ importers:
         specifier: ^0.1.23
         version: 0.1.23(react-native@0.76.7(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
-        specifier: 0.5.4
-        version: 0.5.4
+        specifier: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131
+        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131
       typegpu-confetti:
         specifier: workspace:*
         version: link:../../packages/typegpu-confetti
@@ -53,7 +53,7 @@ importers:
     dependencies:
       '@typegpu/noise':
         specifier: ^0.0.5
-        version: 0.0.5(typegpu@0.5.4)
+        version: 0.0.5(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -64,8 +64,8 @@ importers:
         specifier: ^0.1.23
         version: 0.1.23(react-native@0.76.7(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
-        specifier: 0.5.4
-        version: 0.5.4
+        specifier: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131
+        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131
     devDependencies:
       '@webgpu/types':
         specifier: ^0.1.54
@@ -1012,7 +1012,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {node: '>=0.10.0'}
+    engines: {'0': node >=0.10.0}
 
   '@expo/cli@0.22.24':
     resolution: {integrity: sha512-lhdenxBC8/x/vL39j79eXE09mOaqNNLmiSDdY/PblnI+UNzGgsQ48hBTYa/MQhd0ioXXVKurZL2941dLKwcxJw==}
@@ -1365,6 +1365,7 @@ packages:
 
   '@typegpu/noise@0.0.5':
     resolution: {integrity: sha512-sp5LbHVCRXzmmHBkyCfvriMITsaEy5HP3Y5HmRwr75gMjKYMvOfwtEvSnvuqewNjvK60QtdLfZpzgS4cJeypHA==}
+    version: 0.0.5
     peerDependencies:
       typegpu: ^0.5.4
 
@@ -3629,8 +3630,9 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@0.5.4:
-    resolution: {integrity: sha512-H9C4NnEPNwDVcvceqoUsCmOm9M8YfRuYA3Go2zIGyQdI4G16/Ebh8SF1DgfJ1rPfoeYMsZ9HsD+4kWPM6J2Xog==}
+  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131:
+    resolution: {tarball: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131}
+    version: 0.5.4
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -5596,9 +5598,9 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@typegpu/noise@0.0.5(typegpu@0.5.4)':
+  '@typegpu/noise@0.0.5(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131)':
     dependencies:
-      typegpu: 0.5.4
+      typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -8049,7 +8051,7 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@0.5.4:
+  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131:
     dependencies:
       tinyest: 0.1.0-alpha.7
       typed-binary: 4.3.2

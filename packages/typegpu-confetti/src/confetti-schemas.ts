@@ -156,7 +156,6 @@ export const initCompute = tgpu['~unstable']
 
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
-    in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [1],
   })(/* wgsl */ `{
       for (var i = 0; i < maxParticleAmount; i++) {
