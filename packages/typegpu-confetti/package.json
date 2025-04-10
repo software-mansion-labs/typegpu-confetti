@@ -50,7 +50,7 @@
     "react": "18.3.1",
     "react-native": "0.76.7",
     "react-native-wgpu": "^0.1.23",
-    "typegpu": "0.5.4",
+    "typegpu": "https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131",
     "@typegpu/noise": "^0.0.5"
   },
   "devDependencies": {
