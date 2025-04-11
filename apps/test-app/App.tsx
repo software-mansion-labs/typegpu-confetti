@@ -6,7 +6,6 @@ import {
   type ConfettiRef,
   type GravityFn,
   type InitParticleFn,
-  maxDurationTime,
   particles,
 } from 'typegpu-confetti';
 import Confetti, {
@@ -39,8 +38,6 @@ const strongGravity: GravityFn = () => {
 const pointInitParticle: InitParticleFn = (args) => {
   'kernel';
   const i = args.index;
-  randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
-  particles.value[i].timeLeft = maxDurationTime.value * 1000;
   particles.value[i].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
@@ -49,16 +46,11 @@ const pointInitParticle: InitParticleFn = (args) => {
     50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
     50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
   );
-  particles.value[i].seed = randf.sample();
 };
 
 const twoSidesInitParticle: InitParticleFn = (args) => {
   'kernel';
   const i = args.index;
-  randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
-
-  particles.value[i].timeLeft = maxDurationTime.value * 1000;
-  particles.value[i].seed = randf.sample();
 
   if (i % 2 === 0) {
     particles.value[i].position = d.vec2f(
@@ -240,9 +232,7 @@ function ConfettiContextButton() {
 
   return (
     <Pressable
-      onPress={() => {
-        confetti?.current?.addParticles(200);
-      }}
+      onPress={() => confetti?.current?.addParticles(200)}
       onLongPress={() => confetti?.current?.pause()}
       style={{
         borderRadius: 20,
