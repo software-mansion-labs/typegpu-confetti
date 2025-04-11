@@ -141,7 +141,7 @@ type ConfettiPropTypes = {
     position: d.vec2f,
     velocity: d.vec2f,
     seed: d.f32,
-    age: d.f32,
+    timeLeft: d.f32,
   });
   ```
 

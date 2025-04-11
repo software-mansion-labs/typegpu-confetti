@@ -13,6 +13,6 @@ export {
   gravityFn,
   type InitParticleFn,
   initParticleFn,
-} from './confetti-schemas';
+} from './schemas';
 
 export type { ConfettiPropTypes, ConfettiRef } from './types';
