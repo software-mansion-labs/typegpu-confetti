@@ -25,7 +25,8 @@ function SomeComponent() {
 ### Imperative handle
 
 ```tsx
-import Confetti, { type ConfettiRef } from 'typegpu-confetti';
+import type { ConfettiRef } from 'typegpu-confetti';
+import { Confetti } from 'typegpu-confetti/react-native';
 
 function SomeComponent() {
   const ref = useRef<ConfettiRef>(null);
@@ -58,7 +59,7 @@ type ConfettiRef = {
 ### `useConfetti` hook
 
 ```tsx
-import { useConfetti } from 'typegpu-confetti';
+import { useConfetti } from 'typegpu-confetti/react-native';
 
 function SomeInnerComponent() {
   const confettiRef = useConfetti();
@@ -67,7 +68,7 @@ function SomeInnerComponent() {
     <View>
       <Button
         title="run confetti"
-        onPress={() => confettiRef.current?.addParticles(50)}
+        onPress={() => confettiRef?.current?.addParticles(50)}
       />
     </View>
   );
@@ -77,7 +78,7 @@ function SomeInnerComponent() {
 To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti*. It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen, if that's the desired effect, and make the hook accessible anywhere inside the app.
 
 ```tsx
-import { ConfettiProvider } from 'typegpu-confetti';
+import { ConfettiProvider } from 'typegpu-confetti/react-native';
 
 function SomeHighLevelContainerComponent() {
   return (
@@ -94,14 +95,20 @@ function SomeHighLevelContainerComponent() {
 type ConfettiPropTypes = {
   colorPalette?: [number, number, number, number][];
   size?: number;
-  maxDurationTime?: number;
-
+  maxDurationTime?: number | null;
   initParticleAmount?: number;
   maxParticleAmount?: number;
-
-  gravity?: TgpuFn<[d.Vec2f], d.Vec2f>;
-  initParticle?: TgpuFn<[d.I32], undefined>;
+  gravity?: GravityFn;
+  initParticle?: InitParticleFn;
 };
+
+type GravityFn = (args: {
+  pos: d.v2f;
+}) => d.v2f;
+
+type InitParticleFn = (args: {
+  index: number;
+}) => void;
 ```
 
 * **colorPalette**: JavaScript array of *[r, g, b, a]* colors, from which particles will have their colors randomly assigned.
@@ -126,11 +133,9 @@ type ConfettiPropTypes = {
 
   When invoking *addParticles* would result in passing this limit, then the oldest simulated particles are replaced with the new ones. They are replaced instantly, without the fading-out animation.
 
-* **gravity**: *tgpu* function accepting one *vec2f* vector (particle position) and returning one *vec2f* vector (acceleration for the particle).
+* **gravity**: function accepting one *vec2f* vector (particle position) and returning one *vec2f* vector (acceleration for the particle).
 
-  To define this function, you can use the *gravityFn* shell to which you pass the implementation via the *does* method as a WGSL code string or just a JavaScript function (experimental).
-
-* **initParticle**: tgpu function accepting one *i32* argument (particle index), which is to be used for initializing particle age, position, velocity, random number generator seed.
+* **initParticle**: function accepting one *i32* argument (particle index), which is to be used for initializing particle age, position, velocity, random number generator seed.
 
   To access the necessary data inside the function, you should use the *particles* and *maxDurationTime* tgpu accessors.
 
