@@ -14,6 +14,7 @@ import tgpu, {
   type TgpuRenderPipeline,
 } from 'typegpu';
 import * as d from 'typegpu/data';
+import { RootContext } from '../context';
 import {
   type GravityFn,
   ParticleData,
@@ -36,8 +37,7 @@ import {
   maxParticleAmount as maxParticleAmountSlot,
   particles,
   time,
-} from '../confetti-schemas';
-import { RootContext } from '../context';
+} from '../schemas';
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
 
@@ -237,7 +237,7 @@ const ConfettiViz = React.forwardRef(
               angle: geometryLayout.attrib.angle,
               color: geometryLayout.attrib.color,
               center: dataLayout.attrib.position,
-              age: dataLayout.attrib.age,
+              timeLeft: dataLayout.attrib.timeLeft,
             })
             .withFragment(mainFrag, {
               format: presentationFormat,

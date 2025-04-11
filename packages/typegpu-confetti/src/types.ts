@@ -1,4 +1,4 @@
-import type { GravityFn, InitParticleFn } from './confetti-schemas';
+import type { GravityFn, InitParticleFn } from './schemas';
 
 export type ConfettiPropTypes = {
   colorPalette?: [number, number, number, number][];

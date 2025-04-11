@@ -40,7 +40,7 @@ const pointInitParticle: InitParticleFn = (args) => {
   'kernel';
   const i = args.index;
   randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
-  particles.value[i].age = maxDurationTime.value * 1000;
+  particles.value[i].timeLeft = maxDurationTime.value * 1000;
   particles.value[i].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
@@ -57,7 +57,7 @@ const twoSidesInitParticle: InitParticleFn = (args) => {
   const i = args.index;
   randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
 
-  particles.value[i].age = maxDurationTime.value * 1000;
+  particles.value[i].timeLeft = maxDurationTime.value * 1000;
   particles.value[i].seed = randf.sample();
 
   if (i % 2 === 0) {
