@@ -8,7 +8,8 @@ import {
   type InitParticleFn,
   particles,
 } from 'typegpu-confetti';
-import Confetti, {
+import {
+  Confetti,
   ConfettiProvider,
   useConfetti,
 } from 'typegpu-confetti/react-native';
@@ -35,9 +36,8 @@ const strongGravity: GravityFn = () => {
   return d.vec2f(0, -3);
 };
 
-const pointInitParticle: InitParticleFn = (args) => {
+const pointInitParticle: InitParticleFn = ({ index: i }) => {
   'kernel';
-  const i = args.index;
   particles.value[i].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
@@ -48,9 +48,8 @@ const pointInitParticle: InitParticleFn = (args) => {
   );
 };
 
-const twoSidesInitParticle: InitParticleFn = (args) => {
+const twoSidesInitParticle: InitParticleFn = ({ index: i }) => {
   'kernel';
-  const i = args.index;
 
   if (i % 2 === 0) {
     particles.value[i].position = d.vec2f(
@@ -75,9 +74,9 @@ const twoSidesInitParticle: InitParticleFn = (args) => {
   }
 };
 
-const customGravity: GravityFn = (args) => {
+const customGravity: GravityFn = ({ pos }) => {
   'kernel';
-  return d.vec2f(-args.pos.x, -3);
+  return d.vec2f(-pos.x, -3);
 };
 
 export default function App() {

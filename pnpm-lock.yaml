@@ -30,8 +30,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/typegpu-confetti
       unplugin-typegpu:
-        specifier: 0.1.0-alpha.8
-        version: 0.1.0-alpha.8
+        specifier: 0.1.0-alpha.9
+        version: 0.1.0-alpha.9(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -77,8 +77,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0(typescript@5.7.3)
       unplugin-typegpu:
-        specifier: ^0.1.0-alpha.8
-        version: 0.1.0-alpha.8
+        specifier: ^0.1.0-alpha.9
+        version: 0.1.0-alpha.9(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131)
     publishDirectory: dist
 
 packages:
@@ -4051,8 +4051,8 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
-  tinyest-for-wgsl@0.1.0-alpha.8:
-    resolution: {integrity: sha512-O7JQv5n7mXDj/pslbbbvZxeKyC50esURUnFUqU5VjVDGVtiSwIPsNmpjkfQTIV6nh9qWQC+T3hk5CiztFww3oQ==}
+  tinyest-for-wgsl@0.1.0-alpha.9:
+    resolution: {integrity: sha512-Zw06oMBI6dUIWI808fsmMjS3Efo+kbwa1LMxFb1bdMXx+QCrhVbUdPV8zzxp89XAiqAK9DncfO422/opqqgfHQ==}
     engines: {node: '>=12.20.0'}
 
   tinyest@0.1.0-alpha.7:
@@ -4184,8 +4184,11 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-typegpu@0.1.0-alpha.8:
-    resolution: {integrity: sha512-ElkkZ3lo03CnsjoHmXx6PvIi2PalyuP8RP7STWhSbocyRlPPs6EYSa+ezh/UsJ4UDjIZAEG6MsHi8l3ocQo0wA==}
+  unplugin-typegpu@0.1.0-alpha.9:
+    resolution: {integrity: sha512-u+aT3WtVnCRbZEJ4diaCZmjInIhFqb7qR+XKfr6mptOtTSqAukOZzqAY2Se7C9HoQcq5bVXwA4LdpMmaHDwhow==}
+    version: 0.1.0-alpha.9
+    peerDependencies:
+      typegpu: ^0.5.4
 
   unplugin@2.3.0:
     resolution: {integrity: sha512-zNTDfbzOZzkbgXvH1QgQFW5nAyvjA0q3q9FGPFx2sKpDnaoU09VP1wT1mE+LYa6EF2rfezfd1y2EPLLR8ka6nw==}
@@ -8867,7 +8870,7 @@ snapshots:
 
   through@2.3.8: {}
 
-  tinyest-for-wgsl@0.1.0-alpha.8:
+  tinyest-for-wgsl@0.1.0-alpha.9:
     dependencies:
       tinyest: 0.1.0-alpha.7
 
@@ -8984,12 +8987,13 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.1.0-alpha.8:
+  unplugin-typegpu@0.1.0-alpha.9(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131):
     dependencies:
       '@babel/standalone': 7.27.0
       estree-walker: 3.0.3
       magic-string: 0.30.17
-      tinyest-for-wgsl: 0.1.0-alpha.8
+      tinyest-for-wgsl: 0.1.0-alpha.9
+      typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131
       unplugin: 2.3.0
 
   unplugin@2.3.0:

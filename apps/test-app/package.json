@@ -16,7 +16,7 @@
     "react-native-wgpu": "^0.1.23",
     "typegpu": "https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131",
     "typegpu-confetti": "workspace:*",
-    "unplugin-typegpu": "0.1.0-alpha.8"
+    "unplugin-typegpu": "0.1.0-alpha.9"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
