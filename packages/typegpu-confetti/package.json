@@ -49,10 +49,12 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "react-native": "0.76.9",
-    "react-native-wgpu": "^0.1.23",
-    "typegpu": "https://pkg.pr.new/software-mansion/TypeGPU/typegpu@1131",
+    "typegpu": "^0.5.5",
     "@typegpu/noise": "^0.0.5"
+  },
+  "peerDependencies": {
+    "react-native-wgpu": "^0.1.23",
+    "react-native": "0.76.9"
   },
   "devDependencies": {
     "typescript": "^5.7.3",
