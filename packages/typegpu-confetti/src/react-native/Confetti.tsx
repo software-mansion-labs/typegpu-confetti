@@ -372,21 +372,28 @@ const ConfettiViz = React.forwardRef(
     useFrame(frame, !ended);
 
     return (
-      <Canvas
-        transparent
-        ref={canvasRef}
-        style={{
-          opacity: ended ? 0 : 1,
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 20,
-          pointerEvents: 'none',
-          cursor: 'auto',
-        }}
-      />
+      <>
+        <Canvas
+          transparent
+          style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+        />
+        {/* ^ hopefully fixes first confetti being invisible */}
+        <Canvas
+          transparent
+          ref={canvasRef}
+          style={{
+            opacity: ended ? 0 : 1,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            zIndex: 20,
+            pointerEvents: 'none',
+            cursor: 'auto',
+          }}
+        />
+      </>
     );
   },
 );
