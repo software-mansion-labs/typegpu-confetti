@@ -57,12 +57,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-native:
-        specifier: 0.76.9
-        version: 0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(@types/react@18.3.20)(react@18.3.1)
-      react-native-wgpu:
-        specifier: ^0.1.23
-        version: 0.1.23(react-native@0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(@types/react@18.3.20)(react@18.3.1))(react@18.3.1)
       typegpu:
         specifier: ^0.5.5
         version: 0.5.5
@@ -70,6 +64,12 @@ importers:
       '@webgpu/types':
         specifier: ^0.1.54
         version: 0.1.54
+      react-native:
+        specifier: 0.76.9
+        version: 0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(@types/react@18.3.20)(react@18.3.1)
+      react-native-wgpu:
+        specifier: ^0.1.23
+        version: 0.1.23(react-native@0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(@types/react@18.3.20)(react@18.3.1))(react@18.3.1)
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
