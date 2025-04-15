@@ -2,8 +2,7 @@
 
 `typegpu-confetti` is a package for highly-customizable confetti animations in React Native, computed and rendered exclusively on the GPU. Written using [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) and [TypeGPU](https://github.com/software-mansion/TypeGPU).
 
-<img src="https://github.com/user-attachments/assets/27e26fc5-b2f5-408b-bf81-de43fa3d7049" width=200>
-<img src="https://github.com/user-attachments/assets/447951d2-1d10-4f1d-8d01-c7ce78dbe2e3" width=200>
+<video width="512" autoplay muted loop playsinline src="https://github.com/user-attachments/assets/02c6fae6-3ffb-47ba-a204-4aacaa96f9b7"></video>
 
 
 ## Installation
