@@ -1,3 +1,4 @@
+<!-- automd:file src="./packages/typegpu-confetti/README.md" -->
 
 # typegpu-confetti
 
@@ -6,12 +7,35 @@
 <img src="https://github.com/user-attachments/assets/27e26fc5-b2f5-408b-bf81-de43fa3d7049" width=200>
 <img src="https://github.com/user-attachments/assets/447951d2-1d10-4f1d-8d01-c7ce78dbe2e3" width=200>
 
+
+## Installation
+
+In order to use the package in React Native, you need to install the [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) package: 
+```sh
+npm install react-native-wgpu
+```
+
+Please refer to the react-native-wgpu documentation for further information about its installation. Note that the package is not supported by Expo Go, so running `expo prebuild` is required.
+
+Then to install the `typegpu-confetti` package, run:
+```sh
+npm install typegpu-confetti
+```
+
+Furthermore, if you want to be able to pass JavaScript functions marked with the "kernel" directive to the Confetti component, you need to include the [unplugin-typegpu](https://www.npmjs.com/package/unplugin-typegpu) babel plugin in your project.
+
+```sh
+npm install unplugin-typegpu
+```
+
+For further information about the plugin and the overall tgpu functions functionality, please refer to the [TypeGPU documentation](https://docs.swmansion.com/TypeGPU/getting-started/).
+
 ## Usage
 
 ### `Confetti` component
 
 ```tsx
-import Confetti from 'typegpu-confetti';
+import { Confetti } from 'typegpu-confetti/react-native';
 
 function SomeComponent() {
   return (
@@ -21,6 +45,9 @@ function SomeComponent() {
   );
 }
 ```
+
+The Confetti component is positioned absolutely and will completely cover its container (the closest parent element with position "relative", which is the default value for position in React Native).
+
 
 ### Imperative handle
 
@@ -43,7 +70,7 @@ function SomeComponent() {
 }
 ```
 
-Ref exposes the following functions, that can update the already created confetti simulation, without restarting it:
+Ref exposes the following functions, that can update the already created confetti simulation without restarting it:
 
 ```ts
 type ConfettiRef = {
@@ -75,7 +102,7 @@ function SomeInnerComponent() {
 }
 ```
 
-To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti*. It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen, if that's the desired effect, and make the hook accessible anywhere inside the app.
+To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti*. It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen (if that's the desired effect) and make the hook accessible anywhere inside the app.
 
 ```tsx
 import { ConfettiProvider } from 'typegpu-confetti/react-native';
@@ -113,7 +140,7 @@ type InitParticleFn = (args: {
 
 * **colorPalette**: JavaScript array of *[r, g, b, a]* colors, from which particles will have their colors randomly assigned.
 
-* **size**: multiplier allowing customizing the sizes of particles, while keeping their the random variation. *size < 1*: particles smaller than default, *size > 1*: bigger
+* **size**: multiplier allowing customizing the sizes of particles, while keeping their random variation. *size < 1*: particles smaller than default, *size > 1*: bigger
 
 * **maxDurationTime**: time in seconds around which the animation should end. 
   
@@ -133,7 +160,9 @@ type InitParticleFn = (args: {
 
   When invoking *addParticles* would result in passing this limit, then the oldest simulated particles are replaced with the new ones. They are replaced instantly, without the fading-out animation.
 
-* **gravity**: function accepting one *vec2f* vector (particle position) and returning one *vec2f* vector (acceleration for the particle).
+* **gravity**: function accepting one *vec2f* vector (particle position) and returning one *vec2f* vector (acceleration for the particle). 
+  
+  It will be run on the GPU, so it needs to be marked with a "kernel" directive, in order to make the `unplugin-typegpu` transpile it at build time.
 
 * **initParticle**: function accepting one *i32* argument (particle index), which is to be used for initializing particle age, position, velocity, random number generator seed.
 
@@ -150,5 +179,15 @@ type InitParticleFn = (args: {
   });
   ```
 
+  The function will be run on the GPU, so it needs to be marked with a "kernel" directive, in order to make the `unplugin-typegpu` transpile it at build time.
+
 >[!NOTE]
 > Changing any of the props will restart the animation.
+
+## typegpu-confetti is created by Software Mansion
+
+[![swm](https://logo.swmansion.com/logo?color=white&variant=desktop&width=150&tag=typegpu-github 'Software Mansion')](https://swmansion.com)
+
+Since 2012 [Software Mansion](https://swmansion.com) is a software agency with experience in building web and mobile apps. We are Core React Native Contributors and experts in dealing with all kinds of React Native issues. We can help you build your next dream product – [Hire us](https://swmansion.com/contact/projects?utm_source=typegpu&utm_medium=readme).
+
+<!-- /automd -->
