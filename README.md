@@ -31,7 +31,55 @@ For further information about the plugin and the overall tgpu functions function
 
 ## Usage
 
-### `Confetti` component
+### 1. Recommended
+
+#### `useConfetti` hook
+
+```tsx
+import { useConfetti } from 'typegpu-confetti/react-native';
+
+function SomeInnerComponent() {
+  const confettiRef = useConfetti();
+
+  return (
+    <View>
+      <Button
+        title="run confetti"
+        onPress={() => confettiRef?.current?.addParticles(50)}
+      />
+    </View>
+  );
+}
+```
+
+The hook returns a reference to a `Confetti` component, exposing the following functions allowing to control the animation:
+
+```ts
+type ConfettiRef = {
+  pause: () => void;
+  resume: () => void;
+  restart: () => void;
+  addParticles: (amount: number) => void;
+};
+```
+
+To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti* (see the alternative usage section). It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen (if that's the desired effect) and make the hook accessible anywhere inside the app.
+
+```tsx
+import { ConfettiProvider } from 'typegpu-confetti/react-native';
+
+function SomeHighLevelContainerComponent() {
+  return (
+    <ConfettiProvider>
+      <App/>
+    </ConfettiProvider>
+  );
+}
+```
+
+### 2. Alternative
+
+#### `Confetti` component
 
 ```tsx
 import { Confetti } from 'typegpu-confetti/react-native';
@@ -48,7 +96,7 @@ function SomeComponent() {
 The Confetti component is positioned absolutely and will completely cover its container (the closest parent element with position "relative", which is the default value for position in React Native).
 
 
-### Imperative handle
+#### Imperative handle
 
 ```tsx
 import type { ConfettiRef } from 'typegpu-confetti';
@@ -69,52 +117,6 @@ function SomeComponent() {
 }
 ```
 
-Ref exposes the following functions, that can update the already created confetti simulation without restarting it:
-
-```ts
-type ConfettiRef = {
-  pause: () => void;
-  resume: () => void;
-  restart: () => void;
-  addParticles: (amount: number) => void;
-};
-```
-
-## Alternative usage
-
-### `useConfetti` hook
-
-```tsx
-import { useConfetti } from 'typegpu-confetti/react-native';
-
-function SomeInnerComponent() {
-  const confettiRef = useConfetti();
-
-  return (
-    <View>
-      <Button
-        title="run confetti"
-        onPress={() => confettiRef?.current?.addParticles(50)}
-      />
-    </View>
-  );
-}
-```
-
-To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti*. It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen (if that's the desired effect) and make the hook accessible anywhere inside the app.
-
-```tsx
-import { ConfettiProvider } from 'typegpu-confetti/react-native';
-
-function SomeHighLevelContainerComponent() {
-  return (
-    <ConfettiProvider>
-      <App/>
-    </ConfettiProvider>
-  );
-}
-```
-
 ## Props
 
 ```ts
@@ -126,6 +128,7 @@ type ConfettiPropTypes = {
   maxParticleAmount?: number;
   gravity?: GravityFn;
   initParticle?: InitParticleFn;
+  style?: StyleProp<ViewStyle>;
 };
 
 type GravityFn = (args: {
@@ -179,6 +182,8 @@ type InitParticleFn = (args: {
   ```
 
   The function will be run on the GPU, so it needs to be marked with a "kernel" directive, in order to make the `unplugin-typegpu` transpile it at build time.
+
+* **style**: allows overriding the default styling set on the inner Canvas element
 
 >[!NOTE]
 > Changing any of the props will restart the animation.
