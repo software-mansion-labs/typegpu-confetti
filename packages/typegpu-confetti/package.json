@@ -1,6 +1,6 @@
 {
   "name": "typegpu-confetti",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Customizable confetti animation component, running on the GPU",
   "license": "MIT",
   "type": "module",
