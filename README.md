@@ -63,7 +63,7 @@ type ConfettiRef = {
 };
 ```
 
-To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti* (see the alternative usage section). It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen (if that's the desired effect) and make the hook accessible anywhere inside the app.
+To use the hook, the component needs to be descendent from the *ConfettiProvider* component, which accepts the same props as *Confetti* (see the Props section). It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen (if that's the desired effect) and make the hook accessible anywhere inside the app.
 
 ```tsx
 import { ConfettiProvider } from 'typegpu-confetti/react-native';
