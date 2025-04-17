@@ -65,6 +65,7 @@ const ConfettiViz = React.forwardRef(
       size = 1,
       maxDurationTime = defaultMaxDurationTime,
       initParticle = defaultInitParticle,
+      style,
     }: ConfettiPropTypes,
     ref: ForwardedRef<ConfettiRef>,
   ) => {
@@ -381,17 +382,20 @@ const ConfettiViz = React.forwardRef(
         <Canvas
           transparent
           ref={canvasRef}
-          style={{
-            opacity: ended ? 0 : 1,
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            zIndex: 20,
-            pointerEvents: 'none',
-            cursor: 'auto',
-          }}
+          style={[
+            {
+              opacity: ended ? 0 : 1,
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              zIndex: 20,
+              pointerEvents: 'none',
+              cursor: 'auto',
+            },
+            style,
+          ]}
         />
       </>
     );
