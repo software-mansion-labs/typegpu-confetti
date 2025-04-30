@@ -6,13 +6,14 @@ import {
   useRef,
 } from 'react';
 import React from 'react';
-import { View } from 'react-native';
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import Confetti from './Confetti';
 
 const react = React;
 
-const ConfettiContext = createContext<RefObject<ConfettiRef> | null>(null);
+const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(
+  null,
+);
 
 export function ConfettiProvider(
   props: { children: ReactNode } & ConfettiPropTypes,
@@ -21,10 +22,8 @@ export function ConfettiProvider(
   const ref = useRef<ConfettiRef>(null);
 
   return (
-    <ConfettiContext.Provider
-      value={ref.current ? (ref as RefObject<ConfettiRef>) : null}
-    >
-      <View style={{ position: 'static', width: '100%', height: '100%' }}>
+    <ConfettiContext.Provider value={ref}>
+      <div style={{ position: 'static', width: '100%', height: '100%' }}>
         {children}
 
         <Confetti
@@ -33,7 +32,7 @@ export function ConfettiProvider(
           maxParticleAmount={confettiProps.maxParticleAmount ?? 500}
           ref={ref}
         />
-      </View>
+      </div>
     </ConfettiContext.Provider>
   );
 }
