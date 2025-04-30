@@ -10,7 +10,7 @@ import {
 import type { AnyData, Infer } from 'typegpu/data';
 
 import type { TgpuBuffer, TgpuRoot } from 'typegpu';
-import { RootContext } from '../context';
+import { RootContext } from './context';
 
 export function useRoot(): TgpuRoot {
   const root = useContext(RootContext);
@@ -89,7 +89,7 @@ export function useBuffer<T extends AnyData>(
     };
   }, [buffer]);
 
-  return buffer;
+  return buffer as TgpuBuffer<T>;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: it's fine

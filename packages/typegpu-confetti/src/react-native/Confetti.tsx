@@ -39,7 +39,8 @@ import {
   time,
 } from '../schemas';
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
-import { useBuffer, useFrame, useGPUSetup, useRoot } from './utils';
+import { useBuffer, useFrame, useRoot } from '../utils';
+import { useGPUSetup } from './utils';
 
 const defaultMaxDurationTime = 2;
 const defaultColorPalette = [
