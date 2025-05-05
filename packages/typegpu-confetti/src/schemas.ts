@@ -87,14 +87,14 @@ export const mainVert = tgpu['~unstable']
       var pos = rotate(geometry[in.index] / 350, in.angle) + in.center;
 
       if (canvasAspectRatio < 1) {
-        var center = (geometry[0].x + geometry[2].x) / 2;
+        var center = width/2/350;
         pos.x -= in.center.x + center;
         pos.x /= canvasAspectRatio;
         pos.x += in.center.x + center;
       } else {
-        var center = (geometry[0].y + geometry[2].y) / 2;
+        var center = height/2/350;
         pos.y -= in.center.y + center;
-        pos.y /= canvasAspectRatio;
+        pos.y *= canvasAspectRatio;
         pos.y += in.center.y + center;
       }
 
