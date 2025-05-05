@@ -137,20 +137,6 @@ export const mainCompute = tgpu['~unstable']
   }`)
   .$uses({ gravity, particles, deltaTime, time });
 
-export const defaultInitParticle: InitParticleFn = ({ index: i }) => {
-  'kernel';
-  // @ts-ignore
-  const particle: d.Infer<typeof ParticleData> = particles.value[i];
-
-  particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
-  particle.velocity = d.vec2f(
-    randf.sample() * 2 - 1,
-    -(randf.sample() / 25 + 0.01) * 50,
-  );
-
-  particles.value[i] = particle;
-};
-
 const preInitParticle: InitParticleFn = initParticleFn(({ index: i }) => {
   'kernel';
   randf.seed2(d.vec2f(d.f32(i), d.f32(i)));

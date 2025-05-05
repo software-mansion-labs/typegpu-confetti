@@ -9,20 +9,20 @@ import React, {
 } from 'react';
 import { Canvas, useDevice } from 'react-native-wgpu';
 
+import type { StyleProp, ViewStyle } from 'react-native';
 import tgpu, {
   type TgpuComputePipeline,
   type TgpuRenderPipeline,
 } from 'typegpu';
 import * as d from 'typegpu/data';
 import { RootContext } from '../context';
+import { defaults } from '../defaults';
 import {
-  type GravityFn,
   ParticleData,
   ParticleGeometry,
   addParticleCompute,
   canvasAspectRatio,
   dataLayout,
-  defaultInitParticle,
   deltaTime,
   geometryLayout,
   gravityFn,
@@ -42,32 +42,18 @@ import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import { useBuffer, useFrame, useRoot } from '../utils';
 import { useGPUSetup } from './utils';
 
-const defaultMaxDurationTime = 2;
-const defaultColorPalette = [
-  [154, 177, 155, 1],
-  [67, 129, 193, 1],
-  [99, 71, 77, 1],
-  [239, 121, 138, 1],
-  [255, 166, 48, 1],
-] as [number, number, number, number][];
-
-const defaultGravity: GravityFn = () => {
-  'kernel';
-  return d.vec2f(0, -0.3);
-};
-
 const ConfettiViz = React.forwardRef(
   (
     {
-      gravity = defaultGravity,
-      colorPalette = defaultColorPalette,
-      initParticleAmount = 200,
-      maxParticleAmount: maxParticleAmount_ = 1000,
-      size = 1,
-      maxDurationTime = defaultMaxDurationTime,
-      initParticle = defaultInitParticle,
+      gravity = defaults.gravity,
+      colorPalette = defaults.colorPalette,
+      initParticleAmount = defaults.initParticleAmount,
+      maxParticleAmount: maxParticleAmount_ = defaults.maxParticleAmount,
+      size = defaults.size,
+      maxDurationTime = defaults.maxDurationTime,
+      initParticle = defaults.initParticle,
       style,
-    }: ConfettiPropTypes,
+    }: ConfettiPropTypes & { style: StyleProp<ViewStyle> },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const root = useRoot();
@@ -259,7 +245,7 @@ const ConfettiViz = React.forwardRef(
             .with(particles, particleDataStorage)
             .with(
               maxDurationTimeSlot,
-              maxDurationTime ?? defaultMaxDurationTime,
+              maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(gravitySlot, gravityFn(gravity))
@@ -287,7 +273,7 @@ const ConfettiViz = React.forwardRef(
             .with(particles, particleDataStorage)
             .with(
               maxDurationTimeSlot,
-              maxDurationTime ?? defaultMaxDurationTime,
+              maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .withCompute(initCompute)
@@ -309,7 +295,7 @@ const ConfettiViz = React.forwardRef(
             .with(particles, particleDataStorage)
             .with(
               maxDurationTimeSlot,
-              maxDurationTime ?? defaultMaxDurationTime,
+              maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(maxParticleAmountSlot, maxParticleAmount)
@@ -404,7 +390,10 @@ const ConfettiViz = React.forwardRef(
 );
 
 const Confetti = React.forwardRef(
-  (props: ConfettiPropTypes, ref: ForwardedRef<ConfettiRef>) => {
+  (
+    props: ConfettiPropTypes & { style: StyleProp<ViewStyle> },
+    ref: ForwardedRef<ConfettiRef>,
+  ) => {
     const { device } = useDevice();
     const root = useMemo(
       () => (device ? tgpu.initFromDevice({ device }) : null),

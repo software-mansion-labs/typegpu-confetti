@@ -56,8 +56,8 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "typegpu": "^0.5.5",
-    "@typegpu/noise": "^0.0.5"
+    "typegpu": "^0.5.6",
+    "@typegpu/noise": "^0.0.6"
   },
   "peerDependencies": {
     "react-native-wgpu": "^0.1.23",

@@ -6,6 +6,8 @@ settings:
 
 importers:
 
+  .: {}
+
   apps/test-app:
     dependencies:
       '@typegpu/noise':

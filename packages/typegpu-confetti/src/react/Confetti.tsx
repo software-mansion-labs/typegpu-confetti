@@ -14,14 +14,13 @@ import tgpu, {
 } from 'typegpu';
 import * as d from 'typegpu/data';
 import { RootContext } from '../context';
+import { defaults } from '../defaults';
 import {
-  type GravityFn,
   ParticleData,
   ParticleGeometry,
   addParticleCompute,
   canvasAspectRatio,
   dataLayout,
-  defaultInitParticle,
   deltaTime,
   geometryLayout,
   gravityFn,
@@ -40,32 +39,18 @@ import {
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import { useBuffer, useDevice, useFrame, useRoot } from '../utils';
 
-const defaultMaxDurationTime = 2;
-const defaultColorPalette = [
-  [154, 177, 155, 1],
-  [67, 129, 193, 1],
-  [99, 71, 77, 1],
-  [239, 121, 138, 1],
-  [255, 166, 48, 1],
-] as [number, number, number, number][];
-
-const defaultGravity: GravityFn = () => {
-  'kernel';
-  return d.vec2f(0, -0.3);
-};
-
 const ConfettiViz = React.forwardRef(
   (
     {
       width,
       height,
-      gravity = defaultGravity,
-      colorPalette = defaultColorPalette,
-      initParticleAmount = 200,
-      maxParticleAmount: maxParticleAmount_ = 1000,
-      size = 1,
-      maxDurationTime = defaultMaxDurationTime,
-      initParticle = defaultInitParticle,
+      gravity = defaults.gravity,
+      colorPalette = defaults.colorPalette,
+      initParticleAmount = defaults.initParticleAmount,
+      maxParticleAmount: maxParticleAmount_ = defaults.maxParticleAmount,
+      size = defaults.size,
+      maxDurationTime = defaults.maxDurationTime,
+      initParticle = defaults.initParticle,
     }: ConfettiPropTypes & { width: number; height: number },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
@@ -235,7 +220,7 @@ const ConfettiViz = React.forwardRef(
             .with(particles, particleDataStorage)
             .with(
               maxDurationTimeSlot,
-              maxDurationTime ?? defaultMaxDurationTime,
+              maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(gravitySlot, gravityFn(gravity))
@@ -263,7 +248,7 @@ const ConfettiViz = React.forwardRef(
             .with(particles, particleDataStorage)
             .with(
               maxDurationTimeSlot,
-              maxDurationTime ?? defaultMaxDurationTime,
+              maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .withCompute(initCompute)
@@ -285,7 +270,7 @@ const ConfettiViz = React.forwardRef(
             .with(particles, particleDataStorage)
             .with(
               maxDurationTimeSlot,
-              maxDurationTime ?? defaultMaxDurationTime,
+              maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(maxParticleAmountSlot, maxParticleAmount)
