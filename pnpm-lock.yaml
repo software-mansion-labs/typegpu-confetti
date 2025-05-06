@@ -48,7 +48,7 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       unplugin-typegpu:
-        specifier: 0.1.0
+        specifier: ^0.1.0
         version: 0.1.0(typegpu@0.5.6)
 
   apps/test-web-app:
@@ -97,14 +97,14 @@ importers:
   packages/typegpu-confetti:
     dependencies:
       '@typegpu/noise':
-        specifier: ^0.0.5
-        version: 0.0.5(typegpu@0.5.5)
+        specifier: ^0.0.6
+        version: 0.0.6(typegpu@0.5.6)
       react:
         specifier: 18.3.1
         version: 18.3.1
       typegpu:
-        specifier: ^0.5.5
-        version: 0.5.5
+        specifier: ^0.5.6
+        version: 0.5.6
     devDependencies:
       '@webgpu/types':
         specifier: ^0.1.54
@@ -122,8 +122,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0(typescript@5.7.3)
       unplugin-typegpu:
-        specifier: ^0.1.0-alpha.9
-        version: 0.1.0-alpha.9(typegpu@0.5.5)
+        specifier: ^0.1.0
+        version: 0.1.0(typegpu@0.5.6)
     publishDirectory: dist
 
 packages:
@@ -1698,11 +1698,6 @@ packages:
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
-
-  '@typegpu/noise@0.0.5':
-    resolution: {integrity: sha512-sp5LbHVCRXzmmHBkyCfvriMITsaEy5HP3Y5HmRwr75gMjKYMvOfwtEvSnvuqewNjvK60QtdLfZpzgS4cJeypHA==}
-    peerDependencies:
-      typegpu: ^0.5.4
 
   '@typegpu/noise@0.0.6':
     resolution: {integrity: sha512-2l+A9vZ//gGJ1gzx1HcY2+4lDB798D74MJGTklUgQhm+cul0k9KIKnRNSOgb0/xS+xhdc6+KRtddGQWaRRUC0Q==}
@@ -4255,16 +4250,8 @@ packages:
     resolution: {integrity: sha512-WShVS0bykycxzPhRGujFJGtNqVax/SBv2/k7NpYMSLSey2eSN8z3/nF5In/rS3o4CptCmKi+j/kzkKBU8l060w==}
     engines: {node: '>=12.20.0'}
 
-  tinyest-for-wgsl@0.1.0-alpha.9:
-    resolution: {integrity: sha512-Zw06oMBI6dUIWI808fsmMjS3Efo+kbwa1LMxFb1bdMXx+QCrhVbUdPV8zzxp89XAiqAK9DncfO422/opqqgfHQ==}
-    engines: {node: '>=12.20.0'}
-
   tinyest@0.1.0:
     resolution: {integrity: sha512-6onWUaqRe3N7/AMbKyYCDeKi0GS7xUyH35uIePBRN2Nt73T/BDUGHFxEOcxWWK8F0oK3+4KiwSRiSFtFm/Cy+w==}
-    engines: {node: '>=12.20.0'}
-
-  tinyest@0.1.0-alpha.7:
-    resolution: {integrity: sha512-4R4Ysjh0UyX/s16XTEhRu6aAiXA7VAZ+LH/fNwK2o7MsSCHwmFIoRKOPL0/HE24MCZTW2sjAL7qEKugstb3wjw==}
     engines: {node: '>=12.20.0'}
 
   tinyglobby@0.2.12:
@@ -4313,10 +4300,6 @@ packages:
 
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
-
-  typegpu@0.5.5:
-    resolution: {integrity: sha512-4f1gj9w/8NZg0+VJbKCA/65jeyi1u5INHir7vGCda2ogWSPSALMuW4qY8F48Lthdtuc5s20rEC8fFHsa4VLmCQ==}
-    engines: {node: '>=12.20.0'}
 
   typegpu@0.5.6:
     resolution: {integrity: sha512-LQsxQ1GT+kI0riGABD1FcB5SUpjVg6hvXAR0tfIsfXJ+g4U9qjVuN0EEp8oxTjRJzFwwBz8LAdFGeSTqLe+Nwg==}
@@ -4403,15 +4386,6 @@ packages:
     resolution: {integrity: sha512-LlNDHzie0Zy2c0n8ABbyu51Q3SdTUdwzEMmpUlXmJXV5YtHNPKwEY/aJAKI+B7udAg0ZHxeX+R0vtv8GFn6XJA==}
     peerDependencies:
       typegpu: ^0.5.6
-
-  unplugin-typegpu@0.1.0-alpha.9:
-    resolution: {integrity: sha512-u+aT3WtVnCRbZEJ4diaCZmjInIhFqb7qR+XKfr6mptOtTSqAukOZzqAY2Se7C9HoQcq5bVXwA4LdpMmaHDwhow==}
-    peerDependencies:
-      typegpu: ^0.5.4
-
-  unplugin@2.3.0:
-    resolution: {integrity: sha512-zNTDfbzOZzkbgXvH1QgQFW5nAyvjA0q3q9FGPFx2sKpDnaoU09VP1wT1mE+LYa6EF2rfezfd1y2EPLLR8ka6nw==}
-    engines: {node: '>=18.12.0'}
 
   unplugin@2.3.2:
     resolution: {integrity: sha512-3n7YA46rROb3zSj8fFxtxC/PqoyvYQ0llwz9wtUPUutr9ig09C8gGo5CWCwHrUzlqC1LLR43kxp5vEIyH1ac1w==}
@@ -6437,10 +6411,6 @@ snapshots:
       '@sinonjs/commons': 3.0.1
 
   '@trysound/sax@0.2.0': {}
-
-  '@typegpu/noise@0.0.5(typegpu@0.5.5)':
-    dependencies:
-      typegpu: 0.5.5
 
   '@typegpu/noise@0.0.6(typegpu@0.5.6)':
     dependencies:
@@ -9267,13 +9237,7 @@ snapshots:
     dependencies:
       tinyest: 0.1.0
 
-  tinyest-for-wgsl@0.1.0-alpha.9:
-    dependencies:
-      tinyest: 0.1.0-alpha.7
-
   tinyest@0.1.0: {}
-
-  tinyest@0.1.0-alpha.7: {}
 
   tinyglobby@0.2.12:
     dependencies:
@@ -9308,11 +9272,6 @@ snapshots:
   type-fest@0.7.1: {}
 
   typed-binary@4.3.2: {}
-
-  typegpu@0.5.5:
-    dependencies:
-      tinyest: 0.1.0-alpha.7
-      typed-binary: 4.3.2
 
   typegpu@0.5.6:
     dependencies:
@@ -9406,21 +9365,6 @@ snapshots:
       tinyest-for-wgsl: 0.1.0
       typegpu: 0.5.6
       unplugin: 2.3.2
-
-  unplugin-typegpu@0.1.0-alpha.9(typegpu@0.5.5):
-    dependencies:
-      '@babel/standalone': 7.27.0
-      estree-walker: 3.0.3
-      magic-string: 0.30.17
-      tinyest-for-wgsl: 0.1.0-alpha.9
-      typegpu: 0.5.5
-      unplugin: 2.3.0
-
-  unplugin@2.3.0:
-    dependencies:
-      acorn: 8.14.1
-      picomatch: 4.0.2
-      webpack-virtual-modules: 0.6.2
 
   unplugin@2.3.2:
     dependencies:

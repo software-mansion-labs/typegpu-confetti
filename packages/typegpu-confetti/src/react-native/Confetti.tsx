@@ -53,7 +53,7 @@ const ConfettiViz = React.forwardRef(
       maxDurationTime = defaults.maxDurationTime,
       initParticle = defaults.initParticle,
       style,
-    }: ConfettiPropTypes & { style: StyleProp<ViewStyle> },
+    }: ConfettiPropTypes & { style?: StyleProp<ViewStyle> },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const root = useRoot();
@@ -391,7 +391,7 @@ const ConfettiViz = React.forwardRef(
 
 const Confetti = React.forwardRef(
   (
-    props: ConfettiPropTypes & { style: StyleProp<ViewStyle> },
+    props: ConfettiPropTypes & { style?: StyleProp<ViewStyle> },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const { device } = useDevice();

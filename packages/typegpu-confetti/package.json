@@ -67,7 +67,7 @@
     "typescript": "^5.7.3",
     "@webgpu/types": "^0.1.54",
     "unbuild": "^3.5.0",
-    "unplugin-typegpu": "^0.1.0-alpha.9",
+    "unplugin-typegpu": "^0.1.0",
     "react-native-wgpu": "^0.1.23",
     "react-native": "0.76.9"
   },
