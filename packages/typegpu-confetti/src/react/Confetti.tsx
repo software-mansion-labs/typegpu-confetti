@@ -1,4 +1,5 @@
 import React, {
+  type CSSProperties,
   type ForwardedRef,
   useCallback,
   useEffect,
@@ -51,7 +52,8 @@ const ConfettiViz = React.forwardRef(
       size = defaults.size,
       maxDurationTime = defaults.maxDurationTime,
       initParticle = defaults.initParticle,
-    }: ConfettiPropTypes & { width: number; height: number },
+      style = {}
+    }: ConfettiPropTypes & {style?: CSSProperties} & { width: number; height: number },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const root = useRoot();
@@ -386,6 +388,7 @@ const ConfettiViz = React.forwardRef(
           width: '100%',
           height: '100%',
           inset: 0,
+          ...style
         }}
       />
     );

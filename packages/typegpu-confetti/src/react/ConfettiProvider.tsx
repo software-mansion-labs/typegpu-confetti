@@ -1,4 +1,5 @@
 import {
+  type CSSProperties,
   type ReactNode,
   type RefObject,
   createContext,
@@ -13,14 +14,14 @@ const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(
 );
 
 export function ConfettiProvider(
-  props: { children: ReactNode } & ConfettiPropTypes,
+  props: { children: ReactNode, style?: CSSProperties } & ConfettiPropTypes,
 ) {
   const { children, ...confettiProps } = props;
   const ref = useRef<ConfettiRef>(null);
 
   return (
     <ConfettiContext.Provider value={ref}>
-      <div style={{ position: 'static', width: '100%', height: '100%' }}>
+      <div style={{ width: '100%', height: '100%' }}>
         {children}
 
         <Confetti
