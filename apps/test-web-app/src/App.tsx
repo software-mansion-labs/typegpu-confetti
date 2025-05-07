@@ -82,40 +82,9 @@ const customGravity: GravityFn = ({ pos }) => {
 export default function App() {
   return (
     <ConfettiProvider maxParticleAmount={2000}>
-      <div
-        style={{
-          display: 'flex',
-          flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 20,
-        }}
-      >
-        <div
-          style={{
-            fontWeight: 900,
-            fontSize: 25,
-            textAlign: 'left',
-            paddingLeft: '10%',
-            paddingBottom: 40,
-            fontStyle: 'italic',
-            width: '100%',
-            color: 'rgb(82 89 238)',
-          }}
-        >
-          typegpu-confetti
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-            flexWrap: 'wrap',
-            flexDirection: 'row',
-          }}
-        >
+      <div className="container">
+        <h1>typegpu-confetti</h1>
+        <div className="row">
           <ConfettiContextButton />
           <ButtonRow label="Color" icon="💜">
             <Confetti
@@ -194,25 +163,10 @@ function ButtonRow({
   const [confettiKey, setConfettiKey] = useState(0);
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setConfettiKey((key) => key + 1)}
-        style={{
-          borderRadius: 20,
-          backgroundColor: 'rgb(82 89 238)',
-          padding: 15,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <div style={{ fontSize: 25 }}>{icon ?? '🎉'} </div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
+      <button type="button" onClick={() => setConfettiKey((key) => key + 1)}>
+        <div className="row">
+          <div className='icon'>{icon ?? '🎉'} </div>
+          <div className='label'>
             {label}
           </div>
         </div>
@@ -243,25 +197,10 @@ function ConfettiContextButton() {
   const confetti = useConfetti();
 
   return (
-    <button
-      type="button"
-      onClick={() => confetti?.current?.addParticles(200)}
-      style={{
-        borderRadius: 20,
-        backgroundColor: 'rgb(82 89 238)',
-        padding: 15,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <div style={{ fontSize: 25 }}>🌨️</div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
+    <button type="button" onClick={() => confetti?.current?.addParticles(200)}>
+      <div className="row">
+        <div className='icon'>🌨️</div>
+        <div className='label'>
           Default (using hook)
         </div>
       </div>
@@ -280,22 +219,10 @@ function ImperativeConfettiButtonRow({
       <button
         type="button"
         onClick={() => confettiRef.current?.addParticles(50)}
-        style={{
-          borderRadius: 20,
-          backgroundColor: 'rgb(82 89 238)',
-          padding: 15,
-        }}
       >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <div style={{ fontSize: 25 }}>{icon ?? '🎉'} </div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
+        <div className="row">
+          <div className='icon'>{icon ?? '🎉'} </div>
+          <div className='label'>
             {label}
           </div>
         </div>
