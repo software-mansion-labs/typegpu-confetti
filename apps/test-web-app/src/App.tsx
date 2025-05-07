@@ -165,10 +165,8 @@ function ButtonRow({
     <>
       <button type="button" onClick={() => setConfettiKey((key) => key + 1)}>
         <div className="row">
-          <div className='icon'>{icon ?? '🎉'} </div>
-          <div className='label'>
-            {label}
-          </div>
+          <div className="icon">{icon ?? '🎉'} </div>
+          <div className="label">{label}</div>
         </div>
       </button>
 
@@ -199,10 +197,8 @@ function ConfettiContextButton() {
   return (
     <button type="button" onClick={() => confetti?.current?.addParticles(200)}>
       <div className="row">
-        <div className='icon'>🌨️</div>
-        <div className='label'>
-          Default (using hook)
-        </div>
+        <div className="icon">🌨️</div>
+        <div className="label">Default (using hook)</div>
       </div>
     </button>
   );
@@ -221,10 +217,8 @@ function ImperativeConfettiButtonRow({
         onClick={() => confettiRef.current?.addParticles(50)}
       >
         <div className="row">
-          <div className='icon'>{icon ?? '🎉'} </div>
-          <div className='label'>
-            {label}
-          </div>
+          <div className="icon">{icon ?? '🎉'} </div>
+          <div className="label">{label}</div>
         </div>
       </button>
 

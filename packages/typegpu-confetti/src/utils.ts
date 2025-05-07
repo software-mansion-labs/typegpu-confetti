@@ -3,7 +3,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
-  useReducer,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,61 +21,33 @@ export function useRoot(): TgpuRoot {
   return root;
 }
 
-type State<T extends AnyData> = {
-  buffer: TgpuBuffer<T>;
-};
-type Action<T extends AnyData> = { type: 'write'; value: Infer<T> };
-type Initial<T extends AnyData> = {
-  value: Infer<T> | undefined;
-  label: string | undefined;
-  root: TgpuRoot;
-  schema: T;
-};
-
-function reducer<T extends AnyData>(
-  state: State<T>,
-  action: Action<T>,
-): State<T> {
-  if (action.type === 'write') {
-    return state;
-  }
-
-  return state;
-}
-
-function createBuffer<T extends AnyData>({
-  root,
-  schema,
-  label,
-  value,
-}: Initial<T>): State<T> {
-  const buffer = root.createBuffer(schema, value).$name(label);
-
-  return {
-    buffer,
-  };
-}
-
 export function useBuffer<T extends AnyData>(
   schema: T,
   value: Infer<T> | undefined,
-  label?: string,
 ): TgpuBuffer<T> {
   const root = useRoot();
+  const bufferRef = useRef<TgpuBuffer<T> | null>();
 
-  const [{ buffer }] = useReducer(
-    reducer,
-    { root, schema, value, label },
-    createBuffer<T>,
-  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <don't recreate buffer on value change>
+  let buffer = useMemo(() => {
+    if (bufferRef.current) {
+      bufferRef.current.destroy();
+    }
+    const buffer = root.createBuffer(schema, value);
+    bufferRef.current = buffer;
+    return buffer;
+  }, [root, schema]);
 
-  useEffect(() => {
+  // biome-ignore lint/style/noNonNullAssertion: <set in memo, strict mode acting weird>
+  buffer = bufferRef.current!;
+
+  useLayoutEffect(() => {
     if (value !== undefined && buffer && !buffer.destroyed) {
       buffer.write(value);
     }
   }, [value, buffer]);
 
-  const cleanupRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cleanupRef = useRef<ReturnType<typeof setTimeout> | null>();
 
   useEffect(() => {
     if (cleanupRef.current !== null) {
@@ -89,7 +61,7 @@ export function useBuffer<T extends AnyData>(
     };
   }, [buffer]);
 
-  return buffer as TgpuBuffer<T>;
+  return buffer;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: it's fine
