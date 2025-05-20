@@ -150,7 +150,7 @@ export const defaultInitParticle: InitParticleFn = ({ index: i }) => {
 
 const preInitParticle = initParticleFn(({ index: i }) => {
   'kernel';
-  randf.seed2(d.vec2f(d.f32(i) + (time.value % 1111)));
+  randf.seed2(d.vec2f(d.f32(i), time.value % 1111));
 
   // @ts-ignore
   const particle: d.Infer<typeof ParticleData> = particles.value[i];
