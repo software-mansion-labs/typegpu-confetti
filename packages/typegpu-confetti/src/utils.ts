@@ -16,7 +16,7 @@ export function useRoot(): TgpuRoot {
   const root = useContext(RootContext);
 
   if (root === null) {
-    throw new Error('please provide root');
+    throw new Error('No root (tgpu.init) object passed via context to the component.');
   }
   return root;
 }
