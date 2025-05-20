@@ -20,7 +20,7 @@ const t = tgpu;
 
 const centerGravity: GravityFn = (args) => {
   'kernel';
-  return std.mul(2, d.vec2f(-args.pos.x, -args.pos.y));
+  return std.mul(2, d.vec2f(d.f32(-args.pos.x), d.f32(-args.pos.y)));
 };
 
 const rightGravity: GravityFn = () => {

@@ -40,6 +40,8 @@ import {
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import { useBuffer, useDevice, useFrame, useRoot } from '../utils';
 
+const startTime = Date.now();
+
 const ConfettiViz = React.forwardRef(
   (
     {
@@ -52,8 +54,11 @@ const ConfettiViz = React.forwardRef(
       size = defaults.size,
       maxDurationTime = defaults.maxDurationTime,
       initParticle = defaults.initParticle,
-      style = {}
-    }: ConfettiPropTypes & {style?: CSSProperties} & { width: number; height: number },
+      style = {},
+    }: ConfettiPropTypes & { style?: CSSProperties } & {
+      width: number;
+      height: number;
+    },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const root = useRoot();
@@ -105,7 +110,6 @@ const ConfettiViz = React.forwardRef(
     const canvasAspectRatioBuffer = useBuffer(
       d.f32,
       context ? context.canvas.width / context.canvas.height : 1,
-      'aspect_ratio',
     ).$usage('uniform');
 
     const canvasAspectRatioUniform = useMemo(
@@ -139,19 +143,15 @@ const ConfettiViz = React.forwardRef(
     const particleGeometryBuffer = useBuffer(
       ParticleGeometryArray,
       particleGeometry,
-      'particle_geometry',
     ).$usage('vertex');
 
-    const particleDataBuffer = useBuffer(
-      ParticleDataArray,
-      undefined,
-      'particle_data',
-    ).$usage('storage', 'vertex');
-
-    const deltaTimeBuffer = useBuffer(d.f32, undefined, 'delta_time').$usage(
-      'uniform',
+    const particleDataBuffer = useBuffer(ParticleDataArray).$usage(
+      'storage',
+      'vertex',
     );
-    const timeBuffer = useBuffer(d.f32, undefined, 'time').$usage('storage');
+
+    const deltaTimeBuffer = useBuffer(d.f32).$usage('uniform');
+    const timeBuffer = useBuffer(d.f32).$usage('storage');
 
     const particleDataStorage = useMemo(
       () => particleDataBuffer.as('mutable'),
@@ -161,7 +161,7 @@ const ConfettiViz = React.forwardRef(
       () => deltaTimeBuffer.as('uniform'),
       [deltaTimeBuffer],
     );
-    const timeStorage = useMemo(() => timeBuffer.as('mutable'), [timeBuffer]);
+    const timeStorage = useMemo(() => timeBuffer.as('readonly'), [timeBuffer]);
 
     //#endregion
 
@@ -253,6 +253,7 @@ const ConfettiViz = React.forwardRef(
               maxDurationTime ?? defaults.maxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
+            .with(time, timeStorage)
             .withCompute(initCompute)
             .createPipeline(),
         ),
@@ -262,6 +263,7 @@ const ConfettiViz = React.forwardRef(
         maxDurationTime,
         validatePipeline,
         initParticle,
+        timeStorage,
       ],
     );
 
@@ -276,6 +278,7 @@ const ConfettiViz = React.forwardRef(
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(maxParticleAmountSlot, maxParticleAmount)
+            .with(time, timeStorage)
             .withCompute(addParticleCompute)
             .createPipeline(),
         ),
@@ -286,6 +289,7 @@ const ConfettiViz = React.forwardRef(
         maxDurationTime,
         validatePipeline,
         initParticle,
+        timeStorage,
       ],
     );
 
@@ -348,6 +352,7 @@ const ConfettiViz = React.forwardRef(
       root.device.pushErrorScope('validation');
 
       deltaTimeBuffer.write(deltaTime);
+      timeBuffer.write(Date.now() - startTime);
       canvasAspectRatioBuffer.write(
         context.canvas.width / context.canvas.height,
       );
@@ -388,7 +393,7 @@ const ConfettiViz = React.forwardRef(
           width: '100%',
           height: '100%',
           inset: 0,
-          ...style
+          ...style,
         }}
       />
     );

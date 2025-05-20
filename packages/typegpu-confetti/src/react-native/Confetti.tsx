@@ -74,7 +74,7 @@ const ConfettiViz = React.forwardRef(
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
     useEffect(() => {
-      let timeout: NodeJS.Timeout | undefined;
+      let timeout: number | undefined;
       if (maxDurationTime !== null) {
         timeout = setTimeout(
           () => setEnded(true),
@@ -93,7 +93,6 @@ const ConfettiViz = React.forwardRef(
     const canvasAspectRatioBuffer = useBuffer(
       d.f32,
       context ? context.canvas.width / context.canvas.height : 1,
-      'aspect_ratio',
     ).$usage('uniform');
 
     const canvasAspectRatioUniform = useMemo(
@@ -127,19 +126,15 @@ const ConfettiViz = React.forwardRef(
     const particleGeometryBuffer = useBuffer(
       ParticleGeometryArray,
       particleGeometry,
-      'particle_geometry',
     ).$usage('vertex');
 
-    const particleDataBuffer = useBuffer(
-      ParticleDataArray,
-      undefined,
-      'particle_data',
-    ).$usage('storage', 'vertex');
-
-    const deltaTimeBuffer = useBuffer(d.f32, undefined, 'delta_time').$usage(
-      'uniform',
+    const particleDataBuffer = useBuffer(ParticleDataArray).$usage(
+      'storage',
+      'vertex',
     );
-    const timeBuffer = useBuffer(d.f32, undefined, 'time').$usage('storage');
+
+    const deltaTimeBuffer = useBuffer(d.f32).$usage('uniform');
+    const timeBuffer = useBuffer(d.f32).$usage('storage');
 
     const particleDataStorage = useMemo(
       () => particleDataBuffer.as('mutable'),

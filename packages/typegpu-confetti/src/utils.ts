@@ -23,7 +23,7 @@ export function useRoot(): TgpuRoot {
 
 export function useBuffer<T extends AnyData>(
   schema: T,
-  value: Infer<T> | undefined,
+  value?: Infer<T> | undefined,
 ): TgpuBuffer<T> {
   const root = useRoot();
   const bufferRef = useRef<TgpuBuffer<T> | null>();
