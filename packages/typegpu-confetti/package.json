@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "typegpu": "^0.5.5",
-    "@typegpu/noise": "^0.0.5"
+    "typegpu": "^0.5.6",
+    "@typegpu/noise": "^0.0.6"
   },
   "peerDependencies": {
     "react-native-wgpu": "^0.1.23",
@@ -60,7 +60,7 @@
     "typescript": "^5.7.3",
     "@webgpu/types": "^0.1.54",
     "unbuild": "^3.5.0",
-    "unplugin-typegpu": "^0.1.0-alpha.9",
+    "unplugin-typegpu": "^0.1.0",
     "react-native-wgpu": "^0.1.23",
     "react-native": "0.76.9"
   },
