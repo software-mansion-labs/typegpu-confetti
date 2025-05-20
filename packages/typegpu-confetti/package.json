@@ -7,6 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./react-native": "./src/react-native/index.ts",
+    "./react": "./src/react/index.ts",
     "./package.json": "./package.json"
   },
   "main": "./src/index.ts",
@@ -29,6 +30,12 @@
         "module": "./dist/react-native/index.js",
         "import": "./dist/react-native/index.js",
         "default": "./dist/react-native/index.cjs"
+      },
+      "./react": {
+        "types": "./dist/react/index.d.ts",
+        "module": "./dist/react/index.js",
+        "import": "./dist/react/index.js",
+        "default": "./dist/react/index.cjs"
       }
     }
   },
@@ -43,7 +50,7 @@
     "type": "git",
     "url": "git+https://github.com/mhawryluk/typegpu-confetti.git"
   },
-  "keywords": ["confetti", "javascript", "react-native", "webgpu"],
+  "keywords": ["confetti", "javascript", "react-native", "webgpu", "react"],
   "bugs": {
     "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
   },
