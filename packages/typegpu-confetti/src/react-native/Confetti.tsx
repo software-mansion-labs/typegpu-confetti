@@ -74,7 +74,7 @@ const ConfettiViz = React.forwardRef(
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
     useEffect(() => {
-      let timeout: number | undefined;
+      let timeout: NodeJS.Timeout | undefined;
       if (maxDurationTime !== null) {
         timeout = setTimeout(
           () => setEnded(true),
