@@ -121,9 +121,6 @@ export const mainCompute = tgpu['~unstable']
     workgroupSize: [64],
   })(/* wgsl */ `{
     let index = in.gid.x;
-    if index == 0 {
-      time += deltaTime;
-    }
   
     if particles[index].timeLeft < 0.01 {
       return;
@@ -137,9 +134,24 @@ export const mainCompute = tgpu['~unstable']
   }`)
   .$uses({ gravity, particles, deltaTime, time });
 
-const preInitParticle: InitParticleFn = initParticleFn(({ index: i }) => {
+
+export const defaultInitParticle: InitParticleFn = ({ index: i }) => {
   'kernel';
-  randf.seed2(d.vec2f(d.f32(i), d.f32(i)));
+  // @ts-ignore
+  const particle: d.Infer<typeof ParticleData> = particles.value[i];
+
+  particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
+  particle.velocity = d.vec2f(
+    randf.sample() * 2 - 1,
+    -(randf.sample() / 25 + 0.01) * 50,
+  );
+
+  particles.value[i] = particle;
+};
+
+const preInitParticle = initParticleFn(({ index: i }) => {
+  'kernel';
+  randf.seed2(d.vec2f(d.f32(i), time.value % 1111));
 
   // @ts-ignore
   const particle: d.Infer<typeof ParticleData> = particles.value[i];
@@ -149,15 +161,13 @@ const preInitParticle: InitParticleFn = initParticleFn(({ index: i }) => {
   particles.value[i] = particle;
 });
 
-export const initCompute = tgpu['~unstable']
-  .computeFn({
-    in: { gid: d.builtin.globalInvocationId },
-    workgroupSize: [1],
-  })(/* wgsl */ `{
-    preInitParticle(i32(in.gid.x));
-    initParticle(i32(in.gid.x));
-  }`)
-  .$uses({ initParticle, preInitParticle });
+export const initCompute = tgpu['~unstable'].computeFn({
+  in: { gid: d.builtin.globalInvocationId },
+  workgroupSize: [1],
+})((input) => {
+  preInitParticle({ index: d.i32(input.gid.x) });
+  initParticle.value({ index: d.i32(input.gid.x) });
+});
 
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
