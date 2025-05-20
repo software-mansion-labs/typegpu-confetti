@@ -1,6 +1,6 @@
 # typegpu-confetti
 
-`typegpu-confetti` is a package for highly-customizable confetti animations in React Native, computed and rendered exclusively on the GPU. Written using [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) and [TypeGPU](https://github.com/software-mansion/TypeGPU).
+`typegpu-confetti` is a package for highly-customizable confetti animations in React and React Native, computed and rendered exclusively on the GPU. Written using [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) and [TypeGPU](https://github.com/software-mansion/TypeGPU).
 
 <video width="512" autoplay muted loop playsinline src="https://github.com/user-attachments/assets/02c6fae6-3ffb-47ba-a204-4aacaa96f9b7"></video>
 
@@ -26,6 +26,12 @@ npm install unplugin-typegpu
 ```
 
 For further information about the plugin and the overall tgpu functions functionality, please refer to the [TypeGPU documentation](https://docs.swmansion.com/TypeGPU/getting-started/).
+
+## Entry points
+
+The library exposes separate entry points for React components for the web `/react` and React Native for mobile `/react-native`. Make sure to import components from the correct entry point. 
+
+The following instructions present the usage on React Native, however the web component's API is identical, apart from some minor differences, which are denoted where necessary.
 
 ## Usage
 
@@ -126,7 +132,8 @@ type ConfettiPropTypes = {
   maxParticleAmount?: number;
   gravity?: GravityFn;
   initParticle?: InitParticleFn;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>; // /react-native
+  style?: CSSProperties; // /react
 };
 
 type GravityFn = (args: {

@@ -1,4 +1,5 @@
 import React, {
+  type CSSProperties,
   type ForwardedRef,
   useCallback,
   useEffect,
@@ -7,9 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Canvas, useDevice } from 'react-native-wgpu';
 
-import type { StyleProp, ViewStyle } from 'react-native';
 import tgpu, {
   type TgpuComputePipeline,
   type TgpuRenderPipeline,
@@ -39,14 +38,15 @@ import {
   time,
 } from '../schemas';
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
-import { useBuffer, useFrame, useRoot } from '../utils';
-import { useGPUSetup } from './utils';
+import { useBuffer, useDevice, useFrame, useRoot } from '../utils';
 
 const startTime = Date.now();
 
 const ConfettiViz = React.forwardRef(
   (
     {
+      width,
+      height,
       gravity = defaults.gravity,
       colorPalette = defaults.colorPalette,
       initParticleAmount = defaults.initParticleAmount,
@@ -54,13 +54,30 @@ const ConfettiViz = React.forwardRef(
       size = defaults.size,
       maxDurationTime = defaults.maxDurationTime,
       initParticle = defaults.initParticle,
-      style,
-    }: ConfettiPropTypes & { style?: StyleProp<ViewStyle> },
+      style = {},
+    }: ConfettiPropTypes & { style?: CSSProperties } & {
+      width: number;
+      height: number;
+    },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const root = useRoot();
+
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-    const { canvasRef, context } = useGPUSetup(presentationFormat);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [context, setContext] = useState<GPUCanvasContext | null>(null);
+
+    useEffect(() => {
+      if (root && !context && canvasRef.current) {
+        const ctx = canvasRef.current?.getContext('webgpu') as GPUCanvasContext;
+        ctx.configure({
+          device: root.device,
+          format: presentationFormat,
+          alphaMode: 'premultiplied',
+        });
+        setContext(ctx);
+      }
+    }, [context, root, presentationFormat]);
 
     const [ended, setEnded] = useState(false);
     const [timeoutKey, setTimeoutKey] = useState(0);
@@ -74,7 +91,7 @@ const ConfettiViz = React.forwardRef(
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
     useEffect(() => {
-      let timeout: NodeJS.Timeout | undefined;
+      let timeout: ReturnType<typeof setTimeout> | undefined;
       if (maxDurationTime !== null) {
         timeout = setTimeout(
           () => setEnded(true),
@@ -147,43 +164,6 @@ const ConfettiViz = React.forwardRef(
     const timeStorage = useMemo(() => timeBuffer.as('readonly'), [timeBuffer]);
 
     //#endregion
-
-    useImperativeHandle(
-      ref,
-      () =>
-        ({
-          pause: () => setEnded(true),
-          resume: () => setEnded(false),
-          restart: () => {
-            particleAmount.current = initParticleAmount;
-
-            if (initParticleAmount > 0) {
-              initComputePipeline.dispatchWorkgroups(initParticleAmount);
-            }
-
-            if (ended) {
-              setEnded(false);
-            }
-          },
-
-          addParticles: (amount: number) => {
-            for (let i = 0; i < amount; i++) {
-              addParticleComputePipeline.dispatchWorkgroups(1);
-            }
-
-            particleAmount.current = Math.min(
-              particleAmount.current + amount,
-              maxParticleAmount,
-            );
-
-            if (ended) {
-              setEnded(false);
-            }
-            setTimeoutKey((key) => key + 1);
-          },
-        }) satisfies ConfettiRef,
-      [ended, maxParticleAmount, initParticleAmount],
-    );
 
     // #region pipelines
 
@@ -315,6 +295,49 @@ const ConfettiViz = React.forwardRef(
 
     // #endregion
 
+    useImperativeHandle(
+      ref,
+      () =>
+        ({
+          pause: () => setEnded(true),
+          resume: () => setEnded(false),
+          restart: () => {
+            particleAmount.current = initParticleAmount;
+
+            if (initParticleAmount > 0) {
+              initComputePipeline.dispatchWorkgroups(initParticleAmount);
+            }
+
+            if (ended) {
+              setEnded(false);
+            }
+          },
+
+          addParticles: (amount: number) => {
+            for (let i = 0; i < amount; i++) {
+              addParticleComputePipeline.dispatchWorkgroups(1);
+            }
+
+            particleAmount.current = Math.min(
+              particleAmount.current + amount,
+              maxParticleAmount,
+            );
+
+            if (ended) {
+              setEnded(false);
+            }
+            setTimeoutKey((key) => key + 1);
+          },
+        }) satisfies ConfettiRef,
+      [
+        ended,
+        maxParticleAmount,
+        initParticleAmount,
+        addParticleComputePipeline,
+        initComputePipeline,
+      ],
+    );
+
     useEffect(() => {
       if (initParticleAmount > 0) {
         initComputePipeline.dispatchWorkgroups(initParticleAmount);
@@ -356,51 +379,64 @@ const ConfettiViz = React.forwardRef(
           setEnded(true);
         }
       });
-      context.present();
     };
 
     useFrame(frame, !ended);
 
     return (
-      <>
-        <Canvas
-          transparent
-          style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
-        />
-        {/* ^ hopefully fixes first confetti being invisible */}
-        <Canvas
-          transparent
-          ref={canvasRef}
-          style={[
-            {
-              opacity: ended ? 0 : 1,
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              zIndex: 20,
-              pointerEvents: 'none',
-              cursor: 'auto',
-            },
-            style,
-          ]}
-        />
-      </>
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          inset: 0,
+          ...style,
+        }}
+      />
     );
   },
 );
 
 const Confetti = React.forwardRef(
-  (
-    props: ConfettiPropTypes & { style?: StyleProp<ViewStyle> },
-    ref: ForwardedRef<ConfettiRef>,
-  ) => {
+  (props: ConfettiPropTypes, ref: ForwardedRef<ConfettiRef>) => {
     const { device } = useDevice();
     const root = useMemo(
       () => (device ? tgpu.initFromDevice({ device }) : null),
       [device],
     );
+
+    const [height, setHeight] = useState(200);
+    const [width, setWidth] = useState(200);
+
+    const measuredRef = useRef<HTMLDivElement | null>(null);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: ref is null on first render
+    useEffect(() => {
+      if (measuredRef.current) {
+        setWidth(
+          measuredRef.current.getBoundingClientRect().width *
+            window.devicePixelRatio,
+        );
+        setHeight(
+          measuredRef.current.getBoundingClientRect().height *
+            window.devicePixelRatio,
+        );
+
+        const observer = new ResizeObserver((e) => {
+          setWidth((width) =>
+            e[0] ? e[0].contentRect.width * window.devicePixelRatio : width,
+          );
+          setHeight((height) =>
+            e[0] ? e[0].contentRect.height * window.devicePixelRatio : height,
+          );
+        });
+
+        observer.observe(measuredRef.current);
+      }
+    }, [root]);
 
     if (root === null) {
       return null;
@@ -408,7 +444,20 @@ const Confetti = React.forwardRef(
 
     return (
       <RootContext.Provider value={root}>
-        <ConfettiViz {...props} ref={ref} />
+        <div
+          ref={measuredRef}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            inset: 0,
+            zIndex: 20,
+            pointerEvents: 'none',
+            cursor: 'auto',
+          }}
+        >
+          <ConfettiViz {...props} ref={ref} width={width} height={height} />
+        </div>
       </RootContext.Provider>
     );
   },

@@ -1,12 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "typeRoots": [
-      "./node_modules/@webgpu/types",
-      "./node_modules/@types",
-      "../../node_modules/@types",
-      "../../node_modules/@webgpu/types"
-    ],
     "allowJs": true,
     "esModuleInterop": true,
     "jsx": "react-native",

@@ -1,4 +1,3 @@
-import type { StyleProp, ViewStyle } from 'react-native';
 import type { GravityFn, InitParticleFn } from './schemas';
 
 export type ConfettiPropTypes = {
@@ -11,8 +10,6 @@ export type ConfettiPropTypes = {
 
   gravity?: GravityFn;
   initParticle?: InitParticleFn;
-
-  style?: StyleProp<ViewStyle>;
 };
 
 export type ConfettiRef = {

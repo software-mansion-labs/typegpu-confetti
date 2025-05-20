@@ -1,6 +1,5 @@
 import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import tgpu from 'typegpu';
 import {
   type ConfettiRef,
@@ -12,10 +11,11 @@ import {
   Confetti,
   ConfettiProvider,
   useConfetti,
-} from 'typegpu-confetti/react-native';
+} from 'typegpu-confetti/react';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const t = tgpu;
 
 const centerGravity: GravityFn = (args) => {
@@ -36,13 +36,13 @@ const strongGravity: GravityFn = () => {
   return d.vec2f(0, -3);
 };
 
-const pointInitParticle: InitParticleFn = ({ index: i }) => {
+const pointInitParticle: InitParticleFn = (args) => {
   'kernel';
-  particles.value[i].position = d.vec2f(
+  particles.value[args.index].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
   );
-  particles.value[i].velocity = d.vec2f(
+  particles.value[args.index].velocity = d.vec2f(
     50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
     50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
   );
@@ -82,28 +82,9 @@ const customGravity: GravityFn = ({ pos }) => {
 export default function App() {
   return (
     <ConfettiProvider maxParticleAmount={2000}>
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          backgroundColor: 'rgb(239 239 249)',
-        }}
-      >
-        <Text
-          style={{
-            fontWeight: 900,
-            fontSize: 25,
-            textAlign: 'left',
-            paddingLeft: '10%',
-            paddingBottom: 40,
-            fontStyle: 'italic',
-            width: '100%',
-            color: 'rgb(82 89 238)',
-          }}
-        >
-          typegpu-confetti
-        </Text>
-        <View style={styles.container}>
+      <div className="container">
+        <h1>typegpu-confetti</h1>
+        <div className="row">
           <ConfettiContextButton />
           <ButtonRow label="Color" icon="💜">
             <Confetti
@@ -168,8 +149,8 @@ export default function App() {
           </ButtonRow>
 
           <ImperativeConfettiButtonRow label="Imperative" icon="🏛️" />
-        </View>
-      </SafeAreaView>
+        </div>
+      </div>
     </ConfettiProvider>
   );
 }
@@ -182,31 +163,15 @@ function ButtonRow({
   const [confettiKey, setConfettiKey] = useState(0);
   return (
     <>
-      <Pressable
-        onPress={() => setConfettiKey((key) => key + 1)}
-        onLongPress={() => setConfettiKey(0)}
-        style={{
-          borderRadius: 20,
-          backgroundColor: 'rgb(82 89 238)',
-          padding: 15,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <Text style={{ fontSize: 25 }}>{icon ?? '🎉'} </Text>
-          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-            {label}
-          </Text>
-        </View>
-      </Pressable>
+      <button type="button" onClick={() => setConfettiKey((key) => key + 1)}>
+        <div className="row">
+          <div className="icon">{icon ?? '🎉'} </div>
+          <div className="label">{label}</div>
+        </div>
+      </button>
 
       {confettiKey > 0 && (
-        <View
+        <div
           style={{
             position: 'absolute',
             left: 0,
@@ -220,7 +185,7 @@ function ButtonRow({
           key={confettiKey}
         >
           {children}
-        </View>
+        </div>
       )}
     </>
   );
@@ -230,28 +195,12 @@ function ConfettiContextButton() {
   const confetti = useConfetti();
 
   return (
-    <Pressable
-      onPress={() => confetti?.current?.addParticles(200)}
-      onLongPress={() => confetti?.current?.pause()}
-      style={{
-        borderRadius: 20,
-        backgroundColor: 'rgb(82 89 238)',
-        padding: 15,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <Text style={{ fontSize: 25 }}>🌨️</Text>
-        <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-          Default (using hook)
-        </Text>
-      </View>
-    </Pressable>
+    <button type="button" onClick={() => confetti?.current?.addParticles(200)}>
+      <div className="row">
+        <div className="icon">🌨️</div>
+        <div className="label">Default (using hook)</div>
+      </div>
+    </button>
   );
 }
 
@@ -263,27 +212,15 @@ function ImperativeConfettiButtonRow({
 
   return (
     <>
-      <Pressable
-        onPress={() => confettiRef.current?.addParticles(50)}
-        style={{
-          borderRadius: 20,
-          backgroundColor: 'rgb(82 89 238)',
-          padding: 15,
-        }}
+      <button
+        type="button"
+        onClick={() => confettiRef.current?.addParticles(50)}
       >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <Text style={{ fontSize: 25 }}>{icon ?? '🎉'} </Text>
-          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-            {label}
-          </Text>
-        </View>
-      </Pressable>
+        <div className="row">
+          <div className="icon">{icon ?? '🎉'} </div>
+          <div className="label">{label}</div>
+        </div>
+      </button>
 
       <Confetti
         ref={confettiRef}
@@ -294,16 +231,3 @@ function ImperativeConfettiButtonRow({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    width: '100%',
-    position: 'static',
-    flexWrap: 'wrap',
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-  },
-});
