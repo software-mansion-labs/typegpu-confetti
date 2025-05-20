@@ -55,6 +55,8 @@ const defaultGravity: GravityFn = () => {
   return d.vec2f(0, -0.3);
 };
 
+const startTime = Date.now();
+
 const ConfettiViz = React.forwardRef(
   (
     {
@@ -160,7 +162,7 @@ const ConfettiViz = React.forwardRef(
       () => deltaTimeBuffer.as('uniform'),
       [deltaTimeBuffer],
     );
-    const timeStorage = useMemo(() => timeBuffer.as('mutable'), [timeBuffer]);
+    const timeStorage = useMemo(() => timeBuffer.as('readonly'), [timeBuffer]);
 
     //#endregion
 
@@ -289,6 +291,7 @@ const ConfettiViz = React.forwardRef(
               maxDurationTime ?? defaultMaxDurationTime,
             )
             .with(initParticleSlot, initParticleFn(initParticle))
+            .with(time, timeStorage)
             .withCompute(initCompute)
             .createPipeline(),
         ),
@@ -298,6 +301,7 @@ const ConfettiViz = React.forwardRef(
         maxDurationTime,
         validatePipeline,
         initParticle,
+        timeStorage,
       ],
     );
 
@@ -312,6 +316,7 @@ const ConfettiViz = React.forwardRef(
             )
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(maxParticleAmountSlot, maxParticleAmount)
+            .with(time, timeStorage)
             .withCompute(addParticleCompute)
             .createPipeline(),
         ),
@@ -322,6 +327,7 @@ const ConfettiViz = React.forwardRef(
         maxDurationTime,
         validatePipeline,
         initParticle,
+        timeStorage,
       ],
     );
 
@@ -341,6 +347,7 @@ const ConfettiViz = React.forwardRef(
       root.device.pushErrorScope('validation');
 
       deltaTimeBuffer.write(deltaTime);
+      timeBuffer.write(Date.now() - startTime);
       canvasAspectRatioBuffer.write(
         context.canvas.width / context.canvas.height,
       );
