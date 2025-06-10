@@ -27,7 +27,7 @@ export const defaults: {
     return d.vec2f(0, -0.3);
   },
 
-  initParticle: ({ index: i }) => {
+  initParticle: (i) => {
     'kernel';
     // @ts-ignore
     const particle: d.Infer<typeof ParticleData> = particles.value[i];

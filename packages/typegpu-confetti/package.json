@@ -1,7 +1,7 @@
 {
   "name": "typegpu-confetti",
-  "version": "0.0.4",
-  "description": "Customizable confetti animation component, running on the GPU",
+  "version": "0.0.5",
+  "description": "Customizable confetti animation component for React and React Native, running on the GPU",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -41,7 +41,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "unbuild && cp ./package.json ./dist/package.json && cp ./README.md ./dist/README.md"
+    "build": "tsx prepack.mjs"
   },
   "engines": {
     "node": ">=12.20.0"
@@ -55,21 +55,25 @@
     "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
   },
   "dependencies": {
-    "react": "18.3.1",
-    "typegpu": "^0.5.6",
-    "@typegpu/noise": "^0.0.6"
+    "typegpu": "^0.5.8",
+    "@typegpu/noise": "^0.0.8"
   },
   "peerDependencies": {
-    "react-native-wgpu": "^0.1.23",
-    "react-native": ">=0.76.9"
+    "react": "*",
+    "react-native": "*",
+    "react-native-wgpu": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.3",
     "@webgpu/types": "^0.1.54",
     "unbuild": "^3.5.0",
-    "unplugin-typegpu": "^0.1.0",
+    "unplugin-typegpu": "^0.1.2",
     "react-native-wgpu": "^0.1.23",
-    "react-native": "^0.76.9"
+    "react-native": "^0.79.3",
+    "react": "^19.1.0",
+    "execa": "^9.6.0",
+    "remeda": "^2.21.2",
+    "tsx": "^4.19.4"
   },
   "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }
