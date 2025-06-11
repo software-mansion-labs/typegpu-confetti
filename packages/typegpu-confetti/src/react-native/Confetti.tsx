@@ -74,7 +74,7 @@ const ConfettiViz = React.forwardRef(
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
     useEffect(() => {
-      let timeout: NodeJS.Timeout | undefined;
+      let timeout: number | undefined;
       if (maxDurationTime !== null) {
         timeout = setTimeout(
           () => setEnded(true),
@@ -244,7 +244,6 @@ const ConfettiViz = React.forwardRef(
               maxDurationTimeSlot,
               maxDurationTime ?? defaults.maxDurationTime,
             )
-            .with(initParticleSlot, initParticleFn(initParticle))
             .with(gravitySlot, gravityFn(gravity))
             .with(time, timeStorage)
             .with(deltaTime, deltaTimeUniform)
@@ -257,7 +256,6 @@ const ConfettiViz = React.forwardRef(
         timeStorage,
         gravity,
         validatePipeline,
-        initParticle,
         maxDurationTime,
         deltaTimeUniform,
       ],
@@ -275,7 +273,8 @@ const ConfettiViz = React.forwardRef(
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(time, timeStorage)
             .withCompute(initCompute)
-            .createPipeline(),
+            .createPipeline()
+            .$name('init'),
         ),
       [
         particleDataStorage,
@@ -300,7 +299,8 @@ const ConfettiViz = React.forwardRef(
             .with(maxParticleAmountSlot, maxParticleAmount)
             .with(time, timeStorage)
             .withCompute(addParticleCompute)
-            .createPipeline(),
+            .createPipeline()
+            .$name('addParticle'),
         ),
       [
         particleDataStorage,
@@ -379,7 +379,7 @@ const ConfettiViz = React.forwardRef(
               right: 0,
               top: 0,
               bottom: 0,
-              zIndex: 20,
+              zIndex: 50,
               pointerEvents: 'none',
               cursor: 'auto',
             },

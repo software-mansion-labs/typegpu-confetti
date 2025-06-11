@@ -18,9 +18,9 @@ import * as std from 'typegpu/std';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const t = tgpu;
 
-const centerGravity: GravityFn = (args) => {
+const centerGravity: GravityFn = (pos) => {
   'kernel';
-  return std.mul(2, d.vec2f(d.f32(-args.pos.x), d.f32(-args.pos.y)));
+  return std.mul(2, d.vec2f(d.f32(-pos.x), d.f32(-pos.y)));
 };
 
 const rightGravity: GravityFn = () => {
@@ -36,19 +36,19 @@ const strongGravity: GravityFn = () => {
   return d.vec2f(0, -3);
 };
 
-const pointInitParticle: InitParticleFn = (args) => {
+const pointInitParticle: InitParticleFn = (index) => {
   'kernel';
-  particles.value[args.index].position = d.vec2f(
+  particles.value[index].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
   );
-  particles.value[args.index].velocity = d.vec2f(
+  particles.value[index].velocity = d.vec2f(
     50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
     50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
   );
 };
 
-const twoSidesInitParticle: InitParticleFn = ({ index: i }) => {
+const twoSidesInitParticle: InitParticleFn = (i) => {
   'kernel';
 
   if (i % 2 === 0) {
@@ -74,7 +74,7 @@ const twoSidesInitParticle: InitParticleFn = ({ index: i }) => {
   }
 };
 
-const customGravity: GravityFn = ({ pos }) => {
+const customGravity: GravityFn = (pos) => {
   'kernel';
   return d.vec2f(-pos.x, -3);
 };

@@ -18,9 +18,9 @@ import * as std from 'typegpu/std';
 
 const t = tgpu;
 
-const centerGravity: GravityFn = (args) => {
+const centerGravity: GravityFn = (pos) => {
   'kernel';
-  return std.mul(2, d.vec2f(d.f32(-args.pos.x), d.f32(-args.pos.y)));
+  return std.mul(2, d.vec2f(d.f32(-pos.x), d.f32(-pos.y)));
 };
 
 const rightGravity: GravityFn = () => {
@@ -36,7 +36,7 @@ const strongGravity: GravityFn = () => {
   return d.vec2f(0, -3);
 };
 
-const pointInitParticle: InitParticleFn = ({ index: i }) => {
+const pointInitParticle: InitParticleFn = (i) => {
   'kernel';
   particles.value[i].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
@@ -48,7 +48,7 @@ const pointInitParticle: InitParticleFn = ({ index: i }) => {
   );
 };
 
-const twoSidesInitParticle: InitParticleFn = ({ index: i }) => {
+const twoSidesInitParticle: InitParticleFn = (i) => {
   'kernel';
 
   if (i % 2 === 0) {
@@ -74,7 +74,7 @@ const twoSidesInitParticle: InitParticleFn = ({ index: i }) => {
   }
 };
 
-const customGravity: GravityFn = ({ pos }) => {
+const customGravity: GravityFn = (pos) => {
   'kernel';
   return d.vec2f(-pos.x, -3);
 };
