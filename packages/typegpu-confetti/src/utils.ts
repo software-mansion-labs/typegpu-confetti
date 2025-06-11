@@ -16,7 +16,9 @@ export function useRoot(): TgpuRoot {
   const root = useContext(RootContext);
 
   if (root === null) {
-    throw new Error('No root (tgpu.init) object passed via context to the component.');
+    throw new Error(
+      'No root (tgpu.init) object passed via context to the component.',
+    );
   }
   return root;
 }
@@ -26,7 +28,7 @@ export function useBuffer<T extends AnyData>(
   value?: Infer<T> | undefined,
 ): TgpuBuffer<T> {
   const root = useRoot();
-  const bufferRef = useRef<TgpuBuffer<T> | null>();
+  const bufferRef = useRef<TgpuBuffer<T> | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <don't recreate buffer on value change>
   let buffer = useMemo(() => {
@@ -47,7 +49,7 @@ export function useBuffer<T extends AnyData>(
     }
   }, [value, buffer]);
 
-  const cleanupRef = useRef<ReturnType<typeof setTimeout> | null>();
+  const cleanupRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (cleanupRef.current !== null) {
