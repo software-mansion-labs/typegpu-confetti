@@ -55,8 +55,8 @@
     "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
   },
   "dependencies": {
-    "typegpu": "^0.5.8",
-    "@typegpu/noise": "^0.0.8"
+    "typegpu": "^0.6.0",
+    "@typegpu/noise": "^0.1.0"
   },
   "peerDependencies": {
     "react": "*",
@@ -67,7 +67,7 @@
     "typescript": "^5.7.3",
     "@webgpu/types": "^0.1.54",
     "unbuild": "^3.5.0",
-    "unplugin-typegpu": "^0.1.2",
+    "unplugin-typegpu": "https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f",
     "react-native-wgpu": "^0.1.23",
     "react-native": "^0.79.3",
     "react": "^19.1.0",
