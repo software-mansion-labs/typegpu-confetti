@@ -29,12 +29,12 @@ export const ParticleData = d.struct({
 
 export const canvasAspectRatio = tgpu['~unstable'].accessor(d.f32);
 export const particles = tgpu['~unstable'].accessor(d.arrayOf(ParticleData, 1));
-export const maxDurationTime = tgpu['~unstable'].slot<number>();
-export const initParticle = tgpu['~unstable'].slot<TgpuFn<[d.I32], d.Void>>();
-export const maxParticleAmount = tgpu['~unstable'].slot<number>();
+export const maxDurationTime = tgpu.slot<number>();
+export const initParticle = tgpu.slot<(index: d.I32) => d.Void>();
+export const maxParticleAmount = tgpu.slot<number>();
 export const deltaTime = tgpu['~unstable'].accessor(d.f32);
 export const time = tgpu['~unstable'].accessor(d.f32);
-export const gravity = tgpu['~unstable'].slot<TgpuFn<[d.Vec2f], d.Vec2f>>();
+export const gravity = tgpu.slot<(pos: d.Vec2f) => d.Vec2f>();
 
 // #endregion
 
