@@ -1,6 +1,6 @@
 {
   "name": "typegpu-confetti",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Customizable confetti animation component for React and React Native, running on the GPU",
   "license": "MIT",
   "type": "module",
