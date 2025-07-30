@@ -67,7 +67,7 @@
     "typescript": "^5.7.3",
     "@webgpu/types": "^0.1.54",
     "unbuild": "^3.5.0",
-    "unplugin-typegpu": "https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f",
+    "unplugin-typegpu": "^0.2.1",
     "react-native-wgpu": "^0.1.23",
     "react-native": "^0.79.3",
     "react": "^19.1.0",
