@@ -1,5 +1,5 @@
 import { randf } from '@typegpu/noise';
-import tgpu, { type TgpuFn } from 'typegpu';
+import tgpu from 'typegpu';
 import * as d from 'typegpu/data';
 
 // #region data structures
@@ -30,7 +30,7 @@ export const ParticleData = d.struct({
 export const canvasAspectRatio = tgpu['~unstable'].accessor(d.f32);
 export const particles = tgpu['~unstable'].accessor(d.arrayOf(ParticleData, 1));
 export const maxDurationTime = tgpu.slot<number>();
-export const initParticle = tgpu.slot<(index: d.I32) => d.Void>();
+export const initParticle = tgpu.slot<(index: number) => d.Void>();
 export const maxParticleAmount = tgpu.slot<number>();
 export const deltaTime = tgpu['~unstable'].accessor(d.f32);
 export const time = tgpu['~unstable'].accessor(d.f32);

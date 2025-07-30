@@ -48,8 +48,8 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       unplugin-typegpu:
-        specifier: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f
-        version: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f(typegpu@0.6.0)
+        specifier: ^0.2.1
+        version: 0.2.1(typegpu@0.6.0)
 
   apps/test-web-app:
     dependencies:
@@ -88,8 +88,8 @@ importers:
         specifier: ~5.7.2
         version: 5.7.3
       unplugin-typegpu:
-        specifier: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f
-        version: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f(typegpu@0.6.0)
+        specifier: ^0.2.1
+        version: 0.2.1(typegpu@0.6.0)
       vite:
         specifier: ^6.3.1
         version: 6.3.5(@types/node@22.15.29)(jiti@2.4.2)(lightningcss@1.27.0)(terser@5.40.0)(tsx@4.19.4)
@@ -131,8 +131,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0(typescript@5.8.3)
       unplugin-typegpu:
-        specifier: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f
-        version: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f(typegpu@0.6.0)
+        specifier: ^0.2.1
+        version: 0.2.1(typegpu@0.6.0)
     publishDirectory: dist
 
 packages:
@@ -2377,8 +2377,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  magic-string-ast@0.9.1:
-    resolution: {integrity: sha512-18dv2ZlSSgJ/jDWlZGKfnDJx56ilNlYq9F7NnwuWTErsmYmqJ2TWE4l1o2zlUHBYUGBy3tIhPCC1gxq8M5HkMA==}
+  magic-string-ast@1.0.0:
+    resolution: {integrity: sha512-8rbuNizut2gW94kv7pqgt0dvk+AHLPVIm0iJtpSgQJ9dx21eWx5SBel8z3jp1xtC0j6/iyK3AWGhAR1H61s7LA==}
     engines: {node: '>=20.18.0'}
 
   magic-string@0.30.17:
@@ -2711,6 +2711,10 @@ packages:
 
   picomatch@4.0.2:
     resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
+    engines: {node: '>=12'}
+
+  picomatch@4.0.3:
+    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
 
   pirates@4.0.7:
@@ -3425,11 +3429,10 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-typegpu@https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f:
-    resolution: {tarball: https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f}
-    version: 0.2.0
+  unplugin-typegpu@0.2.1:
+    resolution: {integrity: sha512-/idUDDc+OfpCZ+LZ158eV004GS2jF4xns3bHSYNFrWzROk4qs0ruSZ3mICEp5lFifUS39momtZlm99cufsvoLg==}
     peerDependencies:
-      typegpu: ^0.7.0
+      typegpu: ^0.6.0
 
   unplugin@2.3.5:
     resolution: {integrity: sha512-RyWSb5AHmGtjjNQ6gIlA67sHOsWpsbWpwDokLwTcejVdOjEkJZh7QKu14J00gDDVSh8kGH4KYC/TNBceXFZhtw==}
@@ -6175,7 +6178,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  magic-string-ast@0.9.1:
+  magic-string-ast@1.0.0:
     dependencies:
       magic-string: 0.30.17
 
@@ -6581,6 +6584,8 @@ snapshots:
   picomatch@3.0.1: {}
 
   picomatch@4.0.2: {}
+
+  picomatch@4.0.3: {}
 
   pirates@4.0.7: {}
 
@@ -7341,13 +7346,14 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f(typegpu@0.6.0):
+  unplugin-typegpu@0.2.1(typegpu@0.6.0):
     dependencies:
       '@babel/standalone': 7.27.4
       defu: 6.1.4
       estree-walker: 3.0.3
-      magic-string-ast: 0.9.1
-      picomatch: 4.0.2
+      magic-string-ast: 1.0.0
+      pathe: 2.0.3
+      picomatch: 4.0.3
       tinyest: 0.1.1
       tinyest-for-wgsl: 0.1.2
       typegpu: 0.6.0
@@ -7356,7 +7362,7 @@ snapshots:
   unplugin@2.3.5:
     dependencies:
       acorn: 8.14.1
-      picomatch: 4.0.2
+      picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
 
   untyped@2.0.0:

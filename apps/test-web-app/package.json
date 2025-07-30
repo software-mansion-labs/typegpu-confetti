@@ -23,7 +23,7 @@
     "globals": "^16.0.0",
     "typescript": "~5.7.2",
     "vite": "^6.3.1",
-    "unplugin-typegpu": "https://pkg.pr.new/software-mansion/TypeGPU/unplugin-typegpu@f2b60ffd1598f59eb866447f244d84d84e38f74f",
+    "unplugin-typegpu": "^0.2.1",
     "@webgpu/types": "^0.1.60"
   }
 }
