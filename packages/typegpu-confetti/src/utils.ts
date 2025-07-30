@@ -28,38 +28,22 @@ export function useBuffer<T extends AnyData>(
   value?: Infer<T> | undefined,
 ): TgpuBuffer<T> {
   const root = useRoot();
-  const bufferRef = useRef<TgpuBuffer<T> | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <don't recreate buffer on value change>
-  let buffer = useMemo(() => {
-    if (bufferRef.current) {
-      bufferRef.current.destroy();
-    }
-    const buffer = root.createBuffer(schema, value);
-    bufferRef.current = buffer;
-    return buffer;
+  const buffer = useMemo(() => {
+    return root.createBuffer(schema);
   }, [root, schema]);
 
-  // biome-ignore lint/style/noNonNullAssertion: <set in memo, strict mode acting weird>
-  buffer = bufferRef.current!;
-
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (value !== undefined && buffer && !buffer.destroyed) {
       buffer.write(value);
     }
   }, [value, buffer]);
 
-  const cleanupRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   useEffect(() => {
-    if (cleanupRef.current !== null) {
-      clearTimeout(cleanupRef.current);
-    }
-
     return () => {
-      cleanupRef.current = setTimeout(() => {
+      if (!buffer.destroyed) {
         buffer.destroy();
-      }, 1000);
+      }
     };
   }, [buffer]);
 
