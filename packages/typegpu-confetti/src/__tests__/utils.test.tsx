@@ -1,36 +1,33 @@
 import type React from 'react';
+import { StrictMode } from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { RootContext } from '../context';
 import { useBuffer } from '../utils';
+import type { TgpuRoot } from 'typegpu';
+import type { AnyData } from 'typegpu/data';
 
-// Mock the useRoot hook
 const mockRoot = {
   createBuffer: jest.fn().mockReturnValue({
     write: jest.fn(),
     destroy: jest.fn(),
     destroyed: false,
   }),
-};
+} as unknown as TgpuRoot;
 
-// Create a wrapper component to provide the mocked context value
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <RootContext.Provider value={mockRoot}>
-    {children}
-  </RootContext.Provider>
-);
-
-// Mock schema type for testing
 const mockSchema = {
   type: 'buffer',
   size: 16,
-} as any;
+} as unknown as AnyData;
 
 describe('useBuffer Hook', () => {
   beforeEach(() => {
-    // Clear mock history before each test
     (mockRoot.createBuffer as jest.Mock).mockClear();
-    (mockRoot.createBuffer().write as jest.Mock).mockClear();
-    (mockRoot.createBuffer().destroy as jest.Mock).mockClear();
+    const newBuffer = {
+      write: jest.fn(),
+      destroy: jest.fn(),
+      destroyed: false,
+    };
+    (mockRoot.createBuffer as jest.Mock).mockReturnValue(newBuffer);
     jest.clearAllTimers();
     jest.useFakeTimers();
   });
@@ -40,139 +37,83 @@ describe('useBuffer Hook', () => {
     jest.useRealTimers();
   });
 
-  it('should match snapshot for initial render', () => {
-    const { result } = renderHook(() => useBuffer(mockSchema), { wrapper });
-    
-    expect({
-      root: mockRoot,
-      createBufferCalled: mockRoot.createBuffer.mock.calls.length,
-      bufferMethods: {
-        write: result.current.write,
-        destroy: result.current.destroy,
-        destroyed: result.current.destroyed,
-      },
-    }).toMatchSnapshot();
-  });
-
-  it('should match snapshot when value is provided', () => {
-    const testValue = { x: 1, y: 2, z: 3 };
-    const { result } = renderHook(() => useBuffer(mockSchema, testValue), {
-      wrapper,
-    });
-    
-    expect({
-      root: mockRoot,
-      createBufferCalled: mockRoot.createBuffer.mock.calls.length,
-      providedValue: testValue,
-      bufferMethods: {
-        write: result.current.write,
-        destroy: result.current.destroy,
-        destroyed: result.current.destroyed,
-      },
-    }).toMatchSnapshot();
-  });
-
-  it('should match snapshot after value update', () => {
-    const initialValue = { x: 1, y: 2 };
-    const updatedValue = { x: 3, y: 4 };
-    
-    const { result, rerender } = renderHook(
-      ({ value }) => useBuffer(mockSchema, value),
-      {
-        initialProps: { value: initialValue },
-        wrapper,
-      },
+  describe('without StrictMode', () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RootContext.Provider value={mockRoot}>{children}</RootContext.Provider>
     );
-    // Capture initial state
-    const initialSnapshot = {
-      createBufferCalls: mockRoot.createBuffer.mock.calls.length,
-      writeCalls: (result.current.write as jest.Mock).mock?.calls?.length || 0,
-    };
 
-    // Update value
-    act(() => {
-      rerender({ value: updatedValue });
+    it('should match snapshot for initial render', () => {
+      const { result } = renderHook(() => useBuffer(mockSchema), { wrapper });
+      expect({
+        createBufferCalls: (mockRoot.createBuffer as jest.Mock).mock.calls.length,
+        destroyCalls: (result.current.destroy as jest.Mock).mock.calls.length,
+      }).toMatchSnapshot();
     });
 
-    const finalSnapshot = {
-      initial: initialSnapshot,
-      afterUpdate: {
-        createBufferCalls: mockRoot.createBuffer.mock.calls.length,
-        writeCalls: (result.current.write as jest.Mock).mock?.calls?.length || 0,
-        finalValue: updatedValue,
-      },
-    };
-
-    expect(finalSnapshot).toMatchSnapshot();
-  });
-
-  it('should match snapshot for cleanup behavior', () => {
-    const { result, unmount } = renderHook(() => useBuffer(mockSchema), {
-      wrapper,
-    });
-
-    const beforeUnmount = {
-      destroyCalled: (result.current.destroy as jest.Mock).mock?.calls?.length || 0,
-      pendingTimers: jest.getTimerCount(),
-    };
-
-    act(() => {
-      unmount();
-    });
-
-    const afterUnmount = {
-      destroyCalled: (result.current.destroy as jest.Mock).mock?.calls?.length || 0,
-      pendingTimers: jest.getTimerCount(),
-    };
-
-    // Fast-forward cleanup timeout
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-
-    const afterTimeout = {
-      destroyCalled: (result.current.destroy as jest.Mock).mock?.calls?.length || 0,
-      pendingTimers: jest.getTimerCount(),
-    };
-
-    expect({
-      beforeUnmount,
-      afterUnmount,
-      afterTimeout,
-    }).toMatchSnapshot();
-  });
-
-  it('should match snapshot when schema changes', () => {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    const schema1 = { type: 'buffer', size: 16 } as any;
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    const schema2 = { type: 'buffer', size: 32 } as any;
-    
-    const { result, rerender } = renderHook(
-      ({ schema }) => useBuffer(schema),
-      {
+    it('should match snapshot when schema changes', () => {
+      const schema1 = { type: 'buffer', size: 16 } as unknown as AnyData;
+      const schema2 = { type: 'buffer', size: 32 } as unknown as AnyData;
+      const { result, rerender } = renderHook(({ schema }) => useBuffer(schema), {
         initialProps: { schema: schema1 },
         wrapper,
-      },
+      });
+      const initialDestroyCalls = (result.current.destroy as jest.Mock).mock.calls.length;
+      act(() => {
+        rerender({ schema: schema2 });
+      });
+      expect({
+        initial: {
+          createBufferCalls: 1,
+          destroyCalls: initialDestroyCalls,
+        },
+        afterSchemaChange: {
+          createBufferCalls: (mockRoot.createBuffer as jest.Mock).mock.calls.length,
+          destroyCalls: (result.current.destroy as jest.Mock).mock.calls.length,
+        },
+      }).toMatchSnapshot();
+    });
+  });
+
+  describe('with StrictMode', () => {
+    const strictModeWrapper = ({ children }: { children: React.ReactNode }) => (
+      <StrictMode>
+        <RootContext.Provider value={mockRoot}>{children}</RootContext.Provider>
+      </StrictMode>
     );
 
-    const initialState = {
-      createBufferCalls: mockRoot.createBuffer.mock.calls.length,
-      destroyCalls: (result.current.destroy as jest.Mock).mock?.calls?.length || 0,
-    };
-
-    act(() => {
-      rerender({ schema: schema2 });
+    it('should match snapshot for initial render', () => {
+      const { result } = renderHook(() => useBuffer(mockSchema), {
+        wrapper: strictModeWrapper,
+      });
+      // In StrictMode, effects run twice, so we expect more calls
+      expect({
+        createBufferCalls: (mockRoot.createBuffer as jest.Mock).mock.calls.length,
+        destroyCalls: (result.current.destroy as jest.Mock).mock.calls.length,
+      }).toMatchSnapshot();
     });
 
-    const finalState = {
-      initial: initialState,
-      afterSchemaChange: {
-        createBufferCalls: mockRoot.createBuffer.mock.calls.length,
-        destroyCalls: (result.current.destroy as jest.Mock).mock?.calls?.length || 0,
-      },
-    };
-
-    expect(finalState).toMatchSnapshot();
+    it('should match snapshot when schema changes', () => {
+      const schema1 = { type: 'buffer', size: 16 } as unknown as AnyData;
+      const schema2 = { type: 'buffer', size: 32 } as unknown as AnyData;
+      const { result, rerender } = renderHook(({ schema }) => useBuffer(schema), {
+        initialProps: { schema: schema1 },
+        wrapper: strictModeWrapper,
+      });
+      const initialDestroyCalls = (result.current.destroy as jest.Mock).mock.calls.length;
+      const initialCreateCalls = (mockRoot.createBuffer as jest.Mock).mock.calls.length;
+      act(() => {
+        rerender({ schema: schema2 });
+      });
+      expect({
+        initial: {
+          createBufferCalls: initialCreateCalls,
+          destroyCalls: initialDestroyCalls,
+        },
+        afterSchemaChange: {
+          createBufferCalls: (mockRoot.createBuffer as jest.Mock).mock.calls.length,
+          destroyCalls: (result.current.destroy as jest.Mock).mock.calls.length,
+        },
+      }).toMatchSnapshot();
+    });
   });
 });

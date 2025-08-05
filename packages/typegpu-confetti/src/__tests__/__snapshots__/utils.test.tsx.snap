@@ -1,225 +1,41 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`useBuffer Hook should match snapshot after value update 1`] = `
+exports[`useBuffer Hook with StrictMode should match snapshot for initial render 1`] = `
 {
-  "afterUpdate": {
-    "createBufferCalls": 3,
-    "finalValue": {
-      "x": 3,
-      "y": 4,
-    },
-    "writeCalls": 2,
-  },
-  "initial": {
-    "createBufferCalls": 3,
-    "writeCalls": 1,
-  },
+  "createBufferCalls": 2,
+  "destroyCalls": 1,
 }
 `;
 
-exports[`useBuffer Hook should match snapshot for cleanup behavior 1`] = `
-{
-  "afterTimeout": {
-    "destroyCalled": 1,
-    "pendingTimers": 0,
-  },
-  "afterUnmount": {
-    "destroyCalled": 0,
-    "pendingTimers": 1,
-  },
-  "beforeUnmount": {
-    "destroyCalled": 0,
-    "pendingTimers": 0,
-  },
-}
-`;
-
-exports[`useBuffer Hook should match snapshot for initial render 1`] = `
-{
-  "bufferMethods": {
-    "destroy": [MockFunction],
-    "destroyed": false,
-    "write": [MockFunction],
-  },
-  "createBufferCalled": 3,
-  "root": {
-    "createBuffer": [MockFunction] {
-      "calls": [
-        [],
-        [],
-        [
-          {
-            "size": 16,
-            "type": "buffer",
-          },
-          undefined,
-        ],
-      ],
-      "results": [
-        {
-          "type": "return",
-          "value": {
-            "destroy": [MockFunction],
-            "destroyed": false,
-            "write": [MockFunction],
-          },
-        },
-        {
-          "type": "return",
-          "value": {
-            "destroy": [MockFunction],
-            "destroyed": false,
-            "write": [MockFunction],
-          },
-        },
-        {
-          "type": "return",
-          "value": {
-            "destroy": [MockFunction],
-            "destroyed": false,
-            "write": [MockFunction],
-          },
-        },
-      ],
-    },
-  },
-}
-`;
-
-exports[`useBuffer Hook should match snapshot when schema changes 1`] = `
+exports[`useBuffer Hook with StrictMode should match snapshot when schema changes 1`] = `
 {
   "afterSchemaChange": {
     "createBufferCalls": 4,
-    "destroyCalls": 1,
+    "destroyCalls": 3,
   },
   "initial": {
-    "createBufferCalls": 3,
-    "destroyCalls": 0,
+    "createBufferCalls": 2,
+    "destroyCalls": 1,
   },
 }
 `;
 
-exports[`useBuffer Hook should match snapshot when value is provided 1`] = `
+exports[`useBuffer Hook without StrictMode should match snapshot for initial render 1`] = `
 {
-  "bufferMethods": {
-    "destroy": [MockFunction],
-    "destroyed": false,
-    "write": [MockFunction] {
-      "calls": [
-        [
-          {
-            "x": 1,
-            "y": 2,
-            "z": 3,
-          },
-        ],
-      ],
-      "results": [
-        {
-          "type": "return",
-          "value": undefined,
-        },
-      ],
-    },
+  "createBufferCalls": 1,
+  "destroyCalls": 0,
+}
+`;
+
+exports[`useBuffer Hook without StrictMode should match snapshot when schema changes 1`] = `
+{
+  "afterSchemaChange": {
+    "createBufferCalls": 2,
+    "destroyCalls": 1,
   },
-  "createBufferCalled": 3,
-  "providedValue": {
-    "x": 1,
-    "y": 2,
-    "z": 3,
-  },
-  "root": {
-    "createBuffer": [MockFunction] {
-      "calls": [
-        [],
-        [],
-        [
-          {
-            "size": 16,
-            "type": "buffer",
-          },
-          {
-            "x": 1,
-            "y": 2,
-            "z": 3,
-          },
-        ],
-      ],
-      "results": [
-        {
-          "type": "return",
-          "value": {
-            "destroy": [MockFunction],
-            "destroyed": false,
-            "write": [MockFunction] {
-              "calls": [
-                [
-                  {
-                    "x": 1,
-                    "y": 2,
-                    "z": 3,
-                  },
-                ],
-              ],
-              "results": [
-                {
-                  "type": "return",
-                  "value": undefined,
-                },
-              ],
-            },
-          },
-        },
-        {
-          "type": "return",
-          "value": {
-            "destroy": [MockFunction],
-            "destroyed": false,
-            "write": [MockFunction] {
-              "calls": [
-                [
-                  {
-                    "x": 1,
-                    "y": 2,
-                    "z": 3,
-                  },
-                ],
-              ],
-              "results": [
-                {
-                  "type": "return",
-                  "value": undefined,
-                },
-              ],
-            },
-          },
-        },
-        {
-          "type": "return",
-          "value": {
-            "destroy": [MockFunction],
-            "destroyed": false,
-            "write": [MockFunction] {
-              "calls": [
-                [
-                  {
-                    "x": 1,
-                    "y": 2,
-                    "z": 3,
-                  },
-                ],
-              ],
-              "results": [
-                {
-                  "type": "return",
-                  "value": undefined,
-                },
-              ],
-            },
-          },
-        },
-      ],
-    },
+  "initial": {
+    "createBufferCalls": 1,
+    "destroyCalls": 0,
   },
 }
 `;

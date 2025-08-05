@@ -51,6 +51,13 @@
     "test:coverage": "jest --coverage",
     "test:update-snapshots": "jest --updateSnapshot"
   },
+  "jest": {
+    "projects": [
+      "src/jest.config.shared.ts",
+      "src/react/jest.config.react.ts",
+      "src/react-native/jest.config.react-native.ts"
+    ]
+  },
   "engines": {
     "node": ">=12.20.0"
   },
@@ -72,9 +79,11 @@
     "react-native-wgpu": "*"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
+    "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
+    "@react-native/babel-preset": "^0.80.2",
+    "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/react-native": "^13.2.2",
@@ -85,11 +94,13 @@
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "react": "^19.1.0",
+    "react-dom": "19.1.0",
     "react-native": "^0.79.3",
     "react-native-wgpu": "^0.1.23",
     "remeda": "^2.21.2",
+    "ts-jest": "^29.4.1",
     "tsx": "^4.19.4",
-    "typescript": "^5.7.3",
+    "typescript": "^5.8.3",
     "unbuild": "^3.5.0",
     "unplugin-typegpu": "^0.2.1"
   },
