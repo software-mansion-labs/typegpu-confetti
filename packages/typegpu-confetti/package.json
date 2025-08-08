@@ -43,20 +43,7 @@
   "scripts": {
     "build": "tsx prepack.mjs",
     "prepublishOnly": "pnpm run build",
-    "test": "jest",
-    "test:react": "jest --selectProjects react",
-    "test:react-native": "jest --selectProjects react-native",
-    "test:shared": "jest --selectProjects shared",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:update-snapshots": "jest --updateSnapshot"
-  },
-  "jest": {
-    "projects": [
-      "src/jest.config.shared.ts",
-      "src/react/jest.config.react.ts",
-      "src/react-native/jest.config.react-native.ts"
-    ]
+    "test": "vitest"
   },
   "engines": {
     "node": ">=12.20.0"
@@ -65,7 +52,13 @@
     "type": "git",
     "url": "git+https://github.com/mhawryluk/typegpu-confetti.git"
   },
-  "keywords": ["confetti", "javascript", "react-native", "webgpu", "react"],
+  "keywords": [
+    "confetti",
+    "javascript",
+    "react-native",
+    "webgpu",
+    "react"
+  ],
   "bugs": {
     "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
   },
@@ -79,30 +72,23 @@
     "react-native-wgpu": "*"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.4",
-    "@babel/preset-env": "^7.28.0",
-    "@babel/preset-react": "^7.27.1",
-    "@react-native/babel-preset": "^0.80.2",
     "@testing-library/jest-dom": "^6.6.4",
-    "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/react-native": "^13.2.2",
-    "@types/jest": "^30.0.0",
+    "@types/testing-library__jest-dom": "^6.0.0",
+    "@types/testing-library__react": "^10.2.0",
     "@webgpu/types": "^0.1.54",
-    "babel-jest": "^30.0.5",
     "execa": "^9.6.0",
-    "jest": "^30.0.5",
-    "jest-environment-jsdom": "^30.0.5",
+    "jsdom": "^26.1.0",
     "react": "^19.1.0",
-    "react-dom": "19.1.0",
     "react-native": "^0.79.3",
     "react-native-wgpu": "^0.1.23",
     "remeda": "^2.21.2",
-    "ts-jest": "^29.4.1",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3",
+    "typescript": "^5.7.3",
     "unbuild": "^3.5.0",
-    "unplugin-typegpu": "^0.2.1"
+    "unplugin-typegpu": "^0.2.1",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }
