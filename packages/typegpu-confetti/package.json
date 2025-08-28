@@ -1,6 +1,6 @@
 {
   "name": "typegpu-confetti",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Customizable confetti animation component for React and React Native, running on the GPU",
   "license": "MIT",
   "type": "module",
@@ -49,7 +49,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mhawryluk/typegpu-confetti.git"
+    "url": "git+https://github.com/software-mansion-labs/typegpu-confetti.git"
   },
   "keywords": [
     "confetti",
@@ -59,7 +59,7 @@
     "react"
   ],
   "bugs": {
-    "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
+    "url": "https://github.com/software-mansion-labs/typegpu-confetti/issues"
   },
   "dependencies": {
     "@typegpu/noise": "0.7.*",
