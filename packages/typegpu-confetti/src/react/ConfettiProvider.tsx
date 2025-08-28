@@ -14,7 +14,7 @@ const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(
 );
 
 export function ConfettiProvider(
-  props: { children: ReactNode, style?: CSSProperties } & ConfettiPropTypes,
+  props: { children: ReactNode; style?: CSSProperties } & ConfettiPropTypes,
 ) {
   const { children, ...confettiProps } = props;
   const ref = useRef<ConfettiRef>(null);

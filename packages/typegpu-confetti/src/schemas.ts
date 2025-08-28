@@ -41,12 +41,12 @@ export const gravity = tgpu.slot<TgpuFn<(pos: d.Vec2f) => d.Vec2f>>();
 // #region functions
 
 export type GravityFn = (pos: d.v2f) => d.v2f;
-export const gravityFn = tgpu['~unstable'].fn([d.vec2f], d.vec2f);
+export const gravityFn = tgpu.fn([d.vec2f], d.vec2f);
 
 export type InitParticleFn = (index: number) => void;
-export const initParticleFn = tgpu['~unstable'].fn([d.i32]);
+export const initParticleFn = tgpu.fn([d.i32]);
 
-export const rotate = tgpu['~unstable'].fn(
+export const rotate = tgpu.fn(
   [d.vec2f, d.f32],
   d.vec2f,
 )(/* wgsl */ `(v: vec2f, angle: f32) -> vec2f {
@@ -117,19 +117,21 @@ export const mainCompute = tgpu['~unstable']
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [64],
-  })(/* wgsl */ `{
+  })(
+    /* wgsl */ `{
     let index = in.gid.x;
-  
+
     if particles[index].timeLeft < 0.01 {
       return;
     }
-  
+
     let phase = (time / 300) + particles[index].seed;
-  
+
     particles[index].velocity += gravity(particles[index].position) * deltaTime / 1000;
     particles[index].position += particles[index].velocity * deltaTime / 1000 + vec2f(sin(phase) / 600, cos(phase) / 500);
     particles[index].timeLeft -= deltaTime;
-  }`)
+  }`,
+  )
   .$uses({ gravity, particles, deltaTime, time });
 
 export const defaultInitParticle: InitParticleFn = (i) => {
@@ -169,7 +171,8 @@ export const initCompute = tgpu['~unstable'].computeFn({
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
     workgroupSize: [1],
-  })(/* wgsl */ `{
+  })(
+    /* wgsl */ `{
       for (var i = 0; i < maxParticleAmount; i++) {
         if particles[i].timeLeft < 0.1 {
           preInitParticle(i);
@@ -189,7 +192,8 @@ export const addParticleCompute = tgpu['~unstable']
       }
 
       initParticle(minIndex);
-    }`)
+    }`,
+  )
   .$uses({
     particles,
     initParticle,

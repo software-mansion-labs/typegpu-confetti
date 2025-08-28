@@ -11,7 +11,7 @@
   "dependencies": {
     "@typegpu/noise": "^0.1.0",
     "expo": "~53.0.9",
-    "react": "^19.0.0",
+    "react": "^19.1.1",
     "react-native": "^0.79.3",
     "react-native-wgpu": "^0.2.0",
     "typegpu": "^0.6.0",

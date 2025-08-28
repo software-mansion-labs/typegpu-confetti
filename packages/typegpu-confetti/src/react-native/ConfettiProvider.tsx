@@ -12,10 +12,14 @@ import Confetti from './Confetti';
 
 const react = React;
 
-const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(null);
+const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(
+  null,
+);
 
 export function ConfettiProvider(
-  props: { children: ReactNode } &  ConfettiPropTypes & { style?: StyleProp<ViewStyle> },
+  props: { children: ReactNode } & ConfettiPropTypes & {
+      style?: StyleProp<ViewStyle>;
+    },
 ) {
   const { children, ...confettiProps } = props;
   const ref = useRef<ConfettiRef>(null);

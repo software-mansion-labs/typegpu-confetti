@@ -45,7 +45,9 @@ async function transformPackageJSON() {
   const packageJsonUrl = new URL('./package.json', cwd);
   const distPackageJsonUrl = new URL('./dist/package.json', cwd);
 
-  const packageJson = JSON.parse(await fs.readFile(packageJsonUrl.pathname, 'utf-8'));
+  const packageJson = JSON.parse(
+    await fs.readFile(packageJsonUrl.pathname, 'utf-8'),
+  );
   let distPackageJson = structuredClone(packageJson);
 
   // Replacing `exports`, `main`, and `types` with `publishConfig.*`
@@ -106,7 +108,7 @@ async function transformPackageJSON() {
 console.log('Preparing the package for publishing');
 
 const $ = execa({ all: true });
-await $`pnpm unbuild`;
+await $`pnpm tsdown`;
 await $`cp ./README.md ./dist/README.md`;
 await transformPackageJSON();
 
