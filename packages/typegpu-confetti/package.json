@@ -75,7 +75,7 @@
     "execa": "^9.6.0",
     "react": "^19.1.1",
     "react-native": "^0.79.3",
-    "react-native-wgpu": "^0.1.23",
+    "react-native-wgpu": "^0.2.1",
     "remeda": "^2.30.0",
     "tsdown": "^0.14.2",
     "typescript": "^5.9.2",

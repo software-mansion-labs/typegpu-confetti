@@ -13,8 +13,8 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "typegpu-confetti": "workspace:*",
-    "@typegpu/noise": "^0.1.0",
-    "typegpu": "^0.6.0"
+    "@typegpu/noise": "^0.7.0",
+    "typegpu": "^0.7.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.10",

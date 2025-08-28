@@ -22,7 +22,7 @@ importers:
         version: 7.27.4
       '@typegpu/noise':
         specifier: ^0.1.0
-        version: 0.1.0(typegpu@0.6.0)
+        version: 0.1.0(typegpu@0.7.1)
       expo:
         specifier: ~53.0.9
         version: 53.0.9(@babel/core@7.27.4)(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1)
@@ -33,11 +33,11 @@ importers:
         specifier: ^0.79.3
         version: 0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1)
       react-native-wgpu:
-        specifier: ^0.2.0
-        version: 0.2.0(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1)
+        specifier: ^0.2.1
+        version: 0.2.1(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1)
       typegpu:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       typegpu-confetti:
         specifier: workspace:*
         version: link:../../packages/typegpu-confetti
@@ -56,13 +56,13 @@ importers:
         version: 5.8.3
       unplugin-typegpu:
         specifier: ^0.2.1
-        version: 0.2.1(typegpu@0.6.0)
+        version: 0.2.1(typegpu@0.7.1)
 
   apps/test-web-app:
     dependencies:
       '@typegpu/noise':
-        specifier: ^0.1.0
-        version: 0.1.0(typegpu@0.6.0)
+        specifier: ^0.7.0
+        version: 0.7.0(typegpu@0.7.1)
       react:
         specifier: 19.1.1
         version: 19.1.1
@@ -70,8 +70,8 @@ importers:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
       typegpu:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       typegpu-confetti:
         specifier: workspace:*
         version: link:../../packages/typegpu-confetti
@@ -96,7 +96,7 @@ importers:
         version: 5.7.3
       unplugin-typegpu:
         specifier: ^0.2.1
-        version: 0.2.1(typegpu@0.6.0)
+        version: 0.2.1(typegpu@0.7.1)
       vite:
         specifier: ^6.3.1
         version: 6.3.5(@types/node@22.15.29)(jiti@2.5.1)(lightningcss@1.27.0)(terser@5.40.0)(tsx@4.19.4)
@@ -123,8 +123,8 @@ importers:
         specifier: ^0.79.3
         version: 0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1)
       react-native-wgpu:
-        specifier: ^0.1.23
-        version: 0.1.23(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1)
+        specifier: ^0.2.1
+        version: 0.2.1(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1)
       remeda:
         specifier: ^2.30.0
         version: 2.30.0
@@ -2738,14 +2738,8 @@ packages:
       react: 19.1.1
       react-native: '*'
 
-  react-native-wgpu@0.1.23:
-    resolution: {integrity: sha512-5DXO2Yt/w11QtEIY5WJhgJ4yObqELQKpWbESxUGNOARHW54t4g8WR5vO/lxja5XiMrWlM/fblk+dmg7GIbAmFA==}
-    peerDependencies:
-      react: 19.1.1
-      react-native: '*'
-
-  react-native-wgpu@0.2.0:
-    resolution: {integrity: sha512-145kU75fOBKWJbVNmeqFxlAW32+0rnXKuym13EURFhk0frwhRRUo+MzP2P3CbAqLCTuIu5F+UlFkpWeeEVFx3A==}
+  react-native-wgpu@0.2.1:
+    resolution: {integrity: sha512-yHjyjiYyV/An25tXdo0Cpr3WnvA9qkwqZHn0Y43pCxsVwKcLSMGTsgi7npmeEAbU1VFUYmXobapHGLMGdyRqMw==}
     peerDependencies:
       react: 19.1.1
       react-native: '*'
@@ -3155,10 +3149,6 @@ packages:
 
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
-
-  typegpu@0.6.0:
-    resolution: {integrity: sha512-ESfD+u5z7yDuQq6C4JeKszKmh+8IU6pgAXXPMp+rWnDNjz+UlGiLzMuFHtvSfUoTIedsg5bH18merMmzyLWeZg==}
-    engines: {node: '>=12.20.0'}
 
   typegpu@0.7.1:
     resolution: {integrity: sha512-PyP/ZRsX8lCX27fNzBE5TjwxC8Vj88RcLlCv4VXg5sVd6gBuiPZTJQoC5HR15hjTJoRAfayT/TXQ4phWOkA/aA==}
@@ -4810,9 +4800,9 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@typegpu/noise@0.1.0(typegpu@0.6.0)':
+  '@typegpu/noise@0.1.0(typegpu@0.7.1)':
     dependencies:
-      typegpu: 0.6.0
+      typegpu: 0.7.1
 
   '@typegpu/noise@0.7.0(typegpu@0.7.1)':
     dependencies:
@@ -6358,12 +6348,7 @@ snapshots:
       react: 19.1.1
       react-native: 0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1)
 
-  react-native-wgpu@0.1.23(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1):
-    dependencies:
-      react: 19.1.1
-      react-native: 0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1)
-
-  react-native-wgpu@0.2.0(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1):
+  react-native-wgpu@0.2.1(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1))(react@19.1.1):
     dependencies:
       react: 19.1.1
       react-native: 0.79.3(@babel/core@7.27.4)(@types/react@19.0.14)(react@19.1.1)
@@ -6837,11 +6822,6 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@0.6.0:
-    dependencies:
-      tinyest: 0.1.1
-      typed-binary: 4.3.2
-
   typegpu@0.7.1:
     dependencies:
       tinyest: 0.1.1
@@ -6883,7 +6863,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.2.1(typegpu@0.6.0):
+  unplugin-typegpu@0.2.1(typegpu@0.7.1):
     dependencies:
       '@babel/standalone': 7.27.4
       defu: 6.1.4
@@ -6893,7 +6873,7 @@ snapshots:
       picomatch: 4.0.3
       tinyest: 0.1.1
       tinyest-for-wgsl: 0.1.2
-      typegpu: 0.6.0
+      typegpu: 0.7.1
       unplugin: 2.3.5
 
   unplugin-typegpu@0.2.2(typegpu@0.7.1):

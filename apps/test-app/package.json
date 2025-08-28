@@ -13,8 +13,8 @@
     "expo": "~53.0.9",
     "react": "^19.1.1",
     "react-native": "^0.79.3",
-    "react-native-wgpu": "^0.2.0",
-    "typegpu": "^0.6.0",
+    "react-native-wgpu": "^0.2.1",
+    "typegpu": "^0.7.1",
     "typegpu-confetti": "workspace:*",
     "@babel/core": "^7.26.10"
   },
