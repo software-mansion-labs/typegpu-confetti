@@ -51,7 +51,13 @@
     "type": "git",
     "url": "git+https://github.com/mhawryluk/typegpu-confetti.git"
   },
-  "keywords": ["confetti", "javascript", "react-native", "webgpu", "react"],
+  "keywords": [
+    "confetti",
+    "javascript",
+    "react-native",
+    "webgpu",
+    "react"
+  ],
   "bugs": {
     "url": "https://github.com/mhawryluk/typegpu-confetti/issues"
   },
@@ -76,5 +82,5 @@
     "remeda": "^2.21.2",
     "tsx": "^4.19.4"
   },
-  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
+  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }
