@@ -1,8 +1,8 @@
 import {
   type CSSProperties,
+  createContext,
   type ReactNode,
   type RefObject,
-  createContext,
   useContext,
   useRef,
 } from 'react';

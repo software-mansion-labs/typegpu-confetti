@@ -9,21 +9,22 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@typegpu/noise": "^0.1.0",
-    "expo": "~53.0.9",
-    "react": "^19.1.1",
-    "react-native": "^0.79.3",
-    "react-native-wgpu": "^0.2.1",
-    "typegpu": "^0.7.1",
-    "typegpu-confetti": "workspace:*",
-    "@babel/core": "^7.26.10"
+    "@babel/core": "^7.28.5",
+    "@typegpu/noise": "^0.8.0",
+    "expo": "~54.0.21",
+    "react": "19.2.0",
+    "react-native": "^0.81.5",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-wgpu": "^0.3.1",
+    "typegpu": "^0.8.0",
+    "typegpu-confetti": "workspace:*"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/react": "~19.0.14",
-    "@webgpu/types": "^0.1.60",
-    "typescript": "^5.8.3",
-    "unplugin-typegpu": "^0.2.1"
+    "@biomejs/biome": "^2.3.2",
+    "@types/react": "~19.2.2",
+    "@webgpu/types": "^0.1.66",
+    "typescript": "^5.9.3",
+    "unplugin-typegpu": "^0.8.0"
   },
   "private": true,
   "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"

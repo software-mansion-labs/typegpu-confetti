@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PixelRatio } from 'react-native';
-import { type RNCanvasContext, useCanvasEffect } from 'react-native-wgpu';
+import { type RNCanvasContext, useCanvasRef } from 'react-native-wgpu';
 import { useRoot } from '../utils';
 
 export function useGPUSetup(
@@ -8,9 +8,10 @@ export function useGPUSetup(
 ) {
   const root = useRoot();
   const [context, setContext] = useState<RNCanvasContext | null>(null);
+  const canvasRef = useCanvasRef();
 
-  const ref = useCanvasEffect(() => {
-    const ctx = ref.current?.getContext('webgpu');
+  useEffect(() => {
+    const ctx = canvasRef.current.getContext('webgpu');
 
     if (!ctx) {
       setContext(null);
@@ -28,7 +29,7 @@ export function useGPUSetup(
     });
 
     setContext(ctx);
-  });
+  }, [presentationFormat, root, canvasRef]);
 
-  return { canvasRef: ref, context };
+  return { canvasRef, context };
 }

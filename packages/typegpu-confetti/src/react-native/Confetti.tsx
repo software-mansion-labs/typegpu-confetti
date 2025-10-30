@@ -7,9 +7,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Canvas, useDevice } from 'react-native-wgpu';
-
 import type { StyleProp, ViewStyle } from 'react-native';
+import { Canvas, useDevice } from 'react-native-wgpu';
 import tgpu, {
   type TgpuComputePipeline,
   type TgpuRenderPipeline,
@@ -18,8 +17,6 @@ import * as d from 'typegpu/data';
 import { RootContext } from '../context';
 import { defaults } from '../defaults';
 import {
-  ParticleData,
-  ParticleGeometry,
   addParticleCompute,
   canvasAspectRatio,
   dataLayout,
@@ -35,6 +32,8 @@ import {
   mainVert,
   maxDurationTime as maxDurationTimeSlot,
   maxParticleAmount as maxParticleAmountSlot,
+  ParticleData,
+  ParticleGeometry,
   particles,
   time,
 } from '../schemas';
@@ -148,6 +147,7 @@ const ConfettiViz = React.forwardRef(
 
     //#endregion
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we do some magic stuff here
     useImperativeHandle(
       ref,
       () =>

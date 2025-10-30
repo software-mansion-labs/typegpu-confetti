@@ -17,8 +17,6 @@ import * as d from 'typegpu/data';
 import { RootContext } from '../context';
 import { defaults } from '../defaults';
 import {
-  ParticleData,
-  ParticleGeometry,
   addParticleCompute,
   canvasAspectRatio,
   dataLayout,
@@ -34,6 +32,8 @@ import {
   mainVert,
   maxDurationTime as maxDurationTimeSlot,
   maxParticleAmount as maxParticleAmountSlot,
+  ParticleData,
+  ParticleGeometry,
   particles,
   time,
 } from '../schemas';

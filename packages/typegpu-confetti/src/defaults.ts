@@ -1,10 +1,7 @@
 import { randf } from '@typegpu/noise';
-import tgpu from 'typegpu';
 import * as d from 'typegpu/data';
 import { particles } from './schemas';
 import type { ConfettiPropTypes } from './types';
-
-const t = tgpu;
 
 export const defaults: {
   [K in keyof ConfettiPropTypes]-?: NonNullable<ConfettiPropTypes[K]>;
@@ -23,14 +20,13 @@ export const defaults: {
   ],
 
   gravity: () => {
-    'kernel';
+    'use gpu';
     return d.vec2f(0, -0.3);
   },
 
   initParticle: (i) => {
-    'kernel';
-    // @ts-ignore
-    const particle: d.Infer<typeof ParticleData> = particles.value[i];
+    'use gpu';
+    const particle = particles.value[i];
 
     particle.position = d.vec2f(
       randf.sample() * 2 - 1,

@@ -135,9 +135,8 @@ export const mainCompute = tgpu['~unstable']
   .$uses({ gravity, particles, deltaTime, time });
 
 export const defaultInitParticle: InitParticleFn = (i) => {
-  'kernel';
-  // @ts-ignore
-  const particle: d.Infer<typeof ParticleData> = particles.value[i];
+  'use gpu';
+  const particle = particles.value[i];
 
   particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
   particle.velocity = d.vec2f(
@@ -149,11 +148,10 @@ export const defaultInitParticle: InitParticleFn = (i) => {
 };
 
 const preInitParticle = initParticleFn((i) => {
-  'kernel';
+  'use gpu';
   randf.seed2(d.vec2f(d.f32(i), d.f32(time.value % 1111)));
 
-  // @ts-ignore
-  const particle: d.Infer<typeof ParticleData> = particles.value[i];
+  const particle = particles.value[i];
   particle.timeLeft = maxDurationTime.value * 1000;
   particle.seed = randf.sample();
 
@@ -206,12 +204,12 @@ export const addParticleCompute = tgpu['~unstable']
 // #region layouts
 
 export const geometryLayout = tgpu.vertexLayout(
-  (n: number) => d.arrayOf(ParticleGeometry, n),
+  d.arrayOf(ParticleGeometry),
   'instance',
 );
 
 export const dataLayout = tgpu.vertexLayout(
-  (n: number) => d.arrayOf(ParticleData, n),
+  d.arrayOf(ParticleData),
   'instance',
 );
 
