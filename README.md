@@ -9,7 +9,7 @@
 
 ## Installation
 
-In order to use the package in React Native, you need to install the [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) package: 
+In order to use the package in React Native, you need to install the [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) package:
 ```sh
 npm install react-native-wgpu
 ```
@@ -21,7 +21,7 @@ Then to install the `typegpu-confetti` package, run:
 npm install typegpu-confetti
 ```
 
-Furthermore, if you want to be able to pass JavaScript functions marked with the "kernel" directive to the Confetti component, you need to include the [unplugin-typegpu](https://www.npmjs.com/package/unplugin-typegpu) babel plugin in your project.
+Furthermore, if you want to be able to pass JavaScript functions marked with the "use gpu" directive to the Confetti component, you need to include the [unplugin-typegpu](https://www.npmjs.com/package/unplugin-typegpu) babel plugin in your project.
 
 ```sh
 npm install unplugin-typegpu
@@ -144,16 +144,16 @@ type InitParticleFn = (args: {
 
 * **size**: multiplier allowing customizing the sizes of particles, while keeping their random variation. *size < 1*: particles smaller than default, *size > 1*: bigger
 
-* **maxDurationTime**: time in seconds around which the animation should end. 
-  
-  One second before this time the particles gradually lose their opacity until completely transparent. 
+* **maxDurationTime**: time in seconds around which the animation should end.
 
-  It is *maxDurationTime*, instead of just *durationTime*, because if all of the particles leave the screen, then the animation technically ends earlier, though frames are still being rendered to the canvas until the end of *maxDurationTime*. 
-  
+  One second before this time the particles gradually lose their opacity until completely transparent.
+
+  It is *maxDurationTime*, instead of just *durationTime*, because if all of the particles leave the screen, then the animation technically ends earlier, though frames are still being rendered to the canvas until the end of *maxDurationTime*.
+
   Running *addParticles* function on the ref will reset the time counter to zero each call.
 
 * **initParticleAmount**: the number of particles that will be drawn whenever the component mounts.
-  
+
   To not run the animation automatically on mount, but after manually invoking the *addParticles* function on some event, set this prop to 0.
 
 * **maxParticleAmount**: the maximum number of particles that can be part of the simulation at any time.
@@ -162,9 +162,9 @@ type InitParticleFn = (args: {
 
   When invoking *addParticles* would result in passing this limit, then the oldest simulated particles are replaced with the new ones. They are replaced instantly, without the fading-out animation.
 
-* **gravity**: function accepting one *vec2f* vector (particle position) and returning one *vec2f* vector (acceleration for the particle). 
-  
-  It will be run on the GPU, so it needs to be marked with a "kernel" directive, in order to make the `unplugin-typegpu` transpile it at build time.
+* **gravity**: function accepting one *vec2f* vector (particle position) and returning one *vec2f* vector (acceleration for the particle).
+
+  It will be run on the GPU, so it needs to be marked with a "use gpu" directive, in order to make the `unplugin-typegpu` transpile it at build time.
 
 * **initParticle**: function accepting one *i32* argument (particle index), which is to be used for initializing particle age, position, velocity, random number generator seed.
 
@@ -181,7 +181,7 @@ type InitParticleFn = (args: {
   });
   ```
 
-  The function will be run on the GPU, so it needs to be marked with a "kernel" directive, in order to make the `unplugin-typegpu` transpile it at build time.
+  The function will be run on the GPU, so it needs to be marked with a "use gpu" directive, in order to make the `unplugin-typegpu` transpile it at build time.
 
 * **style**: allows overriding the default styling set on the inner Canvas element
 

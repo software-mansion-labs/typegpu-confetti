@@ -1,15 +1,14 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.3.2/schema.json",
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "files": {
-    "ignore": [
-      "**/dist/*",
-      "**/coverage/*",
-      "**/*.d.ts",
-      "packages/tgpu-wgsl-parser/src/grammar.ts",
-      "**/*.astro"
+    "includes": [
+      "packages/**/*",
+      "apps/**/*",
+      "!**/dist/*",
+      "!**/coverage/*",
+      "!**/*.d.ts",
+      "!**/*.astro"
     ]
   },
   "linter": {

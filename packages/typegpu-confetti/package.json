@@ -62,8 +62,8 @@
     "url": "https://github.com/software-mansion-labs/typegpu-confetti/issues"
   },
   "dependencies": {
-    "@typegpu/noise": "0.7.*",
-    "typegpu": "0.7.*"
+    "@typegpu/noise": "^0.8.0",
+    "typegpu": "^0.8.0"
   },
   "peerDependencies": {
     "react": "*",
@@ -71,15 +71,15 @@
     "react-native-wgpu": "*"
   },
   "devDependencies": {
-    "@webgpu/types": "^0.1.64",
+    "@webgpu/types": "^0.1.66",
     "execa": "^9.6.0",
-    "react": "^19.1.1",
-    "react-native": "^0.79.3",
-    "react-native-wgpu": "^0.2.1",
-    "remeda": "^2.30.0",
-    "tsdown": "^0.14.2",
-    "typescript": "^5.9.2",
-    "unplugin-typegpu": "^0.2.2"
+    "react": "19.2.0",
+    "react-native": "^0.81.5",
+    "react-native-wgpu": "^0.4.1",
+    "remeda": "^2.32.0",
+    "tsdown": "^0.15.12",
+    "typescript": "^5.9.3",
+    "unplugin-typegpu": "^0.8.0"
   },
   "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }
