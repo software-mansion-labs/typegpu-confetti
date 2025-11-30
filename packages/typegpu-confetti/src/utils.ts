@@ -7,9 +7,8 @@ import {
   useRef,
   useState,
 } from 'react';
+import type { TgpuBuffer, TgpuRoot, ValidateBufferSchema } from 'typegpu';
 import type { AnyData, Infer } from 'typegpu/data';
-
-import type { TgpuBuffer, TgpuRoot } from 'typegpu';
 import { RootContext } from './context';
 
 export function useRoot(): TgpuRoot {
@@ -24,7 +23,7 @@ export function useRoot(): TgpuRoot {
 }
 
 export function useBuffer<T extends AnyData>(
-  schema: T,
+  schema: ValidateBufferSchema<T>,
   value?: Infer<T> | undefined,
 ): TgpuBuffer<T> {
   const root = useRoot();

@@ -1,7 +1,9 @@
 import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import tgpu from 'typegpu';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import * as d from 'typegpu/data';
+import * as std from 'typegpu/std';
 import {
   type ConfettiRef,
   type GravityFn,
@@ -13,31 +15,27 @@ import {
   ConfettiProvider,
   useConfetti,
 } from 'typegpu-confetti/react-native';
-import * as d from 'typegpu/data';
-import * as std from 'typegpu/std';
-
-const t = tgpu;
 
 const centerGravity: GravityFn = (pos) => {
-  'kernel';
+  'use gpu';
   return std.mul(2, d.vec2f(d.f32(-pos.x), d.f32(-pos.y)));
 };
 
 const rightGravity: GravityFn = () => {
-  'kernel';
+  'use gpu';
   return d.vec2f(2.5, 0);
 };
 const upGravity: GravityFn = () => {
-  'kernel';
+  'use gpu';
   return d.vec2f(0, 0.5);
 };
 const strongGravity: GravityFn = () => {
-  'kernel';
+  'use gpu';
   return d.vec2f(0, -3);
 };
 
 const pointInitParticle: InitParticleFn = (i) => {
-  'kernel';
+  'use gpu';
   particles.value[i].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
@@ -49,7 +47,7 @@ const pointInitParticle: InitParticleFn = (i) => {
 };
 
 const twoSidesInitParticle: InitParticleFn = (i) => {
-  'kernel';
+  'use gpu';
 
   if (i % 2 === 0) {
     particles.value[i].position = d.vec2f(
@@ -75,7 +73,7 @@ const twoSidesInitParticle: InitParticleFn = (i) => {
 };
 
 const customGravity: GravityFn = (pos) => {
-  'kernel';
+  'use gpu';
   return d.vec2f(-pos.x, -3);
 };
 
@@ -178,7 +176,11 @@ function ButtonRow({
   icon,
   label,
   children,
-}: { icon?: string; label?: string; children: ReactNode }) {
+}: {
+  icon?: string;
+  label?: string;
+  children: ReactNode;
+}) {
   const [confettiKey, setConfettiKey] = useState(0);
   return (
     <>
@@ -258,7 +260,10 @@ function ConfettiContextButton() {
 function ImperativeConfettiButtonRow({
   icon,
   label,
-}: { icon?: string; label?: string }) {
+}: {
+  icon?: string;
+  label?: string;
+}) {
   const confettiRef = useRef<ConfettiRef>(null);
 
   return (

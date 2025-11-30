@@ -4,6 +4,3 @@ packages:
 onlyBuiltDependencies:
   - "@biomejs/biome"
   - esbuild
-
-overrides:
-  "react": "19.1.1"
