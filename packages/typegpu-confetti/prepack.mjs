@@ -45,9 +45,7 @@ async function transformPackageJSON() {
   const packageJsonUrl = new URL('./package.json', cwd);
   const distPackageJsonUrl = new URL('./dist/package.json', cwd);
 
-  const packageJson = JSON.parse(
-    await fs.readFile(packageJsonUrl.pathname, 'utf-8'),
-  );
+  const packageJson = JSON.parse(await fs.readFile(packageJsonUrl.pathname, 'utf-8'));
   let distPackageJson = structuredClone(packageJson);
 
   // Replacing `exports`, `main`, and `types` with `publishConfig.*`
@@ -74,9 +72,7 @@ async function transformPackageJSON() {
   });
 
   // Erroring out on any wildcard dependencies
-  for (const [moduleKey, versionSpec] of [
-    ...entries(distPackageJson.dependencies ?? {}),
-  ]) {
+  for (const [moduleKey, versionSpec] of entries(distPackageJson.dependencies ?? {})) {
     if (versionSpec === '*' || versionSpec === 'workspace:*') {
       throw new Error(
         `Cannot depend on a module with a wildcard version. (${moduleKey}: ${versionSpec})`,

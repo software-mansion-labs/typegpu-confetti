@@ -2,21 +2,33 @@
   "name": "typegpu-confetti",
   "version": "0.2.0",
   "description": "Customizable confetti animation component for React and React Native, running on the GPU",
+  "keywords": [
+    "confetti",
+    "javascript",
+    "react",
+    "react-native",
+    "webgpu"
+  ],
+  "bugs": {
+    "url": "https://github.com/software-mansion-labs/typegpu-confetti/issues"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/software-mansion-labs/typegpu-confetti.git"
+  },
   "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./react-native": "./src/react-native/index.ts",
     "./react": "./src/react/index.ts",
     "./package.json": "./package.json"
   },
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "publishConfig": {
     "directory": "dist",
-    "linkDirectory": false,
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
     "exports": {
       "./package.json": "./package.json",
       ".": {
@@ -37,38 +49,18 @@
         "import": "./dist/react/index.js",
         "default": "./dist/react/index.cjs"
       }
-    }
+    },
+    "linkDirectory": false,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
-  "sideEffects": false,
   "scripts": {
     "build": "node prepack.mjs",
     "prepublishOnly": "pnpm run build"
   },
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/software-mansion-labs/typegpu-confetti.git"
-  },
-  "keywords": [
-    "confetti",
-    "javascript",
-    "react-native",
-    "webgpu",
-    "react"
-  ],
-  "bugs": {
-    "url": "https://github.com/software-mansion-labs/typegpu-confetti/issues"
-  },
   "dependencies": {
     "@typegpu/noise": "^0.8.0",
     "typegpu": "^0.8.0"
-  },
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*",
-    "react-native-wgpu": "*"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.66",
@@ -80,6 +72,14 @@
     "tsdown": "^0.15.12",
     "typescript": "^5.9.3",
     "unplugin-typegpu": "^0.8.0"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-wgpu": "*"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   },
   "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }

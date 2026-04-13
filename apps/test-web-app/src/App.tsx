@@ -2,17 +2,8 @@ import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
-import {
-  type ConfettiRef,
-  type GravityFn,
-  type InitParticleFn,
-  particles,
-} from 'typegpu-confetti';
-import {
-  Confetti,
-  ConfettiProvider,
-  useConfetti,
-} from 'typegpu-confetti/react';
+import { type ConfettiRef, type GravityFn, type InitParticleFn, particles } from 'typegpu-confetti';
+import { Confetti, ConfettiProvider, useConfetti } from 'typegpu-confetti/react';
 
 const centerGravity: GravityFn = (pos) => {
   'use gpu';
@@ -110,11 +101,7 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Color, Size, Amount" icon="🌨️">
-            <Confetti
-              colorPalette={[[255, 255, 255, 0.8]]}
-              size={0.5}
-              initParticleAmount={400}
-            />
+            <Confetti colorPalette={[[255, 255, 255, 0.8]]} size={0.5} initParticleAmount={400} />
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="➡️">
@@ -130,10 +117,7 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Initial state, Gravity" icon="💣">
-            <Confetti
-              initParticle={pointInitParticle}
-              gravity={strongGravity}
-            />
+            <Confetti initParticle={pointInitParticle} gravity={strongGravity} />
           </ButtonRow>
 
           <ButtonRow label="Initial state" icon="2️⃣">
@@ -204,21 +188,12 @@ function ConfettiContextButton() {
   );
 }
 
-function ImperativeConfettiButtonRow({
-  icon,
-  label,
-}: {
-  icon?: string;
-  label?: string;
-}) {
+function ImperativeConfettiButtonRow({ icon, label }: { icon?: string; label?: string }) {
   const confettiRef = useRef<ConfettiRef>(null);
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => confettiRef.current?.addParticles(50)}
-      >
+      <button type="button" onClick={() => confettiRef.current?.addParticles(50)}>
         <div className="row">
           <div className="icon">{icon ?? '🎉'} </div>
           <div className="label">{label}</div>
