@@ -78,6 +78,17 @@
     "react-native": "*",
     "react-native-wgpu": "*"
   },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "react-native-wgpu": {
+      "optional": true
+    }
+  },
   "engines": {
     "node": ">=22.0.0"
   },
