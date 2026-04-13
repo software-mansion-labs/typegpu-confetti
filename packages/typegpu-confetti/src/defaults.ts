@@ -28,14 +28,8 @@ export const defaults: {
     'use gpu';
     const particle = particles.value[i];
 
-    particle.position = d.vec2f(
-      randf.sample() * 2 - 1,
-      randf.sample() / 1.5 + 1,
-    );
-    particle.velocity = d.vec2f(
-      randf.sample() * 2 - 1,
-      -(randf.sample() / 25 + 0.01) * 50,
-    );
+    particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
+    particle.velocity = d.vec2f(randf.sample() * 2 - 1, -(randf.sample() / 25 + 0.01) * 50);
 
     particles.value[i] = particle;
   },

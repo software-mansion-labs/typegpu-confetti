@@ -67,8 +67,7 @@ export const mainVert = tgpu['~unstable']
       index: d.builtin.vertexIndex,
     },
     out: VertexOutput,
-  })(
-    /* wgsl */ `{
+  })(/* wgsl */ `{
       let width = in.tilt;
       let height = in.tilt / 2;
 
@@ -98,8 +97,7 @@ export const mainVert = tgpu['~unstable']
 
       let alpha = min(f32(in.timeLeft) / 1000.f, 1);
       return Out(vec4f(pos, 0.0, 1.0), alpha * in.color.a * vec4f(in.color.rgb, 1), 0);
-    }`,
-  )
+    }`)
   .$uses({ rotate, canvasAspectRatio });
 
 export const mainFrag = tgpu['~unstable'].fragmentFn({
@@ -117,8 +115,7 @@ export const mainCompute = tgpu['~unstable']
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [64],
-  })(
-    /* wgsl */ `{
+  })(/* wgsl */ `{
     let index = in.gid.x;
 
     if particles[index].timeLeft < 0.01 {
@@ -130,8 +127,7 @@ export const mainCompute = tgpu['~unstable']
     particles[index].velocity += gravity(particles[index].position) * deltaTime / 1000;
     particles[index].position += particles[index].velocity * deltaTime / 1000 + vec2f(sin(phase) / 600, cos(phase) / 500);
     particles[index].timeLeft -= deltaTime;
-  }`,
-  )
+  }`)
   .$uses({ gravity, particles, deltaTime, time });
 
 export const defaultInitParticle: InitParticleFn = (i) => {
@@ -139,10 +135,7 @@ export const defaultInitParticle: InitParticleFn = (i) => {
   const particle = particles.value[i];
 
   particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
-  particle.velocity = d.vec2f(
-    randf.sample() * 2 - 1,
-    -(randf.sample() / 25 + 0.01) * 50,
-  );
+  particle.velocity = d.vec2f(randf.sample() * 2 - 1, -(randf.sample() / 25 + 0.01) * 50);
 
   particles.value[i] = particle;
 };
@@ -169,8 +162,7 @@ export const initCompute = tgpu['~unstable'].computeFn({
 export const addParticleCompute = tgpu['~unstable']
   .computeFn({
     workgroupSize: [1],
-  })(
-    /* wgsl */ `{
+  })(/* wgsl */ `{
       for (var i = 0; i < maxParticleAmount; i++) {
         if particles[i].timeLeft < 0.1 {
           preInitParticle(i);
@@ -190,8 +182,7 @@ export const addParticleCompute = tgpu['~unstable']
       }
 
       initParticle(minIndex);
-    }`,
-  )
+    }`)
   .$uses({
     particles,
     initParticle,
@@ -203,14 +194,8 @@ export const addParticleCompute = tgpu['~unstable']
 
 // #region layouts
 
-export const geometryLayout = tgpu.vertexLayout(
-  d.arrayOf(ParticleGeometry),
-  'instance',
-);
+export const geometryLayout = tgpu.vertexLayout(d.arrayOf(ParticleGeometry), 'instance');
 
-export const dataLayout = tgpu.vertexLayout(
-  d.arrayOf(ParticleData),
-  'instance',
-);
+export const dataLayout = tgpu.vertexLayout(d.arrayOf(ParticleData), 'instance');
 
 // #endregion

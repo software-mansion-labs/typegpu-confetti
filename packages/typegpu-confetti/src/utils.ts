@@ -15,9 +15,7 @@ export function useRoot(): TgpuRoot {
   const root = useContext(RootContext);
 
   if (root === null) {
-    throw new Error(
-      'No root (tgpu.init) object passed via context to the component.',
-    );
+    throw new Error('No root (tgpu.init) object passed via context to the component.');
   }
   return root;
 }
@@ -29,7 +27,6 @@ export function useBuffer<T extends AnyData>(
   const root = useRoot();
   const bufferRef = useRef<TgpuBuffer<T> | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <don't recreate buffer on value change>
   let buffer = useMemo(() => {
     if (bufferRef.current) {
       bufferRef.current.destroy();
@@ -39,7 +36,6 @@ export function useBuffer<T extends AnyData>(
     return buffer;
   }, [root, schema]);
 
-  // biome-ignore lint/style/noNonNullAssertion: <set in memo, strict mode acting weird>
   buffer = bufferRef.current!;
 
   useLayoutEffect(() => {
@@ -65,10 +61,7 @@ export function useBuffer<T extends AnyData>(
   return buffer;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: it's fine
-function useEvent<TFunction extends (...params: any[]) => any>(
-  handler: TFunction,
-) {
+function useEvent<TFunction extends (...params: any[]) => any>(handler: TFunction) {
   const handlerRef = useRef(handler);
 
   useLayoutEffect(() => {
@@ -81,10 +74,7 @@ function useEvent<TFunction extends (...params: any[]) => any>(
   }, []) as TFunction;
 }
 
-export function useFrame(
-  loop: (deltaTime: number) => unknown,
-  isRunning = true,
-) {
+export function useFrame(loop: (deltaTime: number) => unknown, isRunning = true) {
   const loopEvent = useEvent(loop);
   useEffect(() => {
     if (!isRunning) {
