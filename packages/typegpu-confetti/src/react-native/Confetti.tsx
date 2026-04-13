@@ -1,18 +1,8 @@
 import type React from 'react';
-import {
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { Canvas, useDevice } from 'react-native-wgpu';
-import tgpu, {
-  type TgpuComputePipeline,
-  type TgpuRenderPipeline,
-} from 'typegpu';
+import tgpu, { type TgpuComputePipeline, type TgpuRenderPipeline } from 'typegpu';
 import * as d from 'typegpu/data';
 import { RootContext } from '../context';
 import { defaults } from '../defaults';
@@ -71,14 +61,10 @@ const ConfettiViz = ({
     [maxParticleAmount_, initParticleAmount],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <trigger timeout reset by changing timeoutKey>
   useEffect(() => {
     let timeout: number | undefined;
     if (maxDurationTime !== null) {
-      timeout = setTimeout(
-        () => setEnded(true),
-        (maxDurationTime + 0.01) * 1000,
-      );
+      timeout = setTimeout(() => setEnded(true), (maxDurationTime + 0.01) * 1000);
     }
     return () => {
       if (timeout) {
@@ -106,9 +92,9 @@ const ConfettiViz = ({
         .map(() => ({
           angle: Math.floor(Math.random() * 50) - 10,
           tilt: (Math.floor(Math.random() * 10) - 20) * size,
-          color: colorPalette.map(([r, g, b, a]) =>
-            d.vec4f(r / 255, g / 255, b / 255, a),
-          )[Math.floor(Math.random() * colorPalette.length)] as d.v4f,
+          color: colorPalette.map(([r, g, b, a]) => d.vec4f(r / 255, g / 255, b / 255, a))[
+            Math.floor(Math.random() * colorPalette.length)
+          ] as d.v4f,
         })),
     [colorPalette, maxParticleAmount, size],
   );
@@ -122,32 +108,21 @@ const ConfettiViz = ({
     [maxParticleAmount],
   );
 
-  const particleGeometryBuffer = useBuffer(
-    ParticleGeometryArray,
-    particleGeometry,
-  ).$usage('vertex');
-
-  const particleDataBuffer = useBuffer(ParticleDataArray).$usage(
-    'storage',
+  const particleGeometryBuffer = useBuffer(ParticleGeometryArray, particleGeometry).$usage(
     'vertex',
   );
+
+  const particleDataBuffer = useBuffer(ParticleDataArray).$usage('storage', 'vertex');
 
   const deltaTimeBuffer = useBuffer(d.f32).$usage('uniform');
   const timeBuffer = useBuffer(d.f32).$usage('storage');
 
-  const particleDataStorage = useMemo(
-    () => particleDataBuffer.as('mutable'),
-    [particleDataBuffer],
-  );
-  const deltaTimeUniform = useMemo(
-    () => deltaTimeBuffer.as('uniform'),
-    [deltaTimeBuffer],
-  );
+  const particleDataStorage = useMemo(() => particleDataBuffer.as('mutable'), [particleDataBuffer]);
+  const deltaTimeUniform = useMemo(() => deltaTimeBuffer.as('uniform'), [deltaTimeBuffer]);
   const timeStorage = useMemo(() => timeBuffer.as('readonly'), [timeBuffer]);
 
   //#endregion
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we do some magic stuff here
   useImperativeHandle(
     ref,
     () =>
@@ -171,10 +146,7 @@ const ConfettiViz = ({
             addParticleComputePipeline.dispatchWorkgroups(1);
           }
 
-          particleAmount.current = Math.min(
-            particleAmount.current + amount,
-            maxParticleAmount,
-          );
+          particleAmount.current = Math.min(particleAmount.current + amount, maxParticleAmount);
 
           if (ended) {
             setEnded(false);
@@ -240,10 +212,7 @@ const ConfettiViz = ({
       validatePipeline(
         root['~unstable']
           .with(particles, particleDataStorage)
-          .with(
-            maxDurationTimeSlot,
-            maxDurationTime ?? defaults.maxDurationTime,
-          )
+          .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
           .with(gravitySlot, gravityFn(gravity))
           .with(time, timeStorage)
           .with(deltaTime, deltaTimeUniform)
@@ -266,24 +235,14 @@ const ConfettiViz = ({
       validatePipeline(
         root['~unstable']
           .with(particles, particleDataStorage)
-          .with(
-            maxDurationTimeSlot,
-            maxDurationTime ?? defaults.maxDurationTime,
-          )
+          .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
           .with(initParticleSlot, initParticleFn(initParticle))
           .with(time, timeStorage)
           .withCompute(initCompute)
           .createPipeline()
           .$name('init'),
       ),
-    [
-      particleDataStorage,
-      root,
-      maxDurationTime,
-      validatePipeline,
-      initParticle,
-      timeStorage,
-    ],
+    [particleDataStorage, root, maxDurationTime, validatePipeline, initParticle, timeStorage],
   );
 
   const addParticleComputePipeline = useMemo(
@@ -291,10 +250,7 @@ const ConfettiViz = ({
       validatePipeline(
         root['~unstable']
           .with(particles, particleDataStorage)
-          .with(
-            maxDurationTimeSlot,
-            maxDurationTime ?? defaults.maxDurationTime,
-          )
+          .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
           .with(initParticleSlot, initParticleFn(initParticle))
           .with(maxParticleAmountSlot, maxParticleAmount)
           .with(time, timeStorage)
@@ -384,10 +340,7 @@ const Confetti = ({
   ref?: React.Ref<ConfettiRef>;
 }) => {
   const { device } = useDevice();
-  const root = useMemo(
-    () => (device ? tgpu.initFromDevice({ device }) : null),
-    [device],
-  );
+  const root = useMemo(() => (device ? tgpu.initFromDevice({ device }) : null), [device]);
 
   return root === null ? null : (
     <RootContext.Provider value={root}>

@@ -4,17 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
-import {
-  type ConfettiRef,
-  type GravityFn,
-  type InitParticleFn,
-  particles,
-} from 'typegpu-confetti';
-import {
-  Confetti,
-  ConfettiProvider,
-  useConfetti,
-} from 'typegpu-confetti/react-native';
+import { type ConfettiRef, type GravityFn, type InitParticleFn, particles } from 'typegpu-confetti';
+import { Confetti, ConfettiProvider, useConfetti } from 'typegpu-confetti/react-native';
 
 const centerGravity: GravityFn = (pos) => {
   'use gpu';
@@ -131,11 +122,7 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Color, Size, Amount" icon="🌨️">
-            <Confetti
-              colorPalette={[[255, 255, 255, 0.8]]}
-              size={0.5}
-              initParticleAmount={400}
-            />
+            <Confetti colorPalette={[[255, 255, 255, 0.8]]} size={0.5} initParticleAmount={400} />
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="➡️">
@@ -151,10 +138,7 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Initial state, Gravity" icon="💣">
-            <Confetti
-              initParticle={pointInitParticle}
-              gravity={strongGravity}
-            />
+            <Confetti initParticle={pointInitParticle} gravity={strongGravity} />
           </ButtonRow>
 
           <ButtonRow label="Initial state" icon="2️⃣">
@@ -201,9 +185,7 @@ function ButtonRow({
           }}
         >
           <Text style={{ fontSize: 25 }}>{icon ?? '🎉'} </Text>
-          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-            {label}
-          </Text>
+          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>{label}</Text>
         </View>
       </Pressable>
 
@@ -249,21 +231,13 @@ function ConfettiContextButton() {
         }}
       >
         <Text style={{ fontSize: 25 }}>🌨️</Text>
-        <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-          Default (using hook)
-        </Text>
+        <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>Default (using hook)</Text>
       </View>
     </Pressable>
   );
 }
 
-function ImperativeConfettiButtonRow({
-  icon,
-  label,
-}: {
-  icon?: string;
-  label?: string;
-}) {
+function ImperativeConfettiButtonRow({ icon, label }: { icon?: string; label?: string }) {
   const confettiRef = useRef<ConfettiRef>(null);
 
   return (
@@ -284,9 +258,7 @@ function ImperativeConfettiButtonRow({
           }}
         >
           <Text style={{ fontSize: 25 }}>{icon ?? '🎉'} </Text>
-          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>
-            {label}
-          </Text>
+          <Text style={{ fontSize: 15, fontWeight: 600, color: 'white' }}>{label}</Text>
         </View>
       </Pressable>
 

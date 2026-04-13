@@ -1,17 +1,9 @@
-import {
-  createContext,
-  type ReactNode,
-  type RefObject,
-  useContext,
-  useRef,
-} from 'react';
+import { createContext, type ReactNode, type RefObject, useContext, useRef } from 'react';
 import { type StyleProp, View, type ViewStyle } from 'react-native';
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import Confetti from './Confetti';
 
-const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(
-  null,
-);
+const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(null);
 
 export function ConfettiProvider(
   props: { children: ReactNode } & ConfettiPropTypes & {

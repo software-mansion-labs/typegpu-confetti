@@ -9,9 +9,7 @@ import {
 import type { ConfettiPropTypes, ConfettiRef } from '../types';
 import Confetti from './Confetti';
 
-const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(
-  null,
-);
+const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(null);
 
 export function ConfettiProvider(
   props: { children: ReactNode; style?: CSSProperties } & ConfettiPropTypes,
