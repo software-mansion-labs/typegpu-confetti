@@ -10,6 +10,7 @@
     "strict": true,
     "allowJs": true,
     "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,

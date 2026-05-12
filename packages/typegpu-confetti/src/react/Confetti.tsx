@@ -1,18 +1,16 @@
 import React, {
   type CSSProperties,
   type ForwardedRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import { useBuffer, useConfigureContext, useFrame, useRoot, useUniform } from '@typegpu/react';
+import { d } from 'typegpu';
 
-import tgpu, { type TgpuComputePipeline, type TgpuRenderPipeline } from 'typegpu';
-import * as d from 'typegpu/data';
-import { RootContext } from '../context';
-import { defaults } from '../defaults';
+import { defaults } from '../defaults.ts';
 import {
   addParticleCompute,
   canvasAspectRatio,
@@ -33,13 +31,10 @@ import {
   ParticleGeometry,
   particles,
   time,
-} from '../schemas';
-import type { ConfettiPropTypes, ConfettiRef } from '../types';
-import { useBuffer, useDevice, useFrame, useRoot } from '../utils';
+} from '../schemas.ts';
+import type { ConfettiProps, ConfettiRef } from '../types.ts';
 
-const startTime = Date.now();
-
-const ConfettiViz = React.forwardRef(
+const Confetti = React.forwardRef(
   (
     {
       width,
@@ -52,29 +47,13 @@ const ConfettiViz = React.forwardRef(
       maxDurationTime = defaults.maxDurationTime,
       initParticle = defaults.initParticle,
       style = {},
-    }: ConfettiPropTypes & { style?: CSSProperties } & {
+    }: ConfettiProps & { style?: CSSProperties } & {
       width: number;
       height: number;
     },
     ref: ForwardedRef<ConfettiRef>,
   ) => {
     const root = useRoot();
-
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [context, setContext] = useState<GPUCanvasContext | null>(null);
-
-    useEffect(() => {
-      if (root && !context && canvasRef.current) {
-        const ctx = canvasRef.current?.getContext('webgpu') as GPUCanvasContext;
-        ctx.configure({
-          device: root.device,
-          format: presentationFormat,
-          alphaMode: 'premultiplied',
-        });
-        setContext(ctx);
-      }
-    }, [context, root, presentationFormat]);
 
     const [ended, setEnded] = useState(false);
     const [timeoutKey, setTimeoutKey] = useState(0);
@@ -100,15 +79,7 @@ const ConfettiViz = React.forwardRef(
 
     // #region buffers
 
-    const canvasAspectRatioBuffer = useBuffer(
-      d.f32,
-      context ? context.canvas.width / context.canvas.height : 1,
-    ).$usage('uniform');
-
-    const canvasAspectRatioUniform = useMemo(
-      () => canvasAspectRatioBuffer.as('uniform'),
-      [canvasAspectRatioBuffer],
-    );
+    const aspectRatioUniform = useUniform(d.f32, { initial: 1 });
 
     const particleGeometry = useMemo(
       () =>
@@ -124,143 +95,81 @@ const ConfettiViz = React.forwardRef(
       [colorPalette, maxParticleAmount, size],
     );
 
-    const ParticleGeometryArray = useMemo(
-      () => d.arrayOf(ParticleGeometry, maxParticleAmount),
-      [maxParticleAmount],
-    );
-    const ParticleDataArray = useMemo(
-      () => d.arrayOf(ParticleData, maxParticleAmount),
-      [maxParticleAmount],
-    );
+    const particleGeometryBuffer = useBuffer(d.arrayOf(ParticleGeometry, maxParticleAmount), {
+      initial: particleGeometry,
+    }).$usage('vertex');
 
-    const particleGeometryBuffer = useBuffer(ParticleGeometryArray, particleGeometry).$usage(
+    const particleDataBuffer = useBuffer(d.arrayOf(ParticleData, maxParticleAmount)).$usage(
+      'storage',
       'vertex',
     );
 
-    const particleDataBuffer = useBuffer(ParticleDataArray).$usage('storage', 'vertex');
-
-    const deltaTimeBuffer = useBuffer(d.f32).$usage('uniform');
-    const timeBuffer = useBuffer(d.f32).$usage('storage');
+    const deltaTimeUniform = useUniform(d.f32);
+    const timeUniform = useUniform(d.f32);
 
     const particleDataStorage = useMemo(
       () => particleDataBuffer.as('mutable'),
       [particleDataBuffer],
     );
-    const deltaTimeUniform = useMemo(() => deltaTimeBuffer.as('uniform'), [deltaTimeBuffer]);
-    const timeStorage = useMemo(() => timeBuffer.as('readonly'), [timeBuffer]);
 
     //#endregion
 
     // #region pipelines
 
-    const validatePipeline = useCallback(
-      <T extends TgpuRenderPipeline | TgpuComputePipeline>(pipeline: T) => {
-        root.device.pushErrorScope('validation');
-        try {
-          root.unwrap(pipeline as TgpuComputePipeline);
-        } catch (error) {
-          console.error(error);
-          if (typeof error === 'object' && error && 'cause' in error) {
-            console.log(error.cause);
-          }
-        }
-
-        root.device.popErrorScope().then((error) => {
-          if (error) {
-            setEnded(true);
-            console.error('error compiling pipeline', error.message);
-          } else {
-            // console.log('pipeline creation: no error');
-          }
-        });
-        return pipeline;
-      },
-      [root],
-    );
-
     const renderPipeline = useMemo(
       () =>
-        validatePipeline(
-          root['~unstable']
-            .with(canvasAspectRatio, canvasAspectRatioUniform)
-            .withVertex(mainVert, {
-              tilt: geometryLayout.attrib.tilt,
-              angle: geometryLayout.attrib.angle,
-              color: geometryLayout.attrib.color,
-              center: dataLayout.attrib.position,
-              timeLeft: dataLayout.attrib.timeLeft,
-            })
-            .withFragment(mainFrag, {
-              format: presentationFormat,
-            })
-            .withPrimitive({
-              topology: 'triangle-strip',
-            })
-            .createPipeline(),
-        ),
-      [canvasAspectRatioUniform, presentationFormat, root, validatePipeline],
+        root.with(canvasAspectRatio, aspectRatioUniform).createRenderPipeline({
+          attribs: {
+            tilt: geometryLayout.attrib.tilt,
+            angle: geometryLayout.attrib.angle,
+            color: geometryLayout.attrib.color,
+            center: dataLayout.attrib.position,
+            timeLeft: dataLayout.attrib.timeLeft,
+          },
+          vertex: mainVert,
+          fragment: mainFrag,
+          primitive: {
+            topology: 'triangle-strip',
+          },
+        }),
+      [aspectRatioUniform, root],
     );
 
     const computePipeline = useMemo(
       () =>
-        validatePipeline(
-          root['~unstable']
-            .with(particles, particleDataStorage)
-            .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
-            .with(initParticleSlot, initParticleFn(initParticle))
-            .with(gravitySlot, gravityFn(gravity))
-            .with(time, timeStorage)
-            .with(deltaTime, deltaTimeUniform)
-            .withCompute(mainCompute)
-            .createPipeline(),
-        ),
-      [
-        particleDataStorage,
-        root,
-        timeStorage,
-        gravity,
-        validatePipeline,
-        initParticle,
-        maxDurationTime,
-        deltaTimeUniform,
-      ],
+        root
+          .with(particles, particleDataStorage)
+          .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
+          .with(gravitySlot, gravityFn(gravity))
+          .with(time, timeUniform)
+          .with(deltaTime, deltaTimeUniform)
+          .createComputePipeline({ compute: mainCompute }),
+      [particleDataStorage, root, timeUniform, gravity, maxDurationTime, deltaTimeUniform],
     );
 
     const initComputePipeline = useMemo(
       () =>
-        validatePipeline(
-          root['~unstable']
-            .with(particles, particleDataStorage)
-            .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
-            .with(initParticleSlot, initParticleFn(initParticle))
-            .with(time, timeStorage)
-            .withCompute(initCompute)
-            .createPipeline(),
-        ),
-      [particleDataStorage, root, maxDurationTime, validatePipeline, initParticle, timeStorage],
+        root
+          .with(particles, particleDataStorage)
+          .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
+          .with(initParticleSlot, initParticleFn(initParticle))
+          .with(time, timeUniform)
+          .createComputePipeline({ compute: initCompute })
+          .$name('init'),
+      [particleDataStorage, root, maxDurationTime, initParticle, timeUniform],
     );
 
     const addParticleComputePipeline = useMemo(
       () =>
-        validatePipeline(
-          root['~unstable']
-            .with(particles, particleDataStorage)
-            .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
-            .with(initParticleSlot, initParticleFn(initParticle))
-            .with(maxParticleAmountSlot, maxParticleAmount)
-            .with(time, timeStorage)
-            .withCompute(addParticleCompute)
-            .createPipeline(),
-        ),
-      [
-        particleDataStorage,
-        root,
-        maxParticleAmount,
-        maxDurationTime,
-        validatePipeline,
-        initParticle,
-        timeStorage,
-      ],
+        root
+          .with(particles, particleDataStorage)
+          .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
+          .with(initParticleSlot, initParticleFn(initParticle))
+          .with(maxParticleAmountSlot, maxParticleAmount)
+          .with(time, timeUniform)
+          .createComputePipeline({ compute: addParticleCompute })
+          .$name('addParticle'),
+      [particleDataStorage, root, maxParticleAmount, maxDurationTime, initParticle, timeUniform],
     );
 
     // #endregion
@@ -311,40 +220,26 @@ const ConfettiViz = React.forwardRef(
       }
     }, [initComputePipeline, initParticleAmount]);
 
-    const frame = async (deltaTime: number) => {
-      if (!context || particleAmount.current < 1) {
+    const { ref: canvasRef, ctxRef } = useConfigureContext({ alphaMode: 'premultiplied' });
+    useFrame(({ deltaSeconds, elapsedSeconds }) => {
+      const ctx = ctxRef.current;
+      if (!ctx || particleAmount.current < 1) {
         return;
       }
 
-      root.device.pushErrorScope('validation');
-
-      deltaTimeBuffer.write(deltaTime);
-      timeBuffer.write(Date.now() - startTime);
-      canvasAspectRatioBuffer.write(context.canvas.width / context.canvas.height);
+      deltaTimeUniform.write(deltaSeconds * 1000);
+      timeUniform.write(elapsedSeconds * 1000);
+      aspectRatioUniform.write(ctx.canvas.width / ctx.canvas.height);
       computePipeline.dispatchWorkgroups(Math.ceil(particleAmount.current / 64));
 
       renderPipeline
         .with(geometryLayout, particleGeometryBuffer)
         .with(dataLayout, particleDataBuffer)
-        .withColorAttachment({
-          view: context.getCurrentTexture().createView(),
-          clearValue: [0, 0, 0, 0],
-          loadOp: 'clear',
-          storeOp: 'store',
-        })
+        .withColorAttachment({ view: ctx })
         .draw(4, particleAmount.current);
 
-      root['~unstable'].flush();
-
-      root.device.popErrorScope().then((error) => {
-        if (error) {
-          console.error('error in loop', error.message);
-          setEnded(true);
-        }
-      });
-    };
-
-    useFrame(frame, !ended);
+      ctx.present?.();
+    });
 
     return (
       <canvas
@@ -352,62 +247,16 @@ const ConfettiViz = React.forwardRef(
         width={width}
         height={height}
         style={{
-          position: 'absolute',
+          position: 'fixed',
           width: '100%',
           height: '100%',
           inset: 0,
+          pointerEvents: 'none',
           ...style,
         }}
       />
     );
   },
 );
-
-const Confetti = React.forwardRef((props: ConfettiPropTypes, ref: ForwardedRef<ConfettiRef>) => {
-  const { device } = useDevice();
-  const root = useMemo(() => (device ? tgpu.initFromDevice({ device }) : null), [device]);
-
-  const [height, setHeight] = useState(200);
-  const [width, setWidth] = useState(200);
-
-  const measuredRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (measuredRef.current) {
-      setWidth(measuredRef.current.getBoundingClientRect().width * window.devicePixelRatio);
-      setHeight(measuredRef.current.getBoundingClientRect().height * window.devicePixelRatio);
-
-      const observer = new ResizeObserver((e) => {
-        setWidth((width) => (e[0] ? e[0].contentRect.width * window.devicePixelRatio : width));
-        setHeight((height) => (e[0] ? e[0].contentRect.height * window.devicePixelRatio : height));
-      });
-
-      observer.observe(measuredRef.current);
-    }
-  }, [root]);
-
-  if (root === null) {
-    return null;
-  }
-
-  return (
-    <RootContext.Provider value={root}>
-      <div
-        ref={measuredRef}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          inset: 0,
-          zIndex: 20,
-          pointerEvents: 'none',
-          cursor: 'auto',
-        }}
-      >
-        <ConfettiViz {...props} ref={ref} width={width} height={height} />
-      </div>
-    </RootContext.Provider>
-  );
-});
 
 export default Confetti;

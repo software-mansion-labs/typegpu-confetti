@@ -1,15 +1,16 @@
 import { createContext, type ReactNode, type RefObject, useContext, useRef } from 'react';
 import { type StyleProp, View, type ViewStyle } from 'react-native';
-import type { ConfettiPropTypes, ConfettiRef } from '../types';
-import Confetti from './Confetti';
+import type { ConfettiProps, ConfettiRef } from '../types.ts';
+import Confetti from './Confetti.tsx';
 
 const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(null);
 
-export function ConfettiProvider(
-  props: { children: ReactNode } & ConfettiPropTypes & {
-      style?: StyleProp<ViewStyle>;
-    },
-) {
+interface ConfettiProviderProps extends ConfettiProps {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export function ConfettiProvider(props: ConfettiProviderProps) {
   const { children, ...confettiProps } = props;
   const ref = useRef<ConfettiRef>(null);
 

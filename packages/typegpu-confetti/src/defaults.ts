@@ -1,10 +1,10 @@
 import { randf } from '@typegpu/noise';
-import * as d from 'typegpu/data';
-import { particles } from './schemas';
-import type { ConfettiPropTypes } from './types';
+import { d } from 'typegpu';
+import { particles } from './schemas.ts';
+import type { ConfettiProps } from './types.ts';
 
 export const defaults: {
-  [K in keyof ConfettiPropTypes]-?: NonNullable<ConfettiPropTypes[K]>;
+  [K in keyof ConfettiProps]-?: NonNullable<ConfettiProps[K]>;
 } = {
   maxDurationTime: 2,
   initParticleAmount: 200,
@@ -26,11 +26,9 @@ export const defaults: {
 
   initParticle: (i) => {
     'use gpu';
-    const particle = particles.value[i];
+    const particle = particles.$[i];
 
     particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
     particle.velocity = d.vec2f(randf.sample() * 2 - 1, -(randf.sample() / 25 + 0.01) * 50);
-
-    particles.value[i] = particle;
   },
 };

@@ -1,35 +1,22 @@
-import { useEffect, useState } from 'react';
-import { PixelRatio } from 'react-native';
-import { type RNCanvasContext, useCanvasRef } from 'react-native-wgpu';
-import { useRoot } from '../utils';
+import { TgpuRoot } from 'typegpu';
 
-export function useGPUSetup(
-  presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat(),
-) {
-  const root = useRoot();
-  const [context, setContext] = useState<RNCanvasContext | null>(null);
-  const canvasRef = useCanvasRef();
+function warn(error: unknown) {
+  if (error) {
+    console.warn(error);
+  }
+}
 
-  useEffect(() => {
-    const ctx = canvasRef.current.getContext('webgpu');
-
-    if (!ctx) {
-      setContext(null);
-      return;
-    }
-
-    const canvas = ctx.canvas as HTMLCanvasElement;
-    canvas.width = canvas.clientWidth * PixelRatio.get();
-    canvas.height = canvas.clientHeight * PixelRatio.get();
-
-    ctx.configure({
-      device: root.device,
-      format: presentationFormat,
-      alphaMode: 'premultiplied',
-    });
-
-    setContext(ctx);
-  }, [presentationFormat, root, canvasRef]);
-
-  return { canvasRef, context };
+export function withDeferredValidation<T>(root: TgpuRoot, cb: () => T): T {
+  root.device.pushErrorScope('internal');
+  root.device.pushErrorScope('out-of-memory');
+  root.device.pushErrorScope('validation');
+  try {
+    const result = cb();
+    root.unwrap(result as Parameters<TgpuRoot['unwrap']>[0]);
+    return result;
+  } finally {
+    root.device.popErrorScope().then(warn);
+    root.device.popErrorScope().then(warn);
+    root.device.popErrorScope().then(warn);
+  }
 }
