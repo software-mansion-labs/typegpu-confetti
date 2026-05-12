@@ -2,9 +2,8 @@ export {
   //
   // slots
   //
-  /** @deprecated Use `maxParticleAmountSlot` instead */
-  maxParticleAmount,
-  maxParticleAmount as maxParticleAmountSlot,
+  /** @deprecated */
+  maxParticleAmountAccess as maxParticleAmount,
   /** @deprecated Use `gravitySlot` instead */
   gravity,
   gravity as gravitySlot,
@@ -31,8 +30,8 @@ export {
   canvasAspectRatio,
   canvasAspectRatio as aspectRatioAccess,
   /** @deprecated Use `particlesAccess` instead */
-  particles,
-  particles as particlesAccess,
+  particlesAccess as particles,
+  particlesAccess,
   /** @deprecated Use `timeAccess` instead */
   time,
   time as timeAccess,

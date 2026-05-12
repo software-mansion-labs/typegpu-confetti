@@ -7,7 +7,6 @@ import { defaults } from './defaults.ts';
 import {
   addParticleCompute,
   canvasAspectRatio,
-  dataLayout,
   deltaTime,
   geometryLayout,
   gravityFn,
@@ -19,10 +18,10 @@ import {
   mainFrag,
   mainVert,
   maxDurationTime as maxDurationTimeSlot,
-  maxParticleAmount as maxParticleAmountSlot,
+  maxParticleAmountAccess,
   ParticleData,
   ParticleGeometry,
-  particles,
+  particlesAccess,
   time,
 } from './schemas.ts';
 import type { ConfettiProps, ConfettiRef } from './types.ts';
@@ -73,7 +72,7 @@ function createConfettiComponent<T extends Record<string, unknown>>({
     );
 
     useEffect(() => {
-      let timeout: number | undefined;
+      let timeout: ReturnType<typeof setTimeout> | undefined;
       if (maxDurationTime !== null) {
         timeout = setTimeout(() => setEnded(true), (maxDurationTime + 0.01) * 1000);
       }
@@ -106,16 +105,10 @@ function createConfettiComponent<T extends Record<string, unknown>>({
 
     const particleDataBuffer = useBuffer(d.arrayOf(ParticleData, maxParticleAmount)).$usage(
       'storage',
-      'vertex',
     );
 
     const deltaTimeUniform = useUniform(d.f32);
     const timeUniform = useUniform(d.f32);
-
-    const particleDataStorage = useMemo(
-      () => particleDataBuffer.as('mutable'),
-      [particleDataBuffer],
-    );
 
     //#endregion
 
@@ -124,65 +117,66 @@ function createConfettiComponent<T extends Record<string, unknown>>({
     const renderPipeline = useMemo(
       () =>
         withDeferredValidation(root, () =>
-          root.with(canvasAspectRatio, aspectRatioUniform).createRenderPipeline({
-            attribs: {
-              tilt: geometryLayout.attrib.tilt,
-              angle: geometryLayout.attrib.angle,
-              color: geometryLayout.attrib.color,
-              center: dataLayout.attrib.position,
-              timeLeft: dataLayout.attrib.timeLeft,
-            },
-            vertex: mainVert,
-            fragment: mainFrag,
-            primitive: {
-              topology: 'triangle-strip',
-            },
-          }),
+          root
+            .with(particlesAccess, particleDataBuffer.as('readonly'))
+            .with(canvasAspectRatio, aspectRatioUniform)
+            .createRenderPipeline({
+              attribs: {
+                tilt: geometryLayout.attrib.tilt,
+                angle: geometryLayout.attrib.angle,
+                color: geometryLayout.attrib.color,
+              },
+              vertex: mainVert,
+              fragment: mainFrag,
+              primitive: {
+                topology: 'triangle-strip',
+              },
+            }),
         ),
-      [aspectRatioUniform, root],
+      [aspectRatioUniform, root, particleDataBuffer],
     );
 
     const computePipeline = useMemo(
       () =>
         withDeferredValidation(root, () =>
           root
-            .with(particles, particleDataStorage)
+            .with(particlesAccess, particleDataBuffer.as('mutable'))
             .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
             .with(gravitySlot, gravityFn(gravity))
             .with(time, timeUniform)
             .with(deltaTime, deltaTimeUniform)
             .createComputePipeline({ compute: mainCompute }),
         ),
-      [particleDataStorage, root, timeUniform, gravity, maxDurationTime, deltaTimeUniform],
+      [particleDataBuffer, root, timeUniform, gravity, maxDurationTime, deltaTimeUniform],
     );
 
     const initComputePipeline = useMemo(
       () =>
         withDeferredValidation(root, () =>
           root
-            .with(particles, particleDataStorage)
+            .with(particlesAccess, particleDataBuffer.as('mutable'))
             .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
             .with(initParticleSlot, initParticleFn(initParticle))
             .with(time, timeUniform)
             .createComputePipeline({ compute: initCompute })
             .$name('init'),
         ),
-      [root, particleDataStorage, maxDurationTime, initParticle, timeUniform],
+      [root, particleDataBuffer, maxDurationTime, initParticle, timeUniform],
     );
 
     const addParticleComputePipeline = useMemo(
       () =>
         withDeferredValidation(root, () =>
           root
-            .with(particles, particleDataStorage)
+            .with(particlesAccess, particleDataBuffer.as('mutable'))
             .with(maxDurationTimeSlot, maxDurationTime ?? defaults.maxDurationTime)
             .with(initParticleSlot, initParticleFn(initParticle))
-            .with(maxParticleAmountSlot, maxParticleAmount)
+            .with(maxParticleAmountAccess, maxParticleAmount)
             .with(time, timeUniform)
-            .createComputePipeline({ compute: addParticleCompute })
+            .createGuardedComputePipeline(addParticleCompute)
             .$name('addParticle'),
         ),
-      [particleDataStorage, root, maxParticleAmount, maxDurationTime, initParticle, timeUniform],
+      [particleDataBuffer, root, maxParticleAmount, maxDurationTime, initParticle, timeUniform],
     );
 
     useImperativeHandle(
@@ -205,7 +199,7 @@ function createConfettiComponent<T extends Record<string, unknown>>({
 
           addParticles: (amount: number) => {
             for (let i = 0; i < amount; i++) {
-              addParticleComputePipeline.dispatchWorkgroups(1);
+              addParticleComputePipeline.dispatchThreads();
             }
 
             particleAmount.current = Math.min(particleAmount.current + amount, maxParticleAmount);
@@ -248,7 +242,6 @@ function createConfettiComponent<T extends Record<string, unknown>>({
 
       renderPipeline
         .with(geometryLayout, particleGeometryBuffer)
-        .with(dataLayout, particleDataBuffer)
         .withColorAttachment({ view: ctx })
         .draw(4, particleAmount.current);
 
