@@ -1,8 +1,8 @@
-import type { GravityFn, InitParticleFn } from './schemas';
+import type { GravityFn, InitParticleFn } from './schemas.ts';
 
-export type ConfettiPropTypes = {
-  colorPalette?: [number, number, number, number][];
-  size?: number;
+export interface ConfettiProps {
+  colorPalette?: [number, number, number, number][] | undefined;
+  size?: number | undefined;
   maxDurationTime?: number | null;
 
   initParticleAmount?: number;
@@ -10,11 +10,11 @@ export type ConfettiPropTypes = {
 
   gravity?: GravityFn;
   initParticle?: InitParticleFn;
-};
+}
 
-export type ConfettiRef = {
+export interface ConfettiRef {
   pause: () => void;
   resume: () => void;
   restart: () => void;
   addParticles: (amount: number) => void;
-};
+}

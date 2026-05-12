@@ -2,8 +2,7 @@ import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as d from 'typegpu/data';
-import * as std from 'typegpu/std';
+import { d, std } from 'typegpu';
 import { type ConfettiRef, type GravityFn, type InitParticleFn, particles } from 'typegpu-confetti';
 import { Confetti, ConfettiProvider, useConfetti } from 'typegpu-confetti/react-native';
 
@@ -27,11 +26,11 @@ const strongGravity: GravityFn = () => {
 
 const pointInitParticle: InitParticleFn = (i) => {
   'use gpu';
-  particles.value[i].position = d.vec2f(
+  particles.$[i].position = d.vec2f(
     (2 * randf.sample() - 1) / 2 / 50,
     (2 * randf.sample() - 1) / 2 / 50,
   );
-  particles.value[i].velocity = d.vec2f(
+  particles.$[i].velocity = d.vec2f(
     50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
     50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
   );
@@ -41,25 +40,22 @@ const twoSidesInitParticle: InitParticleFn = (i) => {
   'use gpu';
 
   if (i % 2 === 0) {
-    particles.value[i].position = d.vec2f(
+    particles.$[i].position = d.vec2f(
       (2 * randf.sample() - 1) / 2 / 50 + 1,
       (2 * randf.sample() - 1) / 2 / 50,
     );
 
-    particles.value[i].velocity = d.vec2f(
+    particles.$[i].velocity = d.vec2f(
       -1 + (randf.sample() * 2 - 1),
       1.5 + (randf.sample() * 2 - 1),
     );
   } else {
-    particles.value[i].position = d.vec2f(
+    particles.$[i].position = d.vec2f(
       (2 * randf.sample() - 1) / 2 / 50 - 1,
       (2 * randf.sample() - 1) / 2 / 50,
     );
 
-    particles.value[i].velocity = d.vec2f(
-      1 + (randf.sample() * 2 - 1),
-      1.5 + (randf.sample() * 2 - 1),
-    );
+    particles.$[i].velocity = d.vec2f(1 + (randf.sample() * 2 - 1), 1.5 + (randf.sample() * 2 - 1));
   }
 };
 

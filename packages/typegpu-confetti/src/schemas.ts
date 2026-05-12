@@ -1,6 +1,5 @@
 import { randf } from '@typegpu/noise';
-import tgpu, { type TgpuFn } from 'typegpu';
-import * as d from 'typegpu/data';
+import tgpu, { d, type TgpuFn } from 'typegpu';
 
 // #region data structures
 
@@ -27,13 +26,13 @@ export const ParticleData = d.struct({
 
 // #region slots
 
-export const canvasAspectRatio = tgpu['~unstable'].accessor(d.f32);
-export const particles = tgpu['~unstable'].accessor(d.arrayOf(ParticleData, 1));
+export const canvasAspectRatio = tgpu.accessor(d.f32);
+export const particles = tgpu.accessor(d.arrayOf(ParticleData, 1));
 export const maxDurationTime = tgpu.slot<number>();
 export const initParticle = tgpu.slot<TgpuFn<(index: d.I32) => d.Void>>();
 export const maxParticleAmount = tgpu.slot<number>();
-export const deltaTime = tgpu['~unstable'].accessor(d.f32);
-export const time = tgpu['~unstable'].accessor(d.f32);
+export const deltaTime = tgpu.accessor(d.f32);
+export const time = tgpu.accessor(d.f32);
 export const gravity = tgpu.slot<TgpuFn<(pos: d.Vec2f) => d.Vec2f>>();
 
 // #endregion
@@ -56,7 +55,7 @@ export const rotate = tgpu.fn(
   );
 }`);
 
-export const mainVert = tgpu['~unstable']
+export const mainVert = tgpu
   .vertexFn({
     in: {
       tilt: d.f32,
@@ -100,7 +99,7 @@ export const mainVert = tgpu['~unstable']
     }`)
   .$uses({ rotate, canvasAspectRatio });
 
-export const mainFrag = tgpu['~unstable'].fragmentFn({
+export const mainFrag = tgpu.fragmentFn({
   in: VertexOutput,
   out: d.vec4f,
 })(/* wgsl */ `{
@@ -111,7 +110,7 @@ export const mainFrag = tgpu['~unstable'].fragmentFn({
     return in.color;
   }`);
 
-export const mainCompute = tgpu['~unstable']
+export const mainCompute = tgpu
   .computeFn({
     in: { gid: d.builtin.globalInvocationId },
     workgroupSize: [64],
@@ -132,34 +131,30 @@ export const mainCompute = tgpu['~unstable']
 
 export const defaultInitParticle: InitParticleFn = (i) => {
   'use gpu';
-  const particle = particles.value[i];
+  const particle = particles.$[i];
 
   particle.position = d.vec2f(randf.sample() * 2 - 1, randf.sample() / 1.5 + 1);
   particle.velocity = d.vec2f(randf.sample() * 2 - 1, -(randf.sample() / 25 + 0.01) * 50);
-
-  particles.value[i] = particle;
 };
 
 const preInitParticle = initParticleFn((i) => {
   'use gpu';
-  randf.seed2(d.vec2f(d.f32(i), d.f32(time.value % 1111)));
+  randf.seed2(d.vec2f(d.f32(i), d.f32(time.$ % 1111)));
 
-  const particle = particles.value[i];
-  particle.timeLeft = maxDurationTime.value * 1000;
+  const particle = particles.$[i];
+  particle.timeLeft = maxDurationTime.$ * 1000;
   particle.seed = randf.sample();
-
-  particles.value[i] = particle;
 });
 
-export const initCompute = tgpu['~unstable'].computeFn({
+export const initCompute = tgpu.computeFn({
   in: { gid: d.builtin.globalInvocationId },
   workgroupSize: [1],
 })((input) => {
   preInitParticle(d.i32(input.gid.x));
-  initParticle.value(d.i32(input.gid.x));
+  initParticle.$(d.i32(input.gid.x));
 });
 
-export const addParticleCompute = tgpu['~unstable']
+export const addParticleCompute = tgpu
   .computeFn({
     workgroupSize: [1],
   })(/* wgsl */ `{
