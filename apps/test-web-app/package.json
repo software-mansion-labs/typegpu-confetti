@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@typegpu/noise": "^0.10.0",
+    "@typegpu/noise": "^0.11.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "typegpu": "^0.10.2",
+    "typegpu": "^0.11.4",
     "typegpu-confetti": "workspace:*"
   },
   "devDependencies": {
@@ -23,7 +23,7 @@
     "@webgpu/types": "^0.1.66",
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
-    "unplugin-typegpu": "^0.10.2",
+    "unplugin-typegpu": "^0.11.3",
     "vite": "^7.1.12"
   }
 }

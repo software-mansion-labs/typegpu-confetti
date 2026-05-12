@@ -10,13 +10,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@typegpu/noise": "^0.10.0",
+    "@typegpu/noise": "^0.11.0",
     "expo": "55.0.11",
     "react": "19.2.0",
     "react-native": "0.83.1",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-wgpu": "0.5.11",
-    "typegpu": "^0.10.2",
+    "typegpu": "^0.11.4",
     "typegpu-confetti": "workspace:*"
   },
   "devDependencies": {
@@ -24,7 +24,7 @@
     "@types/react": "~19.2.2",
     "@webgpu/types": "^0.1.69",
     "typescript": "^5.9.3",
-    "unplugin-typegpu": "^0.10.2"
+    "unplugin-typegpu": "^0.11.3"
   },
   "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }
