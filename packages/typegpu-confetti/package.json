@@ -59,9 +59,9 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@typegpu/noise": "^0.10.0",
-    "@typegpu/react": "0.10.0-alpha.8",
-    "typegpu": "^0.10.2"
+    "@typegpu/noise": "^0.11.0",
+    "@typegpu/react": "^0.11.0",
+    "typegpu": "^0.11.4"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.66",
@@ -72,7 +72,7 @@
     "remeda": "^2.32.0",
     "tsdown": "^0.15.12",
     "typescript": "^5.9.3",
-    "unplugin-typegpu": "^0.10.2"
+    "unplugin-typegpu": "^0.11.3"
   },
   "peerDependencies": {
     "@typegpu/react": "*",

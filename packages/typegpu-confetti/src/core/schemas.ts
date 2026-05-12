@@ -83,15 +83,15 @@ export const mainVert = tgpu
       var pos = rotate(geometry[in.index] / 350, in.angle) + in.center;
 
       if (canvasAspectRatio < 1) {
-        var center = width / 2 / 350;
-        pos.x -= in.center.x + center;
+        var offset = width / 2 / 350;
+        pos.x -= in.center.x + offset;
         pos.x /= canvasAspectRatio;
-        pos.x += in.center.x + center;
+        pos.x += in.center.x + offset;
       } else {
-        var center = height / 2 / 350;
-        pos.y -= in.center.y + center;
+        var offset = height / 2 / 350;
+        pos.y -= in.center.y + offset;
         pos.y *= canvasAspectRatio;
-        pos.y += in.center.y + center;
+        pos.y += in.center.y + offset;
       }
 
       let alpha = min(f32(in.timeLeft) / 1000.f, 1);
