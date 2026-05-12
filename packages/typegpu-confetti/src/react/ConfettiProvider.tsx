@@ -6,13 +6,13 @@ import {
   useContext,
   useRef,
 } from 'react';
-import type { ConfettiPropTypes, ConfettiRef } from '../types';
-import Confetti from './Confetti';
+import type { ConfettiProps, ConfettiRef } from '../core/types.ts';
+import Confetti from './Confetti.tsx';
 
 const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(null);
 
 export function ConfettiProvider(
-  props: { children: ReactNode; style?: CSSProperties } & ConfettiPropTypes,
+  props: { children: ReactNode; style?: CSSProperties } & ConfettiProps,
 ) {
   const { children, ...confettiProps } = props;
   const ref = useRef<ConfettiRef>(null);
