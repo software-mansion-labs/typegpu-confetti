@@ -13,10 +13,10 @@ export {
   maxParticleAmount,
   particles,
   time,
-} from './schemas.ts';
+} from './core/schemas.ts';
 
-export type { ConfettiProps, ConfettiRef } from './types.ts';
+export type { ConfettiProps, ConfettiRef } from './core/types.ts';
 export type {
   /** @deprecated Use `ConfettiProps` instead. */
   ConfettiProps as ConfettiPropTypes,
-} from './types.ts';
+} from './core/types.ts';

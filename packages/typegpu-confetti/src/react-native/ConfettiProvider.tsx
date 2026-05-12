@@ -1,6 +1,7 @@
 import { createContext, type ReactNode, type RefObject, useContext, useRef } from 'react';
 import { type StyleProp, View, type ViewStyle } from 'react-native';
-import type { ConfettiProps, ConfettiRef } from '../types.ts';
+
+import type { ConfettiProps, ConfettiRef } from '../core/types.ts';
 import Confetti from './Confetti.tsx';
 
 const ConfettiContext = createContext<RefObject<ConfettiRef | null> | null>(null);
