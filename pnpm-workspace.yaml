@@ -3,4 +3,5 @@ packages:
   - apps/*
 
 onlyBuiltDependencies:
+  - bun
   - esbuild
