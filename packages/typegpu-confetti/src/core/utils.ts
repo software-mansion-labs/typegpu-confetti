@@ -1,4 +1,4 @@
-import type { TgpuRoot } from 'typegpu';
+import type { TgpuGuardedComputePipeline, TgpuRoot } from 'typegpu';
 
 function warn(error: unknown) {
   if (error) {
@@ -12,7 +12,11 @@ export function withDeferredValidation<T>(root: TgpuRoot, cb: () => T): T {
   root.device.pushErrorScope('validation');
   try {
     const result = cb();
-    root.unwrap(result as Parameters<TgpuRoot['unwrap']>[0]);
+    if ('pipeline' in (result as TgpuGuardedComputePipeline)) {
+      root.unwrap((result as TgpuGuardedComputePipeline).pipeline);
+    } else {
+      root.unwrap(result as Parameters<TgpuRoot['unwrap']>[0]);
+    }
     return result;
   } finally {
     root.device.popErrorScope().then(warn);
