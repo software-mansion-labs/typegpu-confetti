@@ -7,6 +7,8 @@
     "fix": "oxlint --fix && oxfmt"
   },
   "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "bun": "^1.3.14",
     "oxfmt": "^0.44.0",
     "oxlint": "^1.59.0"
   },
