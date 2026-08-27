@@ -1,13 +1,12 @@
 import { randf } from '@typegpu/noise';
 import { type ReactNode, useRef, useState } from 'react';
-import * as d from 'typegpu/data';
-import * as std from 'typegpu/std';
-import { type ConfettiRef, type GravityFn, type InitParticleFn, particles } from 'typegpu-confetti';
+import { d } from 'typegpu';
+import { type ConfettiRef, type GravityFn, ParticleInit, type SpawnFn } from 'typegpu-confetti';
 import { Confetti, ConfettiProvider, useConfetti } from 'typegpu-confetti/react';
 
 const centerGravity: GravityFn = (pos) => {
   'use gpu';
-  return std.mul(2, d.vec2f(d.f32(-pos.x), d.f32(-pos.y)));
+  return d.vec2f(-pos.x * 2, -pos.y * 2);
 };
 
 const rightGravity: GravityFn = () => {
@@ -23,42 +22,42 @@ const strongGravity: GravityFn = () => {
   return d.vec2f(0, -3);
 };
 
-const pointInitParticle: InitParticleFn = (index) => {
+const pointSpawn: SpawnFn = () => {
   'use gpu';
-  particles.value[index].position = d.vec2f(
-    (2 * randf.sample() - 1) / 2 / 50,
-    (2 * randf.sample() - 1) / 2 / 50,
-  );
-  particles.value[index].velocity = d.vec2f(
-    50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
-    50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
-  );
+  return ParticleInit({
+    position: d.vec2f((2 * randf.sample() - 1) / 100, (2 * randf.sample() - 1) / 100),
+    velocity: d.vec2f(
+      50 * ((randf.sample() * 2 - 1) / 35 / 0.5),
+      50 * ((randf.sample() * 2 - 1) / 30 + 0.05),
+    ),
+  });
 };
 
-const twoSidesInitParticle: InitParticleFn = (i) => {
+const twoSidesSpawn: SpawnFn = ({ emissionIndex }) => {
   'use gpu';
-
-  if (i % 2 === 0) {
-    particles.value[i].position = d.vec2f(
-      (2 * randf.sample() - 1) / 2 / 50 + 1,
-      (2 * randf.sample() - 1) / 2 / 50,
-    );
-
-    particles.value[i].velocity = d.vec2f(
-      -1 + (randf.sample() * 2 - 1),
-      1.5 + (randf.sample() * 2 - 1),
-    );
-  } else {
-    particles.value[i].position = d.vec2f(
-      (2 * randf.sample() - 1) / 2 / 50 - 1,
-      (2 * randf.sample() - 1) / 2 / 50,
-    );
-
-    particles.value[i].velocity = d.vec2f(
-      1 + (randf.sample() * 2 - 1),
-      1.5 + (randf.sample() * 2 - 1),
-    );
+  const jitter = d.vec2f((2 * randf.sample() - 1) / 100, (2 * randf.sample() - 1) / 100);
+  if (emissionIndex % 2 === 0) {
+    return ParticleInit({
+      position: jitter + d.vec2f(1, 0),
+      velocity: d.vec2f(-1 + (randf.sample() * 2 - 1), 1.5 + (randf.sample() * 2 - 1)),
+    });
   }
+  return ParticleInit({
+    position: jitter - d.vec2f(1, 0),
+    velocity: d.vec2f(1 + (randf.sample() * 2 - 1), 1.5 + (randf.sample() * 2 - 1)),
+  });
+};
+
+const fountainSpawn: SpawnFn = ({ emissionIndex }) => {
+  'use gpu';
+  let direction = d.f32(1);
+  if (emissionIndex % 2 === 0) {
+    direction = -1;
+  }
+  return ParticleInit({
+    position: d.vec2f(direction, -0.9),
+    velocity: d.vec2f(-direction * (0.8 + randf.sample()), 1.5 + randf.sample()),
+  });
 };
 
 const customGravity: GravityFn = (pos) => {
@@ -109,23 +108,27 @@ export default function App() {
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="⬆️">
-            <Confetti gravity={upGravity} maxDurationTime={5} />
+            <Confetti gravity={upGravity} lifetime={5} />
           </ButtonRow>
 
           <ButtonRow label="Gravity" icon="↕️">
-            <Confetti gravity={centerGravity} maxDurationTime={5} />
+            <Confetti gravity={centerGravity} lifetime={5} />
           </ButtonRow>
 
           <ButtonRow label="Initial state, Gravity" icon="💣">
-            <Confetti initParticle={pointInitParticle} gravity={strongGravity} />
+            <Confetti spawn={pointSpawn} gravity={strongGravity} />
           </ButtonRow>
 
           <ButtonRow label="Initial state" icon="2️⃣">
-            <Confetti
-              initParticle={twoSidesInitParticle}
-              gravity={customGravity}
-              maxDurationTime={4}
-            />
+            <Confetti spawn={twoSidesSpawn} gravity={customGravity} lifetime={4} />
+          </ButtonRow>
+
+          <ButtonRow label="Typed spawn" icon="⛲️">
+            <Confetti spawn={fountainSpawn} lifetime={4} />
+          </ButtonRow>
+
+          <ButtonRow label="No auto-timeout" icon="♾️">
+            <Confetti spawn={fountainSpawn} autoStop={false} />
           </ButtonRow>
 
           <ImperativeConfettiButtonRow label="Imperative" icon="🏛️" />
@@ -179,7 +182,7 @@ function ConfettiContextButton() {
   const confetti = useConfetti();
 
   return (
-    <button type="button" onClick={() => confetti?.current?.addParticles(200)}>
+    <button type="button" onClick={() => confetti?.current?.emit(200)}>
       <div className="row">
         <div className="icon">🌨️</div>
         <div className="label">Default (using hook)</div>
@@ -190,21 +193,45 @@ function ConfettiContextButton() {
 
 function ImperativeConfettiButtonRow({ icon, label }: { icon?: string; label?: string }) {
   const confettiRef = useRef<ConfettiRef>(null);
+  const [alternateStyle, setAlternateStyle] = useState(false);
+
+  const rapidEmit = () => {
+    confettiRef.current?.emit(250);
+    confettiRef.current?.emit(750);
+  };
 
   return (
     <>
-      <button type="button" onClick={() => confettiRef.current?.addParticles(50)}>
+      <button type="button" onClick={() => confettiRef.current?.emit(10_000)}>
         <div className="row">
           <div className="icon">{icon ?? '🎉'} </div>
           <div className="label">{label}</div>
         </div>
       </button>
 
+      <button type="button" onClick={rapidEmit}>
+        Rapid emits
+      </button>
+      <button type="button" onClick={() => confettiRef.current?.pause()}>
+        Pause
+      </button>
+      <button type="button" onClick={() => confettiRef.current?.resume()}>
+        Resume
+      </button>
+      <button type="button" onClick={() => confettiRef.current?.restart()}>
+        Restart
+      </button>
+      <button type="button" onClick={() => setAlternateStyle((value) => !value)}>
+        Change props
+      </button>
+
       <Confetti
         ref={confettiRef}
         initParticleAmount={0}
         maxParticleAmount={1000}
-        maxDurationTime={2}
+        lifetime={2}
+        size={alternateStyle ? 1.5 : 0.75}
+        colorPalette={alternateStyle ? [[255, 96, 150, 0.75]] : undefined}
       />
     </>
   );

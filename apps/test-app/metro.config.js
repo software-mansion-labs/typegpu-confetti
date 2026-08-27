@@ -1,5 +1,6 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('node:path');
+const { getBundleModeMetroConfig } = require('react-native-worklets/bundleMode');
 
 // Find the project and workspace directories
 const projectRoot = __dirname;
@@ -18,4 +19,4 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.unstable_enablePackageExports = true;
 
-module.exports = config;
+module.exports = getBundleModeMetroConfig(config);

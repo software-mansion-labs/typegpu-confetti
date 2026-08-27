@@ -13,6 +13,10 @@ coverage
 # production
 dist
 build
+apps/test-app/.expo
+apps/test-app/android
+apps/test-app/dist-ci
+apps/test-app/ios
 
 # dotenv environment variables file
 .env

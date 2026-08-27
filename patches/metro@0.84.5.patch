@@ -1,0 +1,30 @@
+diff --git a/src/node-haste/DependencyGraph.js b/src/node-haste/DependencyGraph.js
+index 8222d8c69059bfb3fe444acba9f96ab2cc7bec0b..844b070902fa9eef8822267aa590be48dc5d216d 100644
+--- a/src/node-haste/DependencyGraph.js
++++ b/src/node-haste/DependencyGraph.js
+@@ -9,6 +9,7 @@ var _createFileMap = _interopRequireDefault(
+ );
+ var _ModuleResolution = require("./DependencyGraph/ModuleResolution");
+ var _PackageCache = require("./PackageCache");
++var _crypto = _interopRequireDefault(require("crypto"));
+ var _events = _interopRequireDefault(require("events"));
+ var _fs = _interopRequireDefault(require("fs"));
+ var _metroCore = require("metro-core");
+@@ -198,6 +199,17 @@ class DependencyGraph extends _events.default {
+   }
+   async getOrComputeSha1(mixedPath) {
+     const result = await this._fileSystem.getOrComputeSha1(mixedPath);
++    if (
++      (!result || !result.sha1) &&
++      mixedPath.includes("react-native-worklets/.worklets/") &&
++      _fs.default.existsSync(mixedPath)
++    ) {
++      const content = await _fs.default.promises.readFile(mixedPath);
++      return {
++        content,
++        sha1: _crypto.default.createHash("sha1").update(content).digest("hex"),
++      };
++    }
+     if (!result || !result.sha1) {
+       throw new Error(`Failed to get the SHA-1 for: ${mixedPath}.
+       Potential causes:

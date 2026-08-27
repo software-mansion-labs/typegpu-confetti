@@ -1,0 +1,34 @@
+name: Check remaster
+
+on:
+  pull_request:
+  push:
+    branches: [main, impr/remaster]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+          run_install: false
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint, test, typecheck, and build
+        run: pnpm run ci
+
+      - name: Validate Expo prebuild
+        run: pnpm --filter test-app prebuild:check

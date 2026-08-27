@@ -2,15 +2,30 @@
   "name": "typegpu-confetti-monorepo",
   "private": true,
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "check": "oxlint && oxfmt --check",
-    "fix": "oxlint --fix && oxfmt"
+    "build": "pnpm --filter typegpu-confetti build && pnpm --filter test-web-app build",
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test",
+    "ci": "pnpm check && pnpm build && pnpm smoke && pnpm expo:check",
+    "expo:check": "pnpm --filter test-app run doctor && pnpm --filter test-app run export:check",
+    "fix": "oxlint --fix && oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "smoke": "pnpm --filter typegpu-confetti smoke",
+    "test": "pnpm --filter typegpu-confetti test",
+    "typecheck": "pnpm --filter typegpu-confetti typecheck && pnpm --filter test-web-app typecheck && pnpm --filter test-app typecheck"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
-    "bun": "^1.3.14",
-    "oxfmt": "^0.44.0",
-    "oxlint": "^1.59.0"
+    "bun": "^1.4.0",
+    "eslint-plugin-typegpu": "0.12.0",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
+    "typescript": "npm:tsover@6.0.2",
+    "vitest": "^4.1.11"
   },
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
+  "engines": {
+    "node": ">=22.12"
+  },
+  "packageManager": "pnpm@11.22.0"
 }

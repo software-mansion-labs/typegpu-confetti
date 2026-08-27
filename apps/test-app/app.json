@@ -6,22 +6,27 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#EFEFF9"
-    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#EFEFF9"
+        }
+      ],
+      "./plugins/with-ios-scene-lifecycle"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.testapp"
+      "bundleIdentifier": "com.swmansion.typegpuconfetti.testapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#EFEFF9"
       },
-      "package": "com.anonymous.testapp"
+      "package": "com.swmansion.typegpuconfetti.testapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

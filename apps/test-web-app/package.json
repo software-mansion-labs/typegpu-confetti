@@ -6,24 +6,24 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@typegpu/noise": "^0.11.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "typegpu": "^0.11.4",
+    "@typegpu/noise": "0.12.0",
+    "@typegpu/react": "0.12.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typegpu": "0.12.1",
     "typegpu-confetti": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
-    "@vitejs/plugin-react": "^5.1.0",
-    "@webgpu/types": "^0.1.66",
-    "globals": "^16.4.0",
-    "typescript": "~5.9.3",
-    "unplugin-typegpu": "^0.11.3",
-    "vite": "^7.1.12"
+    "@types/react": "19.2.10",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "^6.1.0",
+    "@webgpu/types": "^0.1.69",
+    "typescript": "npm:tsover@6.0.2",
+    "unplugin-typegpu": "0.12.2",
+    "vite": "^8.2.2"
   }
 }

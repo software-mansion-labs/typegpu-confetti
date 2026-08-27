@@ -6,7 +6,6 @@
 import * as fs from 'node:fs/promises';
 import process from 'node:process';
 import { execa } from 'execa';
-import { entries, mapValues } from 'remeda';
 
 const cwd = new URL(`file:${process.cwd()}/`);
 
@@ -55,6 +54,9 @@ async function transformPackageJSON() {
   if (distPackageJson.publishConfig?.types) {
     distPackageJson.types = distPackageJson.publishConfig.types;
   }
+  if (distPackageJson.publishConfig?.module) {
+    distPackageJson.module = distPackageJson.publishConfig.module;
+  }
   if (distPackageJson.publishConfig?.exports) {
     distPackageJson.exports = distPackageJson.publishConfig.exports;
   }
@@ -72,7 +74,7 @@ async function transformPackageJSON() {
   });
 
   // Erroring out on any wildcard dependencies
-  for (const [moduleKey, versionSpec] of entries(distPackageJson.dependencies ?? {})) {
+  for (const [moduleKey, versionSpec] of Object.entries(distPackageJson.dependencies ?? {})) {
     if (versionSpec === '*' || versionSpec === 'workspace:*') {
       throw new Error(
         `Cannot depend on a module with a wildcard version. (${moduleKey}: ${versionSpec})`,
@@ -85,13 +87,17 @@ async function transformPackageJSON() {
   // Removing dev dependencies.
   distPackageJson.devDependencies = undefined;
   // Removing workspace specifiers in dependencies.
-  distPackageJson.dependencies = mapValues(
-    distPackageJson.dependencies ?? {},
-    (/** @type {string} */ value) => value.replace(/^workspace:/, ''),
+  distPackageJson.dependencies = Object.fromEntries(
+    Object.entries(distPackageJson.dependencies ?? {}).map(([key, value]) => [
+      key,
+      /** @type {string} */ (value).replace(/^workspace:/, ''),
+    ]),
   );
-  distPackageJson.peerDependencies = mapValues(
-    distPackageJson.peerDependencies ?? {},
-    (/** @type {string} */ value) => value.replace(/^workspace:/, ''),
+  distPackageJson.peerDependencies = Object.fromEntries(
+    Object.entries(distPackageJson.peerDependencies ?? {}).map(([key, value]) => [
+      key,
+      /** @type {string} */ (value).replace(/^workspace:/, ''),
+    ]),
   );
 
   await fs.writeFile(

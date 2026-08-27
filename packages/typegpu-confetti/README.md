@@ -1,187 +1,214 @@
 # typegpu-confetti
 
-`typegpu-confetti` is a package for highly-customizable confetti animations in React and React Native, computed and rendered exclusively on the GPU. Written using [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) and [TypeGPU](https://github.com/software-mansion/TypeGPU).
+Performant, customizable confetti for React and React Native. Particle state, spawning, simulation, compaction, and draw counts stay on the GPU through [TypeGPU](https://typegpu.com); one active frame records one queue submission. On React Native the frame loop runs on the UI runtime via `react-native-worklets`, so a busy JS thread does not stutter the animation.
 
 <video width="512" autoplay muted loop playsinline src="https://github.com/user-attachments/assets/02c6fae6-3ffb-47ba-a204-4aacaa96f9b7"></video>
 
 ## Installation
 
-In order to use the package in React Native, you need to install the [react-native-wgpu](https://github.com/wcandillon/react-native-webgpu/) package:
-
 ```sh
-npm install react-native-wgpu
+npm install typegpu-confetti typegpu @typegpu/react @typegpu/noise react
 ```
 
-Please refer to the react-native-wgpu documentation for further information about its installation. Note that the package is not supported by Expo Go, so running `expo prebuild` is required.
-
-Then to install the `typegpu-confetti` package, run:
+For React Native, also install the native peers:
 
 ```sh
-npm install typegpu-confetti
+npx expo install react-native-webgpu react-native-reanimated react-native-worklets
 ```
 
-Furthermore, if you want to be able to pass JavaScript functions marked with the "use gpu" directive to the Confetti component, you need to include the [unplugin-typegpu](https://www.npmjs.com/package/unplugin-typegpu) babel plugin in your project.
+Expo Go does not include WebGPU, so create a development build with `expo prebuild`.
 
-```sh
-npm install unplugin-typegpu
+TypeGPU shader callbacks use the `'use gpu'` directive. Add `unplugin-typegpu` to the app's Vite or Babel configuration.
+
+## Root and entry points
+
+Wrap the app once with `@typegpu/react`'s `Root`, place a Suspense boundary below it, then use the platform entry point.
+
+```tsx
+import { Root } from '@typegpu/react';
+import { Suspense } from 'react';
+import { ConfettiProvider } from 'typegpu-confetti/react-native';
+// Web: typegpu-confetti/react
+
+export function RootApp() {
+  return (
+    <Root
+      options={{
+        // React Native only, see "Device synchronization" below.
+        device: { optionalFeatures: ['implicit-device-synchronization' as GPUFeatureName] },
+      }}
+    >
+      <Suspense fallback={null}>
+        <ConfettiProvider maxParticleAmount={10_000}>
+          <App />
+        </ConfettiProvider>
+      </Suspense>
+    </Root>
+  );
+}
 ```
-
-For further information about the plugin and the overall tgpu functions functionality, please refer to the [TypeGPU documentation](https://docs.swmansion.com/TypeGPU/getting-started/).
-
-## Entry points
-
-The library exposes separate entry points for React components for the web `/react` and React Native for mobile `/react-native`. Make sure to import components from the correct entry point.
-
-The following instructions present the usage on React Native, however the web component's API is identical, apart from some minor differences, which are denoted where necessary.
 
 ## Usage
 
-### 1. Recommended
-
-#### `useConfetti` hook
+Use `emit()` for imperative bursts and `spawn` for custom starting kinematics. The library seeds `@typegpu/noise` before invoking `spawn` and owns particle lifetime and visual metadata.
 
 ```tsx
-import { useConfetti } from 'typegpu-confetti/react-native';
+import { randf } from '@typegpu/noise';
+import { useRef } from 'react';
+import { d } from 'typegpu';
+import { type ConfettiRef, ParticleInit, type SpawnFn } from 'typegpu-confetti';
+import { Confetti, useConfetti } from 'typegpu-confetti/react-native';
 
-function SomeInnerComponent() {
-  const confettiRef = useConfetti();
-
-  return (
-    <View>
-      <Button title="run confetti" onPress={() => confettiRef?.current?.addParticles(50)} />
-    </View>
-  );
-}
-```
-
-The hook returns a reference to a `Confetti` component, exposing the following functions allowing to control the animation:
-
-```ts
-type ConfettiRef = {
-  pause: () => void;
-  resume: () => void;
-  restart: () => void;
-  addParticles: (amount: number) => void;
+const fountainSpawn: SpawnFn = ({ emissionIndex }) => {
+  'use gpu';
+  let side = d.f32(1);
+  if (emissionIndex % 2 === 0) {
+    side = -1;
+  }
+  return ParticleInit({
+    position: d.vec2f(side, -0.9),
+    velocity: d.vec2f(-side * (0.8 + randf.sample()), 1.5 + randf.sample()),
+  });
 };
-```
 
-To use the hook, the component needs to be descendent from the _ConfettiProvider_ component, which accepts the same props as _Confetti_ (see the Props section). It's recommended to wrap a top-level component with the provider, to make sure the confetti covers the whole screen (if that's the desired effect) and make the hook accessible anywhere inside the app.
-
-```tsx
-import { ConfettiProvider } from 'typegpu-confetti/react-native';
-
-function SomeHighLevelContainerComponent() {
-  return (
-    <ConfettiProvider>
-      <App />
-    </ConfettiProvider>
-  );
+function CelebrateButton() {
+  const confetti = useConfetti();
+  return <Button title="Celebrate" onPress={() => confetti?.current?.emit(10_000)} />;
 }
-```
 
-### 2. Alternative
-
-#### `Confetti` component
-
-```tsx
-import { Confetti } from 'typegpu-confetti/react-native';
-
-function SomeComponent() {
-  return (
-    <View>
-      <Confetti initParticleAmount={200} />
-    </View>
-  );
-}
-```
-
-The Confetti component is positioned absolutely and will completely cover its container (the closest parent element with position "relative", which is the default value for position in React Native).
-
-#### Imperative handle
-
-```tsx
-import type { ConfettiRef } from 'typegpu-confetti';
-import { Confetti } from 'typegpu-confetti/react-native';
-
-function SomeComponent() {
+function LocalConfetti() {
   const ref = useRef<ConfettiRef>(null);
-
   return (
-    <View>
-      <Confetti initParticleAmount={200} maxParticleAmount={1000} ref={ref} />
-      <Button title="add particles" onPress={() => ref.current?.addParticles(200)} />
-    </View>
+    <Confetti ref={ref} initParticleAmount={0} maxParticleAmount={10_000} spawn={fountainSpawn} />
   );
 }
 ```
 
-## Props
+### Props
 
 ```ts
-type ConfettiPropTypes = {
+interface ConfettiProps {
   colorPalette?: [number, number, number, number][];
   size?: number;
-  maxDurationTime?: number | null;
+  lifetime?: number;
+  autoStop?: boolean;
   initParticleAmount?: number;
   maxParticleAmount?: number;
-  gravity?: GravityFn;
-  initParticle?: InitParticleFn;
-  style?: StyleProp<ViewStyle>; // /react-native
-  style?: CSSProperties; // /react
-};
-
-type GravityFn = (args: { pos: d.v2f }) => d.v2f;
-
-type InitParticleFn = (args: { index: number }) => void;
+  gravity?: (position: d.v2f) => d.v2f;
+  spawn?: (context: SpawnContext) => ParticleInit;
+  onEnd?: () => void;
+}
 ```
 
-- **colorPalette**: JavaScript array of _[r, g, b, a]_ colors, from which particles will have their colors randomly assigned.
+- `colorPalette`: RGBA colors. RGB channels use 0–255; alpha uses 0–1. At most 256 colors; an empty palette uses the defaults. Updates live.
+- `size`: particle-size multiplier. Updates live.
+- `lifetime`: particle lifetime in seconds (default 2). Updates live.
+- `autoStop`: stop the frame loop once the last emitted particle has expired (default `true`). `resume()`, `restart()` and `emit()` start it again.
+- `initParticleAmount`: particles emitted on mount and on `restart()`.
+- `maxParticleAmount`: fixed GPU pool capacity. Emissions beyond it overwrite the oldest ring slots. Changing it reallocates the pool and restarts.
+- `gravity`: GPU callback from position to acceleration. Changing its identity rebuilds the simulation pipelines and restarts, so define it at module scope.
+- `spawn`: GPU callback returning initial position and velocity. Same identity rule as `gravity`.
+- `onEnd`: called when `autoStop` stops the frame loop after the last emitted particle has expired. Not called on `pause()` or unmount.
+- `style`: canvas style from the platform entry point.
 
-- **size**: multiplier allowing customizing the sizes of particles, while keeping their random variation. _size < 1_: particles smaller than default, _size > 1_: bigger
+`defaultGravity` and `defaultSpawn` are exported from `typegpu-confetti` for composition. The GPU schemas passed to and returned from `spawn`:
 
-- **maxDurationTime**: time in seconds around which the animation should end.
+```ts
+SpawnContext { slotIndex: u32; emissionIndex: u32; elapsedSeconds: f32 }
+ParticleInit { position: vec2f; velocity: vec2f }
+```
 
-  One second before this time the particles gradually lose their opacity until completely transparent.
+### Imperative handle
 
-  It is _maxDurationTime_, instead of just _durationTime_, because if all of the particles leave the screen, then the animation technically ends earlier, though frames are still being rendered to the canvas until the end of _maxDurationTime_.
+```ts
+interface ConfettiRef {
+  pause(): void;
+  resume(): void;
+  restart(): void;
+  emit(amount: number): void;
+}
+```
 
-  Running _addParticles_ function on the ref will reset the time counter to zero each call.
+Non-finite and non-positive counts do no work; fractional counts are floored. `ConfettiProvider` renders one `Confetti` for its subtree and exposes the handle through `useConfetti()`.
 
-- **initParticleAmount**: the number of particles that will be drawn whenever the component mounts.
+## React Native
 
-  To not run the animation automatically on mount, but after manually invoking the _addParticles_ function on some event, set this prop to 0.
+### Device synchronization
 
-- **maxParticleAmount**: the maximum number of particles that can be part of the simulation at any time.
+The frame loop runs on the Worklets UI runtime while React writes uniforms (emission requests, palette, size) from the JS thread. Dawn devices are not thread-safe by default, so request the `implicit-device-synchronization` feature when creating the device, as in the `Root` example above. It is a real Dawn feature, not a toggle; the cost is one uncontended mutex per API call. The React Native entry point logs an error at mount when the device lacks it.
 
-  If this number is smaller than _initParticleAmount_, then it's ignored and _initParticleAmount_ is used instead.
+### Worklets setup
 
-  When invoking _addParticles_ would result in passing this limit, then the oldest simulated particles are replaced with the new ones. They are replaced instantly, without the fading-out animation.
+TypeGPU resources transfer between runtimes automatically; module-scope shader definitions are re-imported through Bundle Mode.
 
-- **gravity**: function accepting one _vec2f_ vector (particle position) and returning one _vec2f_ vector (acceleration for the particle).
+```js
+// babel.config.js
+module.exports = (api) => {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      'unplugin-typegpu/babel',
+      [
+        'react-native-worklets/plugin',
+        {
+          bundleMode: true,
+          strictGlobal: true,
+          importForwarding: {
+            moduleNames: ['typegpu', '@typegpu/noise', 'typegpu-confetti'],
+            relativePaths: ['apps/my-app'],
+          },
+        },
+      ],
+    ],
+  };
+};
+```
 
-  It will be run on the GPU, so it needs to be marked with a "use gpu" directive, in order to make the `unplugin-typegpu` transpile it at build time.
+```js
+// metro.config.js
+const { getDefaultConfig } = require('expo/metro-config');
+const { getBundleModeMetroConfig } = require('react-native-worklets/bundleMode');
 
-- **initParticle**: function accepting one _i32_ argument (particle index), which is to be used for initializing particle age, position, velocity, random number generator seed.
+module.exports = getBundleModeMetroConfig(getDefaultConfig(__dirname));
+```
 
-  To access the necessary data inside the function, you should use the _particles_ and _maxDurationTime_ tgpu accessors.
+Enable the static feature flag and rebuild native projects:
 
-  _particles_ value is a _TgpuArray_ with _maxParticleAmount_ elements of type _ParticleData_, _maxDurationTime_ value is of type _number_.
+```json
+{
+  "worklets": {
+    "staticFeatureFlags": {
+      "BUNDLE_MODE_ENABLED": true
+    }
+  }
+}
+```
 
-  ```ts
-  const ParticleData = d.struct({
-    position: d.vec2f,
-    velocity: d.vec2f,
-    seed: d.f32,
-    timeLeft: d.f32,
-  });
-  ```
+After configuration changes, clear Metro's cache with `npx expo start --clear`.
 
-  The function will be run on the GPU, so it needs to be marked with a "use gpu" directive, in order to make the `unplugin-typegpu` transpile it at build time.
+## GPU execution model
 
-- **style**: allows overriding the default styling set on the inner Canvas element
+Each particle occupies 32 bytes. Two generation-tagged active lists ping-pong on the GPU, so ring overwrites invalidate stale tokens without scanning capacity. Prepare consumes the emission request and writes indirect spawn/update counts; spawn initializes pending particles; update advances only the dense current list and compacts survivors into dense vertex instances; finalize writes indirect draw arguments. A single indirect instanced draw generates its quad from `vertexIndex` and uses premultiplied-alpha blending.
 
-> [!NOTE]
-> Changing any of the props will restart the animation.
+Visual props (`colorPalette`, `size`, `lifetime`) live in a uniform and never trigger shader compilation. Pipelines initialize asynchronously on both platforms; on React Native only initialized pipelines are handed to the UI runtime, and playback state reaches the frame worklet through Shareables rather than by re-serializing its closure.
+
+There is no steady-state GPU readback, per-particle JavaScript loop, CPU geometry generation, or per-emission dispatch loop.
+
+## Development
+
+Requires Node 22.12+ and pnpm 11.
+
+```sh
+pnpm install
+pnpm check
+pnpm build
+pnpm smoke
+pnpm expo:check
+pnpm --filter test-app prebuild:check
+```
+
+The Expo demo's **Stress RN thread** control emits a burst and then occupies the React Native thread for 1.5 seconds; the UI-runtime animation should continue smoothly. Native smoothness must be verified in a development build on the target device.
 
 ## typegpu-confetti is created by Software Mansion
 

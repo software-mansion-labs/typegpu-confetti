@@ -2,6 +2,34 @@ packages:
   - packages/*
   - apps/*
 
+allowBuilds:
+  bun: true
+  esbuild: true
+
+overrides:
+  typescript: npm:tsover@6.0.2
+
 onlyBuiltDependencies:
   - bun
   - esbuild
+
+minimumReleaseAgeExclude:
+  - '@oven/bun-darwin-aarch64@1.4.0'
+  - '@oven/bun-darwin-x64@1.4.0'
+  - '@oven/bun-freebsd-aarch64@1.4.0'
+  - '@oven/bun-freebsd-x64@1.4.0'
+  - '@oven/bun-linux-aarch64-android@1.4.0'
+  - '@oven/bun-linux-aarch64-musl@1.4.0'
+  - '@oven/bun-linux-aarch64@1.4.0'
+  - '@oven/bun-linux-x64-android@1.4.0'
+  - '@oven/bun-linux-x64-musl@1.4.0'
+  - '@oven/bun-linux-x64@1.4.0'
+  - '@oven/bun-windows-aarch64@1.4.0'
+  - '@oven/bun-windows-x64@1.4.0'
+  - bun@1.4.0
+  - typegpu@0.12.1
+  - unplugin-typegpu@0.12.2
+
+patchedDependencies:
+  metro@0.84.4: patches/metro@0.84.4.patch
+  metro@0.84.5: patches/metro@0.84.5.patch
